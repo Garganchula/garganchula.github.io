@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lowest Price Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+<div class="container mx-auto max-w-md bg-white shadow-lg rounded-xl p-6">
+  <h1 class="text-2xl font-bold mb-4">Lowest Price Finder</h1>
+
+  <div class="flex gap-2 mb-4">
+    <input id="itemInput" type="text" placeholder="Enter item" class="border rounded-lg px-3 py-2 flex-grow">
+    <button onclick="addItem()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Add</button>
+  </div>
+
+  <ul id="itemList" class="list-disc pl-5"></ul>
+
+</div>
+
+<script>
+  const itemList = document.getElementById('itemList');
+  const itemInput = document.getElementById('itemInput');
+
+  function addItem() {
+    const item = itemInput.value.trim();
+    if (item === '') return;
+
+    const li = document.createElement('li');
+    const link = document.createElement('a');
+
+    link.href = `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(item)}`;
+    link.textContent = item;
+    link.target = '_blank';
+    link.className = 'text-blue-600 hover:underline';
+
+    li.appendChild(link);
+    itemList.appendChild(li);
+
+    itemInput.value = '';
+  }
+
+  itemInput.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') addItem();
+  });
+</script>
+
+</body>
+</html>
