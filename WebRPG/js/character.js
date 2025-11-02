@@ -132,15 +132,43 @@ function createCharacter() {
         stamina: classData.baseStamina,
         maxStamina: classData.baseStamina,
         
+        // Combat stats
+        attack: 10,
+        defense: 5,
+        critChance: 0.1,
+        critMultiplier: 2.0,
+        evasion: 0.05,
+        
         // Progression
-        inventory: ['Health Potion', 'Rusty Sword'],
+        inventory: null, // Will be initialized below
+        equipment: null, // Will be initialized below
+        skillTree: null, // Will be initialized below
+        skillBonuses: {},
         completedAdventures: [],
         questLog: [],
+        spells: [],
+        abilities: [],
+        
+        // Adventure tracking
+        adventureStartTime: null,
+        damageTaken: 0,
+        potionsUsed: 0,
         
         // Timestamps
         created: new Date().toISOString(),
         lastPlayed: new Date().toISOString()
     };
+    
+    // Initialize new systems
+    character.inventory = new InventorySystem(100);
+    character.equipment = new EquipmentManager(character);
+    character.skillTree = new SkillTreeManager(character);
+    
+    // Add starting items
+    character.inventory.addItem(SAMPLE_ITEMS.healthPotion, 3);
+    character.inventory.addItem(SAMPLE_ITEMS.manaPotion, 2);
+    character.inventory.addItem(SAMPLE_ITEMS.ironSword, 1);
+    character.inventory.addItem(SAMPLE_ITEMS.leatherArmor, 1);
     
     // Save character
     gameState.currentCharacter = character;

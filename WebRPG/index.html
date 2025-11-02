@@ -21,6 +21,8 @@
                     <button class="menu-btn" onclick="switchTab('create'); showScreen('characterSelect')">▶ NEW CHARACTER</button>
                     <button class="menu-btn" onclick="switchTab('load'); showScreen('characterSelect')">▶ LOAD CHARACTER</button>
                     <button class="menu-btn" onclick="showScreen('adventureSelect')">▶ ADVENTURE SELECT</button>
+                    <button class="menu-btn" onclick="showAchievements()">▶ ACHIEVEMENTS</button>
+                    <button class="menu-btn" onclick="showSettings()">▶ SETTINGS</button>
                     <button class="menu-btn" onclick="showScreen('credits')">▶ CREDITS</button>
                 </div>
                 <p class="copyright">© 2025 - Press START</p>
@@ -151,6 +153,9 @@
             <div class="game-footer">
                 <button class="footer-btn" onclick="saveGameProgress()">💾 SAVE</button>
                 <button class="footer-btn" onclick="showCharacterSheet()">📊 STATS</button>
+                <button class="footer-btn" onclick="showEquipmentPanel()">⚔️ EQUIPMENT</button>
+                <button class="footer-btn" onclick="showSkillTree()">🌳 SKILLS</button>
+                <button class="footer-btn" onclick="showAchievements()">🏆 ACHIEVEMENTS</button>
                 <button class="footer-btn" onclick="confirmQuit()">🚪 QUIT</button>
             </div>
         </div>
@@ -202,6 +207,178 @@
                 </div>
             </div>
         </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSettings()">&times;</span>
+                <h2>⚙️ SETTINGS</h2>
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>🔊 Sound</h3>
+                        <div class="setting-item">
+                            <span class="setting-label">Sound Enabled:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="soundEnabled">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Master Volume:</span>
+                            <div class="setting-control">
+                                <input type="range" id="soundVolume" min="0" max="100" onchange="updateSettingsLabels()">
+                                <span class="setting-value" id="soundVolumeLabel">70%</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">SFX Volume:</span>
+                            <div class="setting-control">
+                                <input type="range" id="sfxVolume" min="0" max="100" onchange="updateSettingsLabels()">
+                                <span class="setting-value" id="sfxVolumeLabel">80%</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Music Volume:</span>
+                            <div class="setting-control">
+                                <input type="range" id="musicVolume" min="0" max="100" onchange="updateSettingsLabels()">
+                                <span class="setting-value" id="musicVolumeLabel">50%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🎮 Display</h3>
+                        <div class="setting-item">
+                            <span class="setting-label">Text Speed:</span>
+                            <div class="setting-control">
+                                <input type="range" id="textSpeed" min="10" max="100" step="10" onchange="updateSettingsLabels()">
+                                <span class="setting-value" id="textSpeedLabel">50ms</span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Screen Shake:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="screenShake">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Particle Effects:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="particles">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">CRT Effect:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="crtEffect">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Reduce Motion:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="reduceMotion">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🎯 Gameplay</h3>
+                        <div class="setting-item">
+                            <span class="setting-label">Auto-Save:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="autoSave">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Confirm Actions:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="confirmActions">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Show Damage Numbers:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="showDamageNumbers">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Combat Speed:</span>
+                            <div class="setting-control">
+                                <select id="combatSpeed">
+                                    <option value="slow">Slow</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="fast">Fast</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>♿ Accessibility</h3>
+                        <div class="setting-item">
+                            <span class="setting-label">Colorblind Mode:</span>
+                            <div class="setting-control">
+                                <select id="colorblindMode">
+                                    <option value="none">None</option>
+                                    <option value="deuteranopia">Deuteranopia</option>
+                                    <option value="protanopia">Protanopia</option>
+                                    <option value="tritanopia">Tritanopia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Font Size:</span>
+                            <div class="setting-control">
+                                <select id="fontSize">
+                                    <option value="small">Small</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Dyslexic Font:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="dyslexicFont">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="action-btn" onclick="saveSettingsFromUI()">SAVE SETTINGS</button>
+                    <button class="back-btn" onclick="resetSettings()">RESET TO DEFAULT</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Modal -->
+        <div id="equipmentModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEquipmentPanel()">&times;</span>
+                <h2>⚔️ EQUIPMENT</h2>
+                <div id="equipmentPanel"></div>
+            </div>
+        </div>
+
+        <!-- Skill Tree Modal -->
+        <div id="skillTreeModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSkillTree()">&times;</span>
+                <div id="skillTreePanel"></div>
+            </div>
+        </div>
+
+        <!-- Achievements Modal -->
+        <div id="achievementsModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAchievements()">&times;</span>
+                <div id="achievementsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-save indicator -->
+    <div id="autoSaveIndicator">
+        💾 Game Saved
     </div>
 
     <!-- Sound Effects (optional) -->
@@ -209,8 +386,19 @@
     <audio id="sfxConfirm" src=""></audio>
     <audio id="sfxBattle" src=""></audio>
 
+    <!-- Enhanced CSS -->
+    <link rel="stylesheet" href="css/enhanced.css">
+
     <!-- Core Scripts -->
     <script src="js/utils.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/statusEffects.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/equipment.js"></script>
+    <script src="js/skillTree.js"></script>
+    <script src="js/achievements.js"></script>
     <script src="js/character.js"></script>
     <script src="js/combat.js"></script>
     <script src="js/adventure.js"></script>
@@ -221,5 +409,17 @@
     <script src="js/adventures/dragon_cave.js"></script>
     
     <script src="js/main.js"></script>
+
+    <script>
+        // Initialize all systems on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initNotifications();
+            initSettings();
+            initEffects();
+            initStatusEffects();
+            initAchievements();
+            console.log('🎮 All systems initialized!');
+        });
+    </script>
 </body>
 </html>

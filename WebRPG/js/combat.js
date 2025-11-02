@@ -40,6 +40,7 @@ class Combat {
                         <div class="hp-fill" id="enemyHpBar" style="width: 100%"></div>
                         <div class="bar-text">${this.enemy.health}/${this.enemy.maxHealth} HP</div>
                     </div>
+                    <div id="enemyStatusEffects" class="status-effects-container" style="display: none;"></div>
                     <div class="enemy-sprite" style="text-align: center; font-size: 4em; margin: 20px 0;">
                         ${this.getEnemySprite()}
                     </div>
@@ -61,6 +62,7 @@ class Combat {
                         <div class="mp-fill" id="playerMpBar" style="width: ${(this.character.mana / this.character.maxMana) * 100}%"></div>
                         <div class="bar-text">${this.character.mana}/${this.character.maxMana} MP</div>
                     </div>
+                    <div id="playerStatusEffects" class="status-effects-container" style="display: none;"></div>
                 </div>
 
                 <!-- Combat Actions -->
@@ -121,6 +123,14 @@ class Combat {
     async playerAction(action) {
         if (this.turn !== 'player') return;
         
+        // Check if player can act (status effects)
+        if (statusEffectManager && !statusEffectManager.canAct('player')) {
+            this.log('❌ You cannot act due to status effects!');
+            await sleep(1000);
+            await this.enemyTurn();
+            return;
+        }
+        
         this.turn = 'processing';
         
         // Disable action buttons
@@ -129,18 +139,48 @@ class Combat {
         
         let damage = 0;
         let didAction = false;
+        let isCritical = false;
         
         switch(action) {
             case 'attack':
+                // Check for critical hit
+                const critChance = this.character.critChance || 0.1;
+                isCritical = Math.random() < critChance;
+                
                 damage = this.calculatePlayerDamage();
+                
+                // Apply critical multiplier
+                if (isCritical) {
+                    const critMultiplier = this.character.critMultiplier || 2.0;
+                    damage = Math.floor(damage * critMultiplier);
+                    this.log(`💥 CRITICAL HIT for ${damage} damage!`);
+                    if (achievementManager) trackCriticalHit();
+                } else {
+                    this.log(`⚔️ You attack for ${damage} damage!`);
+                }
+                
                 this.enemy.health -= damage;
-                this.log(`⚔️ You attack for ${damage} damage!`);
+                
+                // Visual effects
+                if (effectsManager) {
+                    showFloatingDamage(damage, 'enemyHpBar', isCritical);
+                }
+                
+                // Apply poison if player has poison weapons skill
+                if (this.character.skillTree && this.character.skillTree.skills.poisonWeapons) {
+                    applyPoison('enemy', 3);
+                    this.log('☠️ Your poisoned blade infects the enemy!');
+                }
+                
                 didAction = true;
                 break;
                 
             case 'defend':
                 this.character.defending = true;
                 this.log(`🛡️ You brace for impact!`);
+                if (statusEffectManager) {
+                    applyDefenseBuff('player', 1, 1);
+                }
                 didAction = true;
                 break;
                 
@@ -148,8 +188,27 @@ class Combat {
                 if (this.character.mana >= 20) {
                     this.character.mana -= 20;
                     damage = Math.floor(this.character.stats.intelligence * 2.5);
+                    
+                    // Apply spell damage bonus if available
+                    if (this.character.skillBonuses && this.character.skillBonuses.spellDamage) {
+                        damage = Math.floor(damage * (1 + this.character.skillBonuses.spellDamage));
+                    }
+                    
                     this.enemy.health -= damage;
                     this.log(`🔮 Magic blast for ${damage} damage!`);
+                    
+                    // Visual effects
+                    if (effectsManager) {
+                        showFloatingDamage(damage, 'enemyHpBar', false);
+                        effectsManager.createParticles(window.innerWidth / 2, window.innerHeight / 2, 25, '#9d4edd');
+                    }
+                    
+                    // Chance to apply burn
+                    if (Math.random() < 0.3) {
+                        applyBurn('enemy', 3);
+                        this.log('🔥 The enemy is burning!');
+                    }
+                    
                     didAction = true;
                 }
                 break;
@@ -158,8 +217,27 @@ class Combat {
                 if (this.character.stamina >= 30) {
                     this.character.stamina -= 30;
                     damage = Math.floor(this.character.stats.strength * 2);
+                    
+                    // Apply attack bonus if available
+                    if (this.character.skillBonuses && this.character.skillBonuses.attack) {
+                        damage = Math.floor(damage * this.character.skillBonuses.attack);
+                    }
+                    
                     this.enemy.health -= damage;
                     this.log(`⚡ Special attack for ${damage} damage!`);
+                    
+                    // Visual effects
+                    if (effectsManager) {
+                        showFloatingDamage(damage, 'enemyHpBar', false);
+                        effectsManager.screenShake(15, 400);
+                    }
+                    
+                    // Chance to stun
+                    if (Math.random() < 0.4) {
+                        applyStun('enemy', 1);
+                        this.log('💫 The enemy is stunned!');
+                    }
+                    
                     didAction = true;
                 }
                 break;
@@ -183,6 +261,12 @@ class Combat {
         }
         
         if (didAction) {
+            // Process player status effects
+            if (statusEffectManager) {
+                const playerEffects = statusEffectManager.processTurn('player', this.character);
+                playerEffects.messages.forEach(msg => this.log(msg));
+            }
+            
             this.updateDisplay();
             await sleep(1000);
             
