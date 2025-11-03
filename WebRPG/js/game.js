@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Game Logic
+ * MULTI-VENTURE - Game Logic
  * Core game mechanics and adventure flow
  */
 

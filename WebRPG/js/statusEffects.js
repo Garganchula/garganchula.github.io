@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Status Effects System
+ * MULTI-VENTURE - Status Effects System
  * Poison, Burn, Stun, Freeze, and other combat effects
  */
 

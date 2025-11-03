@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Visual Effects System
+ * MULTI-VENTURE - Visual Effects System
  * Particle effects, screen shake, floating text, and animations
  */
 
@@ -12,10 +12,17 @@ class EffectsManager {
 
     // Screen Shake Effect
     screenShake(intensity = 10, duration = 300) {
-        if (!settingsManager.settings.display.screenShake || this.isShaking) return;
+        if (!settingsManager || !settingsManager.settings.display.screenShake || this.isShaking) return;
         
         this.isShaking = true;
-        const gameContainer = document.querySelector('.game-container');
+        const gameContainer = document.querySelector('.game-container') || document.querySelector('.test-container') || document.body;
+        
+        // If no container found, skip effect
+        if (!gameContainer) {
+            this.isShaking = false;
+            return;
+        }
+        
         const startTime = Date.now();
         
         const shake = () => {
@@ -37,7 +44,7 @@ class EffectsManager {
 
     // Floating Damage Numbers
     floatingText(text, x, y, color = '#ff0000', size = '24px') {
-        if (!settingsManager.settings.gameplay.showDamageNumbers) return;
+        if (!settingsManager || !settingsManager.settings.gameplay.showDamageNumbers) return;
         
         const element = document.createElement('div');
         element.className = 'floating-text';
@@ -65,7 +72,7 @@ class EffectsManager {
 
     // Particle System
     createParticles(x, y, count = 20, color = '#ff6600') {
-        if (!settingsManager.settings.display.particles) return;
+        if (!settingsManager || !settingsManager.settings.display.particles) return;
         
         const container = document.getElementById('particleContainer') || this.createParticleContainer();
         

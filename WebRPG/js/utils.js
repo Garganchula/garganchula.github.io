@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Utility Functions
+ * MULTI-VENTURE - Utility Functions
  * Helper functions used throughout the game
  */
 

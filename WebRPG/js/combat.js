@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Combat System
+ * MULTI-VENTURE - Combat System
  * Turn-based combat with animations
  */
 
@@ -8,37 +8,63 @@ let currentCombat = null;
 class Combat {
     constructor(character, enemy, onComplete) {
         this.character = character;
-        this.enemy = enemy;
+        // Handle both single enemy and array of enemies (for now, use first enemy if array)
+        this.enemy = Array.isArray(enemy) ? enemy[0] : enemy;
         this.onComplete = onComplete;
         this.turn = 'player';
         this.combatLog = [];
+        
+        // Create a promise that resolves when combat ends
+        this.combatPromise = new Promise((resolve) => {
+            this.resolveCombat = resolve;
+        });
     }
 
     async start() {
         currentCombat = this;
         
+        console.log('🎮 Combat starting - Enemy snapshot:', JSON.parse(JSON.stringify(this.enemy)));
+        
+        // Validate enemy data
+        if (!this.enemy || !this.enemy.name) {
+            console.error('Invalid enemy data:', this.enemy);
+            alert('Combat error: Invalid enemy data. Skipping combat.');
+            if (this.onComplete) this.onComplete('victory');
+            return 'victory';
+        }
+        
         // Show combat modal
         const modal = document.getElementById('combatModal');
+        if (!modal) {
+            console.error('Combat modal not found!');
+            return 'fled';
+        }
         modal.classList.add('active');
         
         // Initialize combat screen
         this.renderCombatScreen();
         
-        // Start combat loop
-        await this.combatLoop();
+        // Wait for combat to complete (resolved when endCombat is called)
+        return await this.combatPromise;
     }
 
     renderCombatScreen() {
         const screen = document.getElementById('combatScreen');
+        if (!screen) {
+            console.error('Combat screen element not found!');
+            return;
+        }
+        
+        console.log('Rendering combat screen for enemy:', this.enemy.name);
         
         screen.innerHTML = `
             <div class="combat-container">
                 <!-- Enemy Display -->
                 <div class="enemy-display">
-                    <h3 style="color: var(--border-color);">${this.enemy.name}</h3>
+                    <h3 style="color: var(--border-color);">${this.enemy.name || 'Unknown Enemy'}</h3>
                     <div class="hp-bar" style="margin: 15px 0;">
                         <div class="hp-fill" id="enemyHpBar" style="width: 100%"></div>
-                        <div class="bar-text">${this.enemy.health}/${this.enemy.maxHealth} HP</div>
+                        <div class="bar-text">${this.enemy.health || 0}/${this.enemy.maxHealth || 0} HP</div>
                     </div>
                     <div id="enemyStatusEffects" class="status-effects-container" style="display: none;"></div>
                     <div class="enemy-sprite" style="text-align: center; font-size: 4em; margin: 20px 0;">
@@ -90,7 +116,21 @@ class Combat {
     }
 
     renderActions() {
-        const potions = this.character.inventory.filter(item => item.includes('Potion'));
+        // Handle both old array inventory and new InventorySystem
+        let potions = [];
+        if (this.character.inventory) {
+            if (this.character.inventory.items) {
+                // New InventorySystem
+                potions = this.character.inventory.items.filter(item => 
+                    item.name && item.name.includes('Potion')
+                );
+            } else if (Array.isArray(this.character.inventory)) {
+                // Old array inventory
+                potions = this.character.inventory.filter(item => 
+                    typeof item === 'string' && item.includes('Potion')
+                );
+            }
+        }
         
         return `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -419,18 +459,21 @@ class Combat {
     }
 
     endCombat(result) {
+        console.log('🏁 Combat ending with result:', result);
+        
         const modal = document.getElementById('combatModal');
         modal.classList.remove('active');
         currentCombat = null;
         
+        // Resolve the combat promise so start() returns
+        if (this.resolveCombat) {
+            this.resolveCombat(result);
+        }
+        
+        // Also call the callback if provided (for backwards compatibility)
         if (this.onComplete) {
             this.onComplete(result);
         }
-    }
-
-    async combatLoop() {
-        // Combat is now driven by player actions
-        // The loop is handled by the action -> enemy turn -> action cycle
     }
 }
 
@@ -444,8 +487,24 @@ function startCombat(enemy, onComplete) {
 
 /**
  * Create enemy
+ * Can be called as: createEnemy(name, level) or createEnemy(name, health, mana, level, type) for backwards compatibility
  */
-function createEnemy(name, level) {
+function createEnemy(name, healthOrLevel, mana, level, type) {
+    console.log(`🔨 createEnemy called with:`, { name, healthOrLevel, mana, level, type });
+    
+    // Handle both old and new signatures
+    let actualLevel = 1;
+    let customHealth = null;
+    
+    if (arguments.length === 2) {
+        // New signature: createEnemy(name, level)
+        actualLevel = healthOrLevel || 1;
+    } else if (arguments.length >= 4) {
+        // Old signature: createEnemy(name, health, mana, level, type)
+        customHealth = healthOrLevel;
+        actualLevel = level || 1;
+    }
+    
     const enemies = {
         'Corrupted Stag': {
             name: 'Corrupted Stag',
@@ -454,6 +513,78 @@ function createEnemy(name, level) {
             damage: 12,
             gold: 25,
             exp: 40
+        },
+        'Corrupted Wolf': {
+            name: 'Corrupted Wolf',
+            health: 25,
+            maxHealth: 25,
+            damage: 8,
+            gold: 15,
+            exp: 20
+        },
+        'Alpha Wolf': {
+            name: 'Alpha Wolf',
+            health: 40,
+            maxHealth: 40,
+            damage: 12,
+            gold: 25,
+            exp: 35
+        },
+        'Corrupted Bear': {
+            name: 'Corrupted Bear',
+            health: 60,
+            maxHealth: 60,
+            damage: 15,
+            gold: 35,
+            exp: 50
+        },
+        'Twisted Treant': {
+            name: 'Twisted Treant',
+            health: 45,
+            maxHealth: 45,
+            damage: 12,
+            gold: 30,
+            exp: 40
+        },
+        'Shadow Wraith': {
+            name: 'Shadow Wraith',
+            health: 30,
+            maxHealth: 30,
+            damage: 18,
+            gold: 40,
+            exp: 45
+        },
+        'Kobold Scout': {
+            name: 'Kobold Scout',
+            health: 30,
+            maxHealth: 30,
+            damage: 10,
+            gold: 20,
+            exp: 25
+        },
+        'Fire Elemental': {
+            name: 'Fire Elemental',
+            health: 65,
+            maxHealth: 65,
+            damage: 20,
+            gold: 50,
+            exp: 60
+        },
+        'Elara the Corrupted': {
+            name: 'Elara the Corrupted',
+            health: 120,
+            maxHealth: 120,
+            damage: 25,
+            gold: 200,
+            exp: 300
+        },
+        'Scalefire the Eternal': {
+            name: 'Scalefire the Eternal',
+            health: 150,
+            maxHealth: 150,
+            damage: 30,
+            gold: 300,
+            exp: 500
         },
         'Wolf Pack': {
             name: 'Wolf Pack',
@@ -489,16 +620,28 @@ function createEnemy(name, level) {
         }
     };
     
-    const enemy = enemies[name] || {
+    let enemy = enemies[name] || {
         name: name,
-        health: 30 + (level * 10),
-        maxHealth: 30 + (level * 10),
-        damage: 8 + (level * 2),
-        gold: 15 + (level * 5),
-        exp: 25 + (level * 10)
+        health: 30 + (actualLevel * 10),
+        maxHealth: 30 + (actualLevel * 10),
+        damage: 8 + (actualLevel * 2),
+        gold: 15 + (actualLevel * 5),
+        exp: 25 + (actualLevel * 10)
     };
     
-    return deepClone(enemy);
+    console.log(`📋 Enemy template for "${name}":`, JSON.parse(JSON.stringify(enemy)));
+    
+    // Override with custom health if provided (old signature)
+    if (customHealth !== null) {
+        enemy = deepClone(enemy);
+        enemy.health = customHealth;
+        enemy.maxHealth = customHealth;
+        console.log(`🔧 Applied custom health ${customHealth} to ${name}`);
+    }
+    
+    const finalEnemy = deepClone(enemy);
+    console.log(`✅ createEnemy returning:`, finalEnemy);
+    return finalEnemy;
 }
 
 // Add combat button styles

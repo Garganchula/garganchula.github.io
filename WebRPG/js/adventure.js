@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Adventure System
+ * MULTI-VENTURE - Adventure System
  * Manages adventure loading and execution
  */
 
@@ -129,9 +129,9 @@ function resumeAdventure() {
     updateCharacterDisplay();
     clearStory();
     
-    // Resume from saved state
+    // NOTE: Currently adventures restart from the beginning when loaded
+    // TODO: Implement proper scene state saving/restoration
     if (gameState.currentAdventure.id === 'dark_forest') {
-        // Resume dark forest (simplified - start from beginning for now)
         startDarkForestAdventure();
     } else if (gameState.currentAdventure.id === 'dragon_cave') {
         startDragonCaveAdventure();

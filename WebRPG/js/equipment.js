@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Equipment System
+ * MULTI-VENTURE - Equipment System
  * Manage character equipment with slots and stat bonuses
  */
 
@@ -148,8 +148,15 @@ class EquipmentManager {
     }
 
     updateEquipmentUI() {
+        console.log('🔄 Updating equipment UI...');
+        
         const container = document.getElementById('equipmentPanel');
-        if (!container) return;
+        if (!container) {
+            console.error('❌ Equipment panel container not found!');
+            return;
+        }
+
+        console.log('📦 Equipment slots:', this.slots);
 
         let html = '<div class="equipment-grid">';
         
@@ -187,6 +194,29 @@ class EquipmentManager {
                 html += `<div>${stat}: ${prefix}${value}</div>`;
             }
             html += '</div>';
+        }
+        
+        // Add equippable items from inventory
+        const equippableItems = this.character.inventory.items.filter(item => 
+            item.category === ITEM_CATEGORIES.WEAPON || 
+            item.category === ITEM_CATEGORIES.ARMOR
+        );
+        
+        if (equippableItems.length > 0) {
+            html += '<div class="equipment-inventory"><h4>📦 Equippable Items:</h4><div class="inventory-items">';
+            for (const item of equippableItems) {
+                const rarityColor = ITEM_RARITY[item.rarity]?.color || '#666';
+                html += `
+                    <div class="inventory-item" style="border-color: ${rarityColor};">
+                        <span class="item-icon">${item.icon || '📦'}</span>
+                        <span class="item-name">${item.name}</span>
+                        <button class="equip-btn" onclick="playSFX('select'); equipItemFromInventory('${item.name}')">Equip</button>
+                    </div>
+                `;
+            }
+            html += '</div></div>';
+        } else {
+            html += '<div class="equipment-inventory"><p style="text-align: center; color: #888; padding: 20px;">No equippable items in inventory</p></div>';
         }
         
         container.innerHTML = html;
@@ -293,14 +323,73 @@ function unequipSlot(slotName) {
     gameState.currentCharacter.equipment.unequip(slotName);
 }
 
-function showEquipmentPanel() {
-    const modal = document.getElementById('equipmentModal');
-    if (modal) {
-        modal.classList.add('active');
-        if (gameState.currentCharacter && gameState.currentCharacter.equipment) {
-            gameState.currentCharacter.equipment.updateEquipmentUI();
+function equipItemFromInventory(itemName) {
+    console.log('⚔️ Equipping item:', itemName);
+    
+    if (!gameState.currentCharacter) {
+        console.error('❌ No current character!');
+        return;
+    }
+    
+    // Find the item in inventory
+    const item = gameState.currentCharacter.inventory.items.find(i => i.name === itemName);
+    if (!item) {
+        showMessage('Item not found in inventory!', 'error');
+        return;
+    }
+    
+    // Determine the slot - use item.slot if available, otherwise infer from category
+    let slot = item.slot;
+    if (!slot) {
+        // Infer slot from category
+        if (item.category === ITEM_CATEGORIES.WEAPON) {
+            slot = EQUIPMENT_SLOTS.WEAPON;
+        } else if (item.category === ITEM_CATEGORIES.ARMOR) {
+            // For armor without a specific slot, default to chest
+            // TODO: Better logic for different armor types
+            slot = EQUIPMENT_SLOTS.CHEST;
         }
     }
+    
+    if (!slot) {
+        showMessage('This item cannot be equipped!', 'error');
+        console.warn('⚠️ Item has no slot:', item);
+        return;
+    }
+    
+    console.log(`📍 Equipping to slot: ${slot}`);
+    
+    // Equip the item
+    const result = gameState.currentCharacter.equipment.equip(item, slot);
+    if (result.success) {
+        showMessage(`Equipped ${itemName}!`, 'success');
+        updateCharacterDisplay();
+    }
+}
+
+function showEquipmentPanel() {
+    console.log('🎒 Opening equipment panel...');
+    
+    const modal = document.getElementById('equipmentModal');
+    if (!modal) {
+        console.error('❌ Equipment modal not found!');
+        return;
+    }
+    
+    if (!gameState.currentCharacter) {
+        console.error('❌ No current character!');
+        alert('Please create or select a character first.');
+        return;
+    }
+    
+    if (!gameState.currentCharacter.equipment) {
+        console.warn('⚠️ Character has no equipment manager, creating one...');
+        gameState.currentCharacter.equipment = new EquipmentManager(gameState.currentCharacter);
+    }
+    
+    modal.classList.add('active');
+    gameState.currentCharacter.equipment.updateEquipmentUI();
+    console.log('✅ Equipment panel opened');
 }
 
 function closeEquipmentPanel() {

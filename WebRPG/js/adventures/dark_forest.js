@@ -1,28 +1,43 @@
 /**
- * ADVENTURE 1: THE DARK FOREST
- * A mysterious adventure into the corrupted Shadowfen Forest
+ * ADVENTURE 1: BLOOD IN THE WOODS
+ * A mysterious adventure about awakening with no memory in 800 AD
  */
 
 class ForestState {
     constructor() {
-        this.hasWoodenShield = false;
-        this.hasMoonStone = false;
-        this.hasPurifiedWater = false;
-        this.hasHermitBlessing = false;
-        this.hasOldKey = false;
-        this.savedTraveler = false;
-        this.foundGuardianSpirit = false;
-        this.corruption_level = 0;
-        this.purity_level = 0;
-        this.elara_relation = 0;
-        this.ancientTreesExamined = false;
+        // Memory fragments collected
+        this.memoryFragments = 0;
+        
+        // Items
+        this.hasWoodenSpear = false;
+        this.hasWaterSkin = false;
+        this.hasTravelerCloak = false;
+        this.hasWolfPendant = false;
+        this.hasHuntersKnife = false;
+        
+        // Key story flags
+        this.metOldHunter = false;
+        this.savedVillager = false;
+        this.foundCampsite = false;
+        this.discoveredTruth = false;
+        this.readHuntersNote = false;
+        
+        // Relationships
+        this.hunterTrust = 0;
+        this.villagersSuspicion = 0;
+        
+        // Investigation progress
+        this.cluesFound = 0;
+        this.knowsAboutBandits = false;
+        this.knowsAboutRitual = false;
+        this.examedBody = false;
     }
 }
 
 let forestState = new ForestState();
 
 /**
- * Main entry point for Dark Forest adventure
+ * Main entry point for Blood in the Woods adventure
  */
 async function startDarkForestAdventure() {
     forestState = new ForestState();
@@ -30,7 +45,7 @@ async function startDarkForestAdventure() {
     // Save adventure start
     gameState.currentAdventure = {
         id: 'dark_forest',
-        name: 'The Dark Forest',
+        name: 'Blood in the Woods',
         state: forestState,
         currentScene: 'prologue'
     };
@@ -41,284 +56,584 @@ async function startDarkForestAdventure() {
 }
 
 /**
- * Prologue - Setting the scene
+ * Prologue - Awakening
  */
 async function prologue() {
     addStoryText(`
 ═══════════════════════════════════════════════════════════════════
-               🌲 THE DARK FOREST 🌲
+               🌲 BLOOD IN THE WOODS 🌲
+                      800 AD
 ═══════════════════════════════════════════════════════════════════
     `);
     
-    await typeText(`The village elders speak in hushed tones of the Shadowfen Forest. 
-Once a place of great beauty and ancient magic, it has become twisted 
-and dangerous. Dark forces stir within its depths.
+    await typeText(`Pain.
 
-Strange creatures have been spotted near the village, and travelers 
-who venture too close rarely return. The forest seems to be... growing.
+That's the first thing you feel. A throbbing in your head, sharp and insistent.
 
-You stand at the edge of the woods, the morning mist swirling around 
-gnarled trees. Somewhere deep within lies the source of the corruption.
+Then cold. The morning dew has soaked through your clothes. You try to 
+move, and your muscles scream in protest.
 
-The elders have offered you a reward of 100 gold pieces to investigate 
-the forest and discover what darkness has taken hold. They warn you 
-to be careful - the forest is said to corrupt those who linger too long.
+Your eyes open slowly. Leaves. Branches. Gray sky filtering through a 
+dense forest canopy. You're lying on the forest floor.
+
+You try to sit up. Your hands are covered in blood.
+
+*Not your blood.*
+
+You scramble to your feet, panic rising in your chest. Your tunic is 
+torn and stained dark red. More blood. Dried on your arms, under your 
+fingernails, splattered across your chest.
+
+Your heart pounds. *What happened? What did I do?*
+
+You search your memory for... anything. Where you are. How you got here. 
+What day it is. Everything is a void, a black emptiness where your past 
+should be.
+
+But one thing remains. One single fragment of identity floating in the 
+darkness:
+
+Your name. ${gameState.currentCharacter.name}.
+
+That's all you know. That's all you *are*.
     `);
     
-    updateQuestLog('Accepted quest: Investigate Shadowfen Forest');
-    updateQuestLog('Warning: The forest corrupts those who linger');
+    updateQuestLog('OBJECTIVE: Figure out what happened');
+    updateQuestLog('STATUS: Covered in blood, no memory, alone in the forest');
     
     await showContinue();
-    await act1_start();
+    await awakening_choices();
 }
 
 /**
- * ACT 1: ENTERING THE FOREST
+ * First choices after awakening
  */
-async function act1_start() {
-    addStoryText('\n═══════════════════════════════════════════════════════════════════');
-    addStoryText('                    ACT I: INTO THE SHADOWS');
-    addStoryText('═══════════════════════════════════════════════════════════════════\n');
+async function awakening_choices() {
+    addStoryText('\n--- THE AWAKENING ---\n');
     
-    await typeText(`You step into the forest, and immediately the temperature drops. 
-The canopy above is so thick that only scattered beams of sunlight 
-penetrate the gloom.
+    await typeText(`You stand in a small clearing, surrounded by ancient oak trees. 
+The morning sun is just starting to burn through the mist.
 
-Strange sounds echo through the trees - whispers, rustling, and 
-something that might be laughter. The path ahead splits in two directions.
+Looking down, you see the blood on your hands is dry - this happened 
+hours ago. Maybe last night?
+
+You need to think. You need to figure out what happened. But where to start?
     `);
     
-    const choice = await showChoices([
-        { text: 'Take the LEFT path - it looks more traveled', value: 'left' },
-        { text: 'Take the RIGHT path - you hear water flowing', value: 'right' },
-        { text: 'Examine the area more carefully first', value: 'examine' }
+    const choice = await showChoice([
+        'Search yourself for clues',
+        'Look around the clearing',
+        'Follow a trail of blood leading into the trees',
+        'Try to wash the blood off in a nearby stream'
     ]);
     
-    if (choice === 'examine') {
-        await examine_entrance();
-    } else if (choice === 'left') {
-        await wounded_traveler();
+    if (choice === 0) {
+        await search_yourself();
+    } else if (choice === 1) {
+        await search_clearing();
+    } else if (choice === 2) {
+        await follow_blood_trail();
     } else {
-        await corrupted_clearing();
-    }
-}
-
-/**
- * Examine the entrance area
- */
-async function examine_entrance() {
-    await typeText(`You carefully examine the area around the forest entrance. 
-The left path has recent footprints - someone passed through here not 
-long ago. The right path has an eerie glow coming from deeper within.
-    `);
-    
-    const perception = statCheck(gameState.currentCharacter, 'perception', 12);
-    
-    if (perception) {
-        await typeText(`\n[SUCCESS] Your keen eyes spot something unusual - claw marks on 
-the trees along the right path. They're fresh, and whatever made them 
-was large.
-        `);
-        updateQuestLog('Noticed: Fresh claw marks on right path');
-    }
-    
-    const choice = await showChoices([
-        { text: 'Take the LEFT path (footprints)', value: 'left' },
-        { text: 'Take the RIGHT path (glowing)', value: 'right' }
-    ]);
-    
-    if (choice === 'left') {
-        await wounded_traveler();
-    } else {
-        await corrupted_clearing();
+        await wash_blood();
     }
 }
 
 /**
- * Encounter: Wounded Traveler
+ * Search yourself
  */
-async function wounded_traveler() {
-    addStoryText('\n--- THE WOUNDED TRAVELER ---\n');
+async function search_yourself() {
+    addStoryText('\n--- SEARCHING YOURSELF ---\n');
     
-    await typeText(`Following the left path, you soon come across a man slumped 
-against a tree. His clothing is torn and bloodied. He looks up at you 
-with desperate eyes.
+    await typeText(`You check your pockets and belongings, hoping for some clue 
+to who you are or what happened.
 
-"Please... help me..." he gasps. "Those creatures... they came out 
-of nowhere. I barely escaped..."
+Your belt has a small leather pouch. Inside you find:
+• A few copper coins (about 5 silver worth)
+• A worn piece of cloth with strange symbols
+• A wooden pendant carved with a wolf's head
 
-You notice deep claw marks across his chest. He's losing blood quickly.
+You pocket the items. The pendant feels... familiar somehow. But you 
+can't remember why.
+
+Your clothes are simple - rough-spun wool, the kind a traveler or 
+peasant might wear. Nothing noble or remarkable. Just a common person 
+caught in an uncommon situation.
+
+No weapons. No pack. No food or water.
+
+*Whoever I am, I wasn't prepared for this.*
     `);
     
-    const choice = await showChoices([
-        { text: 'Use healing magic or medicine to help him', value: 'heal' },
-        { text: 'Give him a health potion', value: 'potion' },
-        { text: 'Ask him what happened before helping', value: 'question' },
-        { text: 'Leave him and continue on', value: 'leave' }
-    ]);
-    
-    if (choice === 'heal') {
-        const canHeal = gameState.currentCharacter.currentMP >= 15 || 
-                       gameState.currentCharacter.class === 'Cleric';
-        
-        if (canHeal) {
-            gameState.currentCharacter.currentMP = Math.max(0, gameState.currentCharacter.currentMP - 15);
-            updateCharacterDisplay();
-            
-            await typeText(`\nYou channel healing energy into the wounded traveler. 
-His wounds begin to close, and color returns to his face.
-
-"Thank you! I thought I was done for..." He reaches into his pack 
-and pulls out a small wooden shield. "Here, take this. It's not much, 
-but it might help you survive this cursed place."
-            `);
-            
-            forestState.hasWoodenShield = true;
-            forestState.savedTraveler = true;
-            forestState.purity_level += 1;
-            
-            addGold(gameState.currentCharacter, 25);
-            updateQuestLog('Saved wounded traveler - Received wooden shield and 25 gold');
-            
-            await typeText(`\nThe traveler warns you: "There's something deeper in the forest. 
-An old hermit. If anyone knows what's happening here, it's him. But 
-beware the wolves - they're not natural anymore."`);
-            
-        } else {
-            await typeText(`\nYou try to help, but you don't have enough magical energy. 
-The traveler's breathing becomes shallow...`);
-            forestState.corruption_level += 1;
-            updateQuestLog('Failed to save traveler');
-        }
-        
-    } else if (choice === 'potion') {
-        // Check if player has potion
-        await typeText(`\nYou give the traveler one of your health potions. 
-He drinks it gratefully, and his wounds begin to heal.
-
-"Bless you, stranger. Here, take this moonstone - I found it near 
-a strange glowing pool. It might be important."
-        `);
-        
-        forestState.hasMoonStone = true;
-        forestState.savedTraveler = true;
-        forestState.purity_level += 1;
-        updateQuestLog('Saved traveler - Received mysterious moonstone');
-        
-    } else if (choice === 'question') {
-        await typeText(`\nYou ask him about the creatures while he struggles to breathe.
-
-"They were... wolves... but wrong. Glowing eyes... too smart..." 
-He coughs up blood. "The forest... it's alive... and angry..."
-
-As you hesitate, his eyes glaze over. He's gone.
-        `);
-        forestState.corruption_level += 2;
-        updateQuestLog('Traveler died while you questioned him');
-        
-    } else {
-        await typeText(`\nYou decide to leave him. As you walk away, you hear his final 
-gasps echo through the trees. The forest seems to grow darker.
-        `);
-        forestState.corruption_level += 3;
-        updateQuestLog('Abandoned wounded traveler');
-    }
+    addGold(gameState.currentCharacter, 5);
+    forestState.cluesFound++;
+    forestState.hasWolfPendant = true;
+    updateQuestLog('Found: Wolf pendant, strange cloth, 5 silver');
     
     await showContinue();
-    await hermit_hut();
+    await search_clearing();
 }
 
 /**
- * Encounter: Corrupted Clearing
+ * Search the clearing
  */
-async function corrupted_clearing() {
-    addStoryText('\n--- THE CORRUPTED CLEARING ---\n');
+async function search_clearing() {
+    addStoryText('\n--- THE CLEARING ---\n');
     
-    await typeText(`The right path leads to a small clearing. In the center, 
-a pool of water glows with an unnatural purple light. The plants around 
-it are twisted and dead.
+    await typeText(`You examine the clearing more carefully.
 
-You feel a strange pull toward the water. It whispers promises of power...
+The grass is trampled in several places. There was a struggle here.
+
+Near the base of a large oak tree, you find more blood - a lot of it. 
+A dark pool has soaked into the earth. Someone died here. Recently.
+
+But there's no body.
+
+Scattered around the blood pool are:
+• Broken arrows (about a dozen)
+• A torn piece of fabric - looks like it was ripped from a cloak
+• Deep gouges in the tree bark, like something with claws climbed it
+
+This wasn't a simple murder. This was a hunt.
+
+*Am I the hunter... or was I running from something?*
     `);
     
-    const choice = await showChoices([
-        { text: 'Drink from the glowing pool', value: 'drink' },
-        { text: 'Collect water in a container', value: 'collect' },
-        { text: 'Examine the pool carefully', value: 'examine' },
-        { text: 'Leave the clearing immediately', value: 'leave' }
+    forestState.cluesFound++;
+    updateQuestLog('Found: Evidence of a violent struggle');
+    updateQuestLog('Clue: Arrows, torn cloak, claw marks');
+    
+    const choice = await showChoice([
+        'Follow the blood trail into the forest',
+        'Search for more clues',
+        'Try to find a stream to wash off',
+        'Look for signs of civilization'
     ]);
     
-    if (choice === 'drink') {
-        await typeText(`\nYou cup your hands and drink the glowing water. It tastes 
-sweet at first, then bitter. Energy surges through your body!
-
-[You gain +2 to all stats temporarily, but...]
-
-The world tilts. Purple veins spread across your skin. You feel the 
-forest's corruption seeping into your very soul.
-        `);
-        
-        gameState.currentCharacter.strength += 2;
-        gameState.currentCharacter.intelligence += 2;
-        gameState.currentCharacter.dexterity += 2;
-        gameState.currentCharacter.constitution += 2;
-        forestState.corruption_level += 5;
-        updateCharacterDisplay();
-        
-        updateQuestLog('Drank corrupted water - Gained power but corruption increased');
-        
-    } else if (choice === 'collect') {
-        await typeText(`\nYou carefully collect some of the water in a flask. 
-Even through the glass, you can feel it pulsing with dark energy.
-
-This might be useful for understanding the corruption...
-        `);
-        
-        forestState.hasPurifiedWater = true;
-        forestState.corruption_level += 1;
-        updateQuestLog('Collected corrupted water sample');
-        
-    } else if (choice === 'examine') {
-        const intelligence = statCheck(gameState.currentCharacter, 'intelligence', 14);
-        
-        if (intelligence) {
-            await typeText(`\n[SUCCESS] You recognize dark magic at work here. This water 
-is a focal point of corruption. You notice symbols carved into nearby 
-stones - someone has been performing rituals here.
-
-You make careful notes of the symbols.
-            `);
-            forestState.purity_level += 1;
-            updateQuestLog('Identified corruption source - Ritual site discovered');
-        } else {
-            await typeText(`\nThe magic is too complex for you to understand. 
-You feel dizzy just looking at the water.
-            `);
-        }
+    if (choice === 0) {
+        await follow_blood_trail();
+    } else if (choice === 1) {
+        await find_more_clues();
+    } else if (choice === 2) {
+        await wash_blood();
     } else {
-        await typeText(`\nYour instincts scream danger. You quickly leave the clearing. 
-As you depart, you hear what sounds like disappointed whispers.
-        `);
-        forestState.purity_level += 1;
-        updateQuestLog('Wisely avoided corrupted pool');
+        await find_village();
     }
-    
-    await showContinue();
-    await wolf_pack_encounter();
 }
 
 /**
- * Encounter: Wolf Pack
+ * Follow the blood trail
  */
-async function wolf_pack_encounter() {
-    addStoryText('\n--- CORRUPTED WOLVES ---\n');
+async function follow_blood_trail() {
+    addStoryText('\n--- THE BLOOD TRAIL ---\n');
     
-    await typeText(`As you continue deeper into the forest, you hear growling. 
-Three wolves emerge from the shadows, but they're like no wolves you've 
-seen before. Their eyes glow purple, and dark energy crackles around them.
+    await typeText(`You follow drops of blood leading away from the clearing. 
+The trail winds through the trees, getting fainter as you go.
 
-They circle you, snarling. Combat is inevitable!
+After about ten minutes of walking, the trail leads to a rocky outcrop. 
+Behind it, hidden in the shadows, you find...
+
+A body.
+
+A man, middle-aged, wearing hunter's garb. Multiple stab wounds. 
+He's been dead for hours - probably died sometime in the night.
+
+His face is frozen in terror.
+
+Next to him lies a bow and a quiver of arrows - matching the broken 
+ones you found. He was the one being hunted.
+
+*Did I do this? Why can't I remember?*
+
+You search the body. In his pack you find:
+• A water skin (half full)
+• Some dried meat
+• A hunter's knife (crude but sharp)
+• A note
     `);
+    
+    forestState.examedBody = true;
+    forestState.cluesFound++;
+    
+    const choice = await showChoice([
+        'Read the note',
+        'Take the supplies and leave quickly',
+        'Examine the wounds more closely',
+        'Say a prayer for the dead'
+    ]);
+    
+    if (choice === 0) {
+        await read_hunters_note();
+    } else if (choice === 1) {
+        await take_supplies_and_flee();
+    } else if (choice === 2) {
+        await examine_wounds();
+    } else {
+        await pray_for_dead();
+    }
+}
+
+/**
+ * Read the hunter's note
+ */
+async function read_hunters_note() {
+    addStoryText('\n--- THE NOTE ---\n');
+    
+    await typeText(`You unfold the blood-stained parchment. The handwriting is rough 
+but legible:
+
+"Day 3 - Tracking the wolf pack north of Oakridge. Signs they've been 
+attacking travelers on the forest road. Found their den near the old 
+standing stones.
+
+Day 4 - Something's wrong. These aren't normal wolves. They hunt like 
+they're organized. Like they're being led by something intelligent.
+
+Day 5 - Saw a man last night. Covered in blood, stumbling through the 
+woods like he was drunk or injured. Tried to approach him but he ran 
+when he saw me. Going to track him tomorrow. He might need help.
+
+Day 6 - Following the bloody man. He's heading deeper into the forest. 
+Found his camp - signs of a struggle. Whatever attacked him might come 
+back. I'll-"
+
+The note ends abruptly.
+
+*This was about ME. He was tracking ME. And now he's dead.*
+
+*Did I kill him? Or did whatever attacked me come back and get him too?*
+    `);
+    
+    forestState.readHuntersNote = true;
+    forestState.cluesFound++;
+    forestState.knowsAboutWolves = true;
+    updateQuestLog('Read: Hunter was tracking YOU');
+    updateQuestLog('Clue: Wolf pack near old standing stones');
+    updateQuestLog('Clue: You were attacked before losing memory');
+    
+    await showContinue();
+    await after_hunter_body();
+}
+
+/**
+ * Take supplies from hunter
+ */
+async function take_supplies_and_flee() {
+    await typeText(`\nYou grab the water skin, dried meat, and knife. You leave the 
+note unread - you don't want to know.
+
+Some part of you whispers that this is wrong, that you should at least 
+bury him. But fear overrides conscience. You need to survive.
+
+You hurry away from the body, trying not to look back.
+    `);
+    
+    forestState.hasWaterSkin = true;
+    forestState.hasHuntersKnife = true;
+    addGold(gameState.currentCharacter, 3);
+    updateQuestLog('Took: Water, food, knife from dead hunter');
+    
+    await showContinue();
+    await after_hunter_body();
+}
+
+/**
+ * Examine the wounds
+ */
+async function examine_wounds() {
+    addStoryText('\n--- EXAMINING THE BODY ---\n');
+    
+    await typeText(`You steel yourself and look more closely at the wounds.
+
+Multiple stab wounds to the chest and abdomen. The weapon was thin - 
+a knife or dagger, not a sword.
+
+But what catches your attention is the pattern. These aren't random 
+stabs from a panicked fight. They're precise. Calculated. Like someone 
+knew exactly where to strike.
+
+*This was murder. Professional. Efficient.*
+
+Your hands are shaking. Not from fear... from something else. 
+Something that feels almost like... muscle memory?
+
+You look down at your own hands, still stained with blood.
+
+*No. Please, no.*
+    `);
+    
+    forestState.cluesFound++;
+    forestState.realizedSkilled = true;
+    updateQuestLog('Realized: The killer was skilled');
+    updateQuestLog('Disturbing thought: Your hands remember this?');
+    
+    const choice = await showChoice([
+        'Read the note he was carrying',
+        'Take his supplies and leave',
+        'Search the area for more clues'
+    ]);
+    
+    if (choice === 0) {
+        await read_hunters_note();
+    } else if (choice === 1) {
+        await take_supplies_and_flee();
+    } else {
+        await search_around_body();
+    }
+}
+
+/**
+ * Pray for the dead hunter
+ */
+async function pray_for_dead() {
+    await typeText(`\nYou kneel beside the body and bow your head.
+
+The words come automatically, without thought:
+
+"May the gods guide you to the halls of your fathers. 
+May your spirit find peace in the next world.
+May your death not be in vain."
+
+It's a prayer. An old one. You don't know how you know it, but the 
+words flow like water.
+
+*At least I'm not completely heartless,* you think.
+
+You take a moment of silence, then rise. Whatever happened, this man 
+deserves better than to be left here for the wolves.
+
+You find some loose stones and pile them over the body - a simple cairn, 
+but it's something.
+    `);
+    
+    forestState.paidRespects = true;
+    addExperience(gameState.currentCharacter, 25);
+    updateQuestLog('Paid respects to the fallen hunter');
+    
+    await showContinue();
+    
+    await typeText(`\nAs you place the last stone, you hear something behind you.
+
+A low growl.
+
+You turn slowly.
+
+Three wolves emerge from the treeline. But these aren't normal wolves. 
+Their eyes glow with an unnatural yellow light. Foam drips from their jaws.
+
+They spread out, surrounding you.
+
+*This is it. This is what killed him.*
+
+You grab the hunter's knife from his pack.
+
+The wolves attack.
+    `);
+    
+    forestState.hasHuntersKnife = true;
+    await showContinue();
+    await first_combat();
+}
+
+/**
+ * After examining hunter's body
+ */
+async function after_hunter_body() {
+    await typeText(`\nYou stand over the hunter's body, mind racing with questions.
+
+Before you can decide what to do next, you hear voices in the distance.
+
+"...over here! I saw smoke from the outcrop!"
+"Could be bandits. Stay alert."
+
+*People. Coming this way.*
+
+You look down at yourself - covered in blood, standing over a corpse, 
+holding a knife you just took from the dead man.
+
+*This looks... really bad.*
+    `);
+    
+    const choice = await showChoice([
+        'Hide and observe who\'s coming',
+        'Run before they see you',
+        'Stay and try to explain',
+        'Prepare to defend yourself'
+    ]);
+    
+    if (choice === 0) {
+        await hide_from_villagers();
+    } else if (choice === 1) {
+        await run_from_villagers();
+    } else if (choice === 2) {
+        await meet_villagers();
+    } else {
+        await prepare_for_fight();
+    }
+}
+
+/**
+ * Hide from the approaching villagers
+ */
+async function hide_from_villagers() {
+    addStoryText('\n--- HIDING ---\n');
+    
+    await typeText(`You quickly duck behind a large boulder, holding your breath.
+
+Three men emerge into the clearing. They're dressed in simple tunics 
+and carry hunting spears. Villagers, not soldiers.
+
+They spot the body immediately.
+
+"Gods preserve us... it's Marcus!"
+
+"The hunter from Oakridge. What was he doing this deep in the forest?"
+
+One of them kneels by the body. "Multiple stab wounds. This was murder."
+
+"We need to tell the village headman. Could be bandits in these woods."
+
+They lift the body carefully, preparing to carry it back.
+
+As they leave, one of them pauses and looks around, frowning.
+
+"Strange... I could have sworn I heard someone..."
+
+You press yourself tighter against the rock, not daring to breathe.
+
+After a long moment, he shakes his head and follows the others.
+
+You're alone again.
+    `);
+    
+    forestState.villagersSuspicion += 0; // They don't know about you yet
+    forestState.heardAboutVillage = true;
+    updateQuestLog('Overheard: There\'s a village called Oakridge nearby');
+    updateQuestLog('The dead hunter was named Marcus');
+    
+    await showContinue();
+    await after_villagers_leave();
+}
+
+/**
+ * Run from villagers
+ */
+async function run_from_villagers() {
+    await typeText(`\nPanic takes over. You run.
+
+You crash through the undergrowth, branches tearing at your clothes. 
+Behind you, you hear shouts:
+
+"There! Someone's running!"
+"After them!"
+
+You run faster, your lungs burning. The forest is thick here, and you 
+use that to your advantage, weaving between trees.
+
+After what feels like an eternity, you can't hear them anymore. You've 
+lost them.
+
+You collapse against a tree, gasping for air.
+
+*That was stupid. Now they know someone was there. They'll be looking for me.*
+
+But at least you're free. For now.
+    `);
+    
+    forestState.villagersSuspicion += 2;
+    forestState.ranFromVillagers = true;
+    updateQuestLog('Fled from villagers - they\'re now searching for you');
+    
+    await showContinue();
+    await deeper_forest();
+}
+
+/**
+ * Meet the villagers
+ */
+async function meet_villagers() {
+    addStoryText('\n--- MEETING THE VILLAGERS ---\n');
+    
+    await typeText(`You step out from behind the rocks, hands raised.
+
+"I didn't kill him!"
+
+The three men spin toward you, raising their spears. They see the blood 
+on your clothes and their expressions harden.
+
+"Don't move!"
+"Drop the weapon!"
+
+You quickly drop the knife.
+
+"I know how this looks," you say quickly. "But I woke up like this. 
+I don't remember what happened. I found him already dead."
+
+The men exchange glances. One of them - older, with a gray beard - 
+steps forward.
+
+"You expect us to believe that? Covered in blood, standing over Marcus 
+with his own knife?"
+
+"I'm telling the truth! I have no memory of last night. My name is 
+${gameState.currentCharacter.name}, and that's all I know!"
+
+The old man studies you carefully.
+    `);
+    
+    const persuasion = statCheck(gameState.currentCharacter, 'charisma', 14);
+    
+    if (persuasion) {
+        await typeText(`\n[SUCCESS] The old man sees something in your eyes - genuine confusion, 
+maybe even fear. He lowers his spear slightly.
+
+"Torin, wait..." one of the others protests.
+
+"Look at him," Torin says. "He's terrified. If he killed Marcus, why 
+would he still be here? Why not run?"
+
+"Maybe he's mad. Or cursed."
+
+Torin shakes his head. "Or maybe he's telling the truth. We'll take 
+him to the village. Let the headman decide."
+
+He turns to you. "You're coming with us. Try to run, and we won't 
+hesitate to use these spears. Understand?"
+
+You nod.
+        `);
+        
+        forestState.capturedByVillagers = true;
+        forestState.villagersSuspicion += 1;
+        await showContinue();
+        await journey_to_village();
+    } else {
+        await typeText(`\n[FAILED] The old man's expression doesn't change.
+
+"Liar. Bind him."
+
+Before you can protest, they rush you. You try to fight back, but three 
+against one - and they have weapons - the outcome is inevitable.
+
+They bind your hands roughly.
+
+"We're taking you to the village," the old man says grimly. "The headman 
+will decide your fate. And if you killed Marcus... the gods help you."
+
+They march you into the forest at spearpoint.
+        `);
+        
+        forestState.capturedByVillagers = true;
+        forestState.villagersSuspicion += 3;
+        await showContinue();
+        await journey_to_village();
+    }
+}
+
+/**
+ * First combat - wolves
+ */
+async function first_combat() {
+    addStoryText('\n--- COMBAT: RABID WOLVES ---\n');
     
     const wolves = [
         createEnemy('Corrupted Wolf', 25, 0, 1, 'wolf'),
@@ -330,25 +645,41 @@ They circle you, snarling. Combat is inevitable!
     const result = await combat.start();
     
     if (result === 'victory') {
-        await typeText(`\n The last wolf falls with a pitiful howl. As it dies, 
-the purple glow fades from its eyes, and for a moment, it looks like 
-a normal wolf again.
+        await typeText(`\nThe last wolf falls with a pitiful whimper. 
 
-You find 35 gold pieces and a strange charm among the remains.
+As it dies, the yellow glow fades from its eyes. For a moment, it 
+looks like a normal wolf again - just an animal, scared and sick.
+
+*What made them like this?*
+
+You're bleeding from several scratches, but you're alive. And more 
+importantly... you can fight.
+
+*How did I know how to do that? Those movements... they were automatic. 
+Like I've done this before.*
+
+More questions. No answers.
         `);
         
-        addGold(gameState.currentCharacter, 35);
-        addExperience(gameState.currentCharacter, 75);
-        updateQuestLog('Defeated corrupted wolf pack');
+        addGold(gameState.currentCharacter, 15);
+        addExperience(gameState.currentCharacter, 50);
+        updateQuestLog('Survived: Attack by rabid wolves');
+        updateQuestLog('Discovery: You know how to fight');
         
         await showContinue();
-        await hermit_hut();
-        
+        await after_first_combat();
     } else if (result === 'fled') {
-        await typeText(`\nYou manage to escape the wolves and find another path.`);
-        forestState.corruption_level += 1;
+        await typeText(`\nYou turn and run, the wolves snapping at your heels.
+
+You barely make it away alive. Your heart pounds as you crash through 
+the undergrowth.
+
+Finally, you can't hear them anymore. You collapse, gasping.
+
+*I'm not a fighter. At least... I don't think I am.*
+        `);
         await showContinue();
-        await hermit_hut();
+        await deeper_forest();
     } else {
         // Death handled by combat system
         return;
@@ -356,541 +687,990 @@ You find 35 gold pieces and a strange charm among the remains.
 }
 
 /**
- * Encounter: The Hermit's Hut
+ * After first combat
  */
-async function hermit_hut() {
-    addStoryText('\n--- THE HERMIT\'S HUT ---\n');
-    
-    await typeText(`Through the thick trees, you spot a small hut. Smoke rises 
-from a chimney, and strange symbols are carved into the door frame.
+async function after_first_combat() {
+    await typeText(`\nAs you catch your breath, you hear that sound again - voices.
 
-An old man sits outside, tending a small garden that seems untouched 
-by the forest's corruption. He looks up as you approach.
+"Did you hear that? Fighting!"
+"This way!"
 
-"Another one drawn to the darkness," he says calmly. "Or perhaps... 
-seeking to stop it?"
+The villagers. They must have heard the combat.
+
+You need to decide - do you wait for them, or keep moving?
     `);
     
-    const choice = await showChoices([
-        { text: 'Ask about the corruption', value: 'ask' },
-        { text: 'Ask for help or healing', value: 'help' },
-        { text: 'Ask if he has supplies to trade', value: 'trade' },
-        { text: 'Attack the hermit (he might be corrupted)', value: 'attack' }
+    const choice = await showChoice([
+        'Wait for the villagers to arrive',
+        'Leave before they see you',
+        'Try to clean the blood off before they arrive',
+        'Hide the wolf bodies and pretend nothing happened'
     ]);
     
-    if (choice === 'ask') {
-        await typeText(`\nThe hermit nods slowly. "The forest was not always like this. 
-Three months ago, something awakened in the ancient ruins to the north. 
-An old darkness, sealed away by druids long ago.
-
-A woman came seeking power. Elara was her name. She broke the seals, 
-and now the forest pays the price. The corruption spreads from the 
-ruins like a disease."
-
-He looks at you with ancient eyes. "If you truly wish to stop this, 
-you must find the Heart of the Forest - an ancient spirit that slumbers 
-at the old standing stones. Only it has the power to purify the ruins.
-
-But be warned - Elara will not let you interfere with her plans easily."
-        `);
-        
-        updateQuestLog('Learned about Elara and the ancient ruins');
-        updateQuestLog('New objective: Find the Heart of the Forest at the standing stones');
-        forestState.purity_level += 2;
-        
-    } else if (choice === 'help') {
-        await typeText(`\nThe hermit examines you with wise eyes.
-
-"You are brave to venture here. Here, let me help you."
-
-He places his hands on your shoulders, and you feel warm energy flow 
-through you. Your wounds heal, and you feel refreshed!
-        `);
-        
-        heal(gameState.currentCharacter, 50);
-        gameState.currentCharacter.currentMP = Math.min(
-            gameState.currentCharacter.maxMP,
-            gameState.currentCharacter.currentMP + 30
-        );
-        updateCharacterDisplay();
-        
-        forestState.hasHermitBlessing = true;
-        forestState.purity_level += 1;
-        updateQuestLog('Received hermit\'s blessing');
-        
-    } else if (choice === 'trade') {
-        await typeText(`\nThe hermit gestures to his small garden.
-
-"I have little to trade, but I can offer you some supplies for your journey:
-- Healing herbs (30 gold) - Restores 40 HP
-- Magic elixir (50 gold) - Restores 40 MP  
-- Ward charm (75 gold) - Reduces corruption effects"
-        `);
-        
-        // Simple trade interface
-        updateQuestLog('Found hermit\'s trading post');
-        
+    if (choice === 0) {
+        await meet_villagers_after_combat();
+    } else if (choice === 1) {
+        await deeper_forest();
+    } else if (choice === 2) {
+        await quick_cleanup();
     } else {
-        await typeText(`\nYou draw your weapon and attack the hermit!
-
-But before your strike can land, he raises a hand. You freeze in place, 
-unable to move.
-
-"Fool," he says sadly. "The corruption has already touched your heart."
-
-He releases you, and you stumble backward. The hermit vanishes into 
-thin air, along with his hut. You're alone in the forest once more.
-        `);
-        
-        forestState.corruption_level += 3;
-        updateQuestLog('Attacked the hermit - Lost his aid');
+        await hide_evidence();
     }
+}
+
+/**
+ * Meet villagers after combat
+ */
+async function meet_villagers_after_combat() {
+    await typeText(`\nYou stand over the dead wolves, knife in hand, as the three villagers 
+burst into the clearing.
+
+They stop, taking in the scene - you, covered in blood, three dead 
+wolves at your feet.
+
+"By the gods..." one of them breathes.
+
+The older one - Torin - steps forward cautiously.
+
+"You killed these? Alone?"
+
+You nod. "They attacked me. I had no choice."
+
+He examines the wolves, then looks at you with new respect.
+
+"These are the beasts that have been plaguing the forest roads. We've 
+lost two hunters to them already." He pauses. "You've done the village 
+a service, stranger. Even if you are covered in suspicious blood."
+
+"Found a dead hunter back there," you say. "Marcus, I think his name was."
+
+Torin's expression darkens. "Marcus. Damn. He was a good man." He looks 
+at you carefully. "Did you kill him?"
+
+You meet his gaze. "I don't know. I woke up this morning with no memory 
+and blood on my hands. I'm trying to find out the truth."
+
+Torin considers this for a long moment, then nods.
+
+"Come to the village. The headman will want to hear about this. And... 
+maybe we can help you figure out what happened. If you're willing to 
+help us in return."
+    `);
+    
+    forestState.metVillagers = true;
+    forestState.killedWolves = true;
+    forestState.villagersSuspicion += 0; // They're impressed, not suspicious
+    forestState.hunterTrust += 2;
+    updateQuestLog('Impressed villagers by slaying the wolves');
     
     await showContinue();
-    await act2_ancient_ruins();
+    await journey_to_village();
 }
 
 /**
- * ACT 2: THE ANCIENT RUINS
+ * Journey to village
  */
-async function act2_ancient_ruins() {
-    addStoryText('\n═══════════════════════════════════════════════════════════════════');
-    addStoryText('                  ACT II: THE ANCIENT RUINS');
-    addStoryText('═══════════════════════════════════════════════════════════════════\n');
+async function journey_to_village() {
+    addStoryText('\n--- JOURNEY TO OAKRIDGE ---\n');
     
-    await typeText(`Following the hermit's directions, you travel deeper into 
-the forest. The corruption grows stronger here - the very air feels thick 
-with dark magic.
+    await typeText(`The villagers lead you through the forest. Torin walks beside you, 
+the other two keeping their distance.
 
-You come to a massive clearing dominated by crumbling stone ruins. 
-Broken pillars and vine-covered walls speak of great age. At the center, 
-a dark purple light pulses rhythmically.
+"The village is about an hour's walk," he says. "Oakridge. Been here 
+for generations. Good people, mostly."
 
-Strange creatures patrol the area - twisted, corrupted beings that 
-were once forest animals.
+"Mostly?"
+
+He shrugs. "Every village has its troubles. We've had more than our 
+share lately. Bandits on the roads. Strange things in the woods. 
+People going missing."
+
+"The wolves?"
+
+"Among other things." He gives you a sidelong glance. "You really don't 
+remember anything? Not even where you're from?"
+
+You shake your head. "Just my name. ${gameState.currentCharacter.name}. 
+Everything else is... blank."
+
+"That's not natural. Could be a curse. Or maybe you hit your head." 
+He pauses. "Or maybe someone wanted you to forget something."
+
+That thought sends a chill down your spine.
+
+After an hour of walking, you see smoke rising through the trees.
+
+"Welcome to Oakridge," Torin says.
     `);
     
-    updateQuestLog('Reached the ancient ruins');
+    await showContinue();
+    await arrive_at_village();
+}
+
+/**
+ * Arrive at Oakridge Village
+ */
+async function arrive_at_village() {
+    addStoryText('\n--- OAKRIDGE VILLAGE ---\n');
     
-    const choice = await showChoices([
-        { text: 'Sneak around to investigate', value: 'sneak' },
-        { text: 'Charge in directly', value: 'charge' },
-        { text: 'Look for another entrance', value: 'search' }
+    await typeText(`Oakridge is larger than you expected. Maybe three dozen wooden 
+buildings clustered around a central square. A well in the middle. 
+A blacksmith's forge. An inn with a painted sign.
+
+People stop and stare as you pass. You're still covered in blood.
+
+Torin leads you to the largest building - the headman's hall.
+
+Inside, a large man with a thick beard sits at a table, discussing 
+something with a woman in travel-worn clothes.
+
+He looks up as you enter.
+
+"Torin. What's this?"
+
+"Found him in the forest, Aldric. Standing over Marcus's body."
+
+The headman's expression hardens. "Marcus is dead?"
+
+"Murdered. Multiple stab wounds."
+
+The headman stands, his hand moving to the axe at his belt. "And you 
+brought the murderer HERE?"
+
+"We don't know he did it," Torin says quickly. "He claims he has no 
+memory. And he killed the wolf pack that's been plaguing the roads."
+
+The headman looks at you, his eyes sharp and assessing.
+
+"Is this true? You have no memory?"
+
+You meet his gaze. "It's the truth. I woke up this morning in the 
+forest. I remember my name - ${gameState.currentCharacter.name} - 
+and nothing else. I'm trying to find out what happened."
+    `);
+    
+    const choice = await showChoice([
+        'Tell them everything you found',
+        'Keep some details to yourself',
+        'Ask for their help investigating',
+        'Demand to be released'
     ]);
     
-    if (choice === 'sneak') {
-        const stealth = statCheck(gameState.currentCharacter, 'dexterity', 14);
-        
-        if (stealth) {
-            await typeText(`\n[SUCCESS] You silently move through the shadows, 
-avoiding the patrol routes of the corrupted creatures.
-
-You get close enough to see into the heart of the ruins. A woman in 
-dark robes stands before an altar, channeling purple energy. This must 
-be Elara!
-            `);
-            forestState.purity_level += 1;
-            updateQuestLog('Successfully infiltrated the ruins');
-            await elara_encounter();
-        } else {
-            await typeText(`\n[FAILED] You step on a branch! The crack echoes 
-through the clearing. The corrupted creatures turn toward you!
-            `);
-            await ruins_combat();
-        }
-        
-    } else if (choice === 'charge') {
-        await typeText(`\nYou charge forward, weapon drawn!
-
-The corrupted creatures screech and rush to meet you!
-        `);
-        forestState.corruption_level += 1;
-        await ruins_combat();
-        
+    if (choice === 0) {
+        await tell_full_truth();
+    } else if (choice === 1) {
+        await partial_truth();
+    } else if (choice === 2) {
+        await ask_for_help();
     } else {
-        await typeText(`\nYou circle the ruins, searching for another way in.
-
-After some time, you find old drainage tunnels beneath the structure. 
-They're dark and cramped, but they might let you bypass the guards.
-        `);
-        
-        const choice2 = await showChoices([
-            { text: 'Enter the tunnels', value: 'tunnel' },
-            { text: 'Go back and try another approach', value: 'back' }
-        ]);
-        
-        if (choice2 === 'tunnel') {
-            await tunnel_exploration();
-        } else {
-            await ruins_combat();
-        }
+        await demand_release();
     }
 }
 
 /**
- * Ruins combat encounter
+ * Tell villagers everything
  */
-async function ruins_combat() {
-    addStoryText('\n--- CORRUPTED GUARDIANS ---\n');
+async function tell_full_truth() {
+    await typeText(`\nYou tell them everything. The blood. The clearing. The broken arrows. 
+The hunter's note. The strange pendant. Everything.
+
+When you finish, Aldric exchanges a look with the woman.
+
+"What do you think, Elara?"
+
+The woman steps forward. She has sharp features and intelligent eyes. 
+A traveler's cloak is pinned with a bronze brooch.
+
+"I'm a scholar," she says. "I've been researching disappearances in 
+this region. Your story matches a pattern I've been tracking."
+
+"What pattern?" you ask.
+
+"People found with no memory. Often covered in blood. Sometimes they 
+remember eventually. Sometimes they don't." She pulls out a journal. 
+"It's happened six times in the last two months. All within ten miles 
+of these woods."
+
+Your heart races. "What causes it?"
+
+"I don't know yet. That's what I'm trying to find out." She looks at 
+Aldric. "I believe him. This is part of something bigger."
+
+The headman grunts. "Even if you didn't kill Marcus... someone did. 
+And until we know more, you're a suspect."
+
+He pauses, then makes a decision.
+
+"You'll stay in the village. Under watch. Help us investigate these 
+disappearances, and maybe you'll find your answers too. Refuse, and 
+I'll have you locked up until we figure this out."
+    `);
     
-    const enemies = [
-        createEnemy('Corrupted Bear', 60, 20, 3, 'bear'),
-        createEnemy('Twisted Treant', 45, 30, 2, 'tree'),
-        createEnemy('Shadow Wraith', 30, 40, 2, 'ghost')
-    ];
+    forestState.metScholar = true;
+    forestState.knowsAboutPattern = true;
+    forestState.villagersSuspicion += 0;
+    updateQuestLog('Met Elara the Scholar');
+    updateQuestLog('Discovery: Six others lost their memories this way');
+    updateQuestLog('New objective: Investigate the disappearances');
     
-    const combat = new Combat(gameState.currentCharacter, enemies);
+    await showContinue();
+    await village_investigation_start();
+}
+
+/**
+ * Village investigation begins
+ */
+async function village_investigation_start() {
+    addStoryText('\n═══════════════════════════════════════════════════════════════════');
+    addStoryText('                    ACT II: THE INVESTIGATION');
+    addStoryText('═══════════════════════════════════════════════════════════════════\n');
+    
+    await typeText(`Aldric assigns you a small room at the inn. Torin keeps watch, but 
+he's not hostile - just cautious.
+
+Elara finds you that evening.
+
+"I want to help you," she says. "Not just for your sake - this is 
+connected to my research. Six people with lost memories, and now you 
+make seven. There's a pattern here, and I need to understand it."
+
+She spreads her journal on the table.
+
+"The other six - they all had similar experiences. Found in or near 
+the forest. No memory. Often bloodied. Three of them eventually 
+remembered what happened. The other three..." She trails off.
+
+"What happened to them?"
+
+"They went mad. Started claiming they were someone else. Had to be 
+restrained. Eventually they escaped and vanished into the woods."
+
+Your blood runs cold.
+
+"What did the three who recovered remember?"
+
+Elara flips through her notes. "They all described the same thing - 
+a ritual. In the forest, at the old standing stones. Hooded figures. 
+Some kind of ceremony. And then... nothing. They woke up with no 
+memory of who they were."
+
+She looks at you intensely.
+
+"I think someone is conducting experiments. Testing something. And 
+you're the latest victim."
+    `);
+    
+    forestState.knowsAboutRitual = true;
+    updateQuestLog('Theory: Someone is performing memory-wiping rituals');
+    updateQuestLog('Location: Old standing stones in the forest');
+    
+    await showContinue();
+    
+    await typeText(`\n"We need to find those standing stones," you say.
+
+"Agreed. But it's dangerous. The others who went back... some of them 
+didn't return."
+
+She pauses. "There's also the matter of Marcus. The hunter. We need to 
+find out who really killed him. If it wasn't you, then the real killer 
+is still out there."
+
+"And if it was me?"
+
+"Then we need to know WHY. What would make you kill a hunter? Unless..." 
+Her eyes widen. "Unless you weren't you when you did it."
+
+"What do you mean?"
+
+"The ritual. What if it doesn't just erase memories? What if it... 
+changes people? Makes them do things?"
+
+The implications are terrifying.
+
+"So I might have killed him. While under some kind of control."
+
+"It's a theory. We won't know until we investigate."
+
+She looks at you seriously. "Tomorrow we start. We have three leads:
+
+1. The old standing stones - where the ritual supposedly happens
+2. Marcus's cabin - we might find clues about what he was investigating
+3. The other survivors - talk to the ones who got their memory back
+
+Where do you want to start?"
+    `);
+    
+    const choice = await showChoice([
+        'Go to the standing stones',
+        'Investigate Marcus\'s cabin',
+        'Talk to the survivors',
+        'Search the forest for more clues'
+    ]);
+    
+    if (choice === 0) {
+        await standing_stones_quest();
+    } else if (choice === 1) {
+        await marcus_cabin_quest();
+    } else if (choice === 2) {
+        await survivor_interviews();
+    } else {
+        await forest_search();
+    }
+}
+
+/**
+ * Standing stones quest
+ */
+async function standing_stones_quest() {
+    addStoryText('\n--- THE OLD STANDING STONES ---\n');
+    
+    await typeText(`Elara leads you deep into the forest. It's midday, but under the 
+thick canopy, it feels like twilight.
+
+"The standing stones are ancient," she explains as you walk. "Pre-Roman. 
+Maybe even older. The locals avoid them - say they're cursed."
+
+"Are they?"
+
+"I don't believe in curses. But there's definitely something unnatural 
+about them. I've measured strange energy readings. Fluctuations in 
+temperature. Animals refuse to go near."
+
+After an hour of walking, you see them.
+
+Four massive stones, each twice the height of a man, arranged in a circle. 
+The ground inside the circle is bare earth - no grass, no life.
+
+And in the center... bloodstains. Fresh.
+
+"Someone was here recently," Elara whispers.
+
+You approach cautiously. The air feels wrong here - heavy, oppressive.
+
+On the stones themselves, you see carvings. Symbols you don't recognize. 
+But looking at them makes your head throb.
+
+Suddenly, pain explodes behind your eyes.
+
+A MEMORY:
+
+*Torches. Hooded figures. Chanting in a language you don't understand.*
+*You're kneeling in the circle. Your hands are bound.*
+*One of the figures approaches. Raises a knife.*
+*"The ritual must be completed," a voice says. "Only through sacrifice..."*
+*The knife comes down-*
+
+You gasp and stumble backward.
+
+"What happened?" Elara asks, concerned.
+
+"I remembered something. I was here. There was a ritual. They were 
+going to sacrifice me."
+
+"But you escaped?"
+
+"I... I don't know. The memory ended."
+    `);
+    
+    forestState.memoryFragments++;
+    forestState.visitedStones = true;
+    updateQuestLog('MEMORY FRAGMENT 1: You were brought here for a ritual');
+    updateQuestLog('MEMORY FRAGMENT 1: They tried to sacrifice you');
+    
+    await showContinue();
+    await investigate_stones();
+}
+
+/**
+ * Investigate the standing stones
+ */
+async function investigate_stones() {
+    await typeText(`\nYou and Elara search the area carefully.
+
+You find:
+• More bloodstains leading away from the circle
+• Torn fabric caught on branches - black cloth, like a ritual robe
+• Footprints - at least six different people were here
+• A dropped knife - ceremonial, with strange engravings
+
+Elara examines the knife. "This is the same symbol pattern I've seen 
+in ancient texts. It's connected to old Celtic rituals. Death magic."
+
+"Death magic?"
+
+"Rituals that involve sacrifice to gain power or knowledge. Forbidden 
+for over a thousand years."
+
+She pockets the knife. "Someone in this region is practicing the old ways. 
+And they're using people like you as test subjects."
+
+Before you can respond, you hear a sound.
+
+Footsteps. Multiple people. Approaching fast.
+
+"We need to hide," Elara hisses.
+
+You duck behind one of the standing stones.
+
+Three hooded figures enter the clearing. They move to the center of the 
+circle and begin setting up... another ritual.
+
+One of them speaks: "The last sacrifice escaped. We need a replacement 
+for tonight's ceremony. The master won't tolerate another failure."
+
+"What about the one in Oakridge?" another says. "The one who claims to 
+have no memory?"
+
+"Perfect. We'll take him tonight."
+
+*They're talking about ME.*
+    `);
+    
+    const choice = await showChoice([
+        'Attack them now while they\'re unprepared',
+        'Sneak away and warn the village',
+        'Try to capture one for questioning',
+        'Keep listening to learn more'
+    ]);
+    
+    if (choice === 0) {
+        await attack_cultists();
+    } else if (choice === 1) {
+        await sneak_away();
+    } else if (choice === 2) {
+        await capture_cultist();
+    } else {
+        await keep_listening();
+    }
+}
+
+/**
+ * Keep listening to the cultists
+ */
+async function keep_listening() {
+    await typeText(`\nYou signal to Elara to stay quiet. You need to hear more.
+
+The cultists continue their conversation:
+
+"The master says we're close to perfecting the ritual. Once we succeed, 
+we'll be able to transfer memories, identities, even souls from one 
+body to another."
+
+"Immortality," one breathes.
+
+"For those worthy. The sacrifices provide the energy. Their life force 
+fuels the transformation."
+
+*They're trying to steal people's identities. Transfer souls into new bodies.*
+
+"What about the ones who went mad?"
+
+"Failed transfers. The old consciousness fought back. Drove both souls 
+insane." A pause. "But the last few have been more successful. The hunter 
+especially."
+
+Your blood runs cold.
+
+"Marcus was a perfect host. Strong. Skilled. We used the wanderer's soul 
+to inhabit his body."
+
+*Marcus wasn't killed. He was POSSESSED. Someone's soul was transferred 
+into him, driving out his own consciousness.*
+
+*And the real Marcus - his soul - where did it go?*
+
+Then the horrible realization hits you.
+
+*The bloodied wanderer. The one Marcus was tracking. The one with no memory.*
+
+*That was Marcus's soul. In someone else's body. YOUR body.*
+
+*You're not you. You're Marcus. And your real body is walking around 
+with someone else inside it.*
+    `);
+    
+    forestState.memoryFragments++;
+    forestState.discoveredTruth = true;
+    updateQuestLog('TRUTH REVEALED: You are Marcus the Hunter');
+    updateQuestLog('Your soul was transferred into another body');
+    updateQuestLog('Your real body was taken by the cultists');
+    
+    await showContinue();
+    await after_revelation();
+}
+
+/**
+ * After the terrible revelation
+ */
+async function after_revelation() {
+    await typeText(`\nThe world spins. You look down at your hands - not YOUR hands. 
+Someone else's.
+
+You are Marcus. Your body was stolen. You've been wearing someone 
+else's skin.
+
+*And the person in my original body... they killed this body's original 
+owner and made it look like I did it.*
+
+Elara grabs your arm. "We need to go. Now. Before they see us."
+
+You let her pull you away, moving on autopilot.
+
+The cultists don't notice.
+
+Once you're far enough away, Elara stops.
+
+"Did you hear what they said? Body-swapping. Soul transference. It's 
+impossible. It's-"
+
+"It's real," you say quietly. "I remember now. Not everything, but... 
+pieces. I'm Marcus. I was tracking someone in the woods - the real 
+owner of this body. We fought. They knocked me out. When I woke up... 
+I was in their body. And they were in mine."
+
+Elara stares at you. "That's... that's horrible."
+
+"They killed me. Or tried to. They stabbed me - this body - and left 
+me to die. But I survived. Barely. Wandered into the forest, confused, 
+bleeding, until I passed out."
+
+You touch your head. "The trauma. The blood loss. That's why I couldn't 
+remember. Not magic - just injury."
+
+"But you remember now?"
+
+"Some of it. The fight. Being drugged. Waking up wrong. Everything else 
+is still foggy."
+
+Elara paces. "This changes everything. If they can really transfer souls... 
+anyone could be a victim. Your friends. Your family. How would you know?"
+
+"We have to stop them. Get my body back. And save anyone else they've 
+trapped."
+    `);
+    
+    await showContinue();
+    
+    await typeText(`\n"First we need proof," Elara says. "The village won't believe us 
+without evidence. We need to catch one of the cultists. Or find where 
+they're keeping the original owners' souls."
+
+"Or both."
+
+She nods. "Tonight. They said they're planning another ritual. We can 
+ambush them."
+
+"And get my body back."
+
+"That too. But we'll need help. This is too dangerous for just the 
+two of us."
+
+"Torin. And the other hunters. They'll help if we can prove what's 
+happening."
+
+"Then let's go. We have until nightfall to prepare."
+
+You head back to Oakridge, mind racing with plans.
+
+This is no longer about recovering lost memories.
+
+This is about reclaiming your life.
+
+And stopping a cult of soul-stealers from destroying anyone else's.
+    `);
+    
+    await showContinue();
+    await prepare_for_final_confrontation();
+}
+
+/**
+ * Prepare for the final battle
+ */
+async function prepare_for_final_confrontation() {
+    addStoryText('\n═══════════════════════════════════════════════════════════════════');
+    addStoryText('                    ACT III: RECLAMATION');
+    addStoryText('═══════════════════════════════════════════════════════════════════\n');
+    
+    await typeText(`Back in Oakridge, you gather allies.
+
+Torin listens to your story with growing horror. "Soul-swapping? That's... 
+that's dark magic. The darkest kind."
+
+"Will you help us?"
+
+He doesn't hesitate. "Marcus was my friend. If there's a chance to save 
+him - to save YOU - I'll fight."
+
+Aldric, the headman, is harder to convince. But Elara's research and your 
+detailed knowledge of Marcus's life (memories returning in fragments) 
+eventually persuade him.
+
+"We'll gather the hunters. Twenty good men. If these cultists want a 
+fight, we'll give them one."
+
+You spend the afternoon preparing:
+• The blacksmith makes you proper weapons
+• The healer provides potions and bandages
+• Elara draws maps of the standing stones
+• Torin briefs the hunters on the plan
+
+As sunset approaches, you stand ready.
+
+Twenty armed villagers. One scholar. And you - a hunter's soul trapped 
+in a stranger's body, fighting to reclaim what was stolen.
+
+"One thing I don't understand," Torin says as you prepare to leave. 
+"If they transferred your soul into that body... where's the original 
+owner's soul? The person who used to be you?"
+
+You pause. That's a good question.
+
+"Maybe it was destroyed in the process," Elara suggests. "Or maybe..."
+
+"Maybe they're in MY body," you finish. "Maybe the transfer was mutual. 
+They're Marcus now, and I'm..."
+
+You realize you still don't know the name of the body you're wearing.
+
+"Tonight we get answers," you say grimly. "And we end this."
+
+The sun sets.
+
+You march toward the standing stones.
+
+Toward your final confrontation.
+    `);
+    
+    await showContinue();
+    await final_battle();
+}
+
+/**
+ * Final battle at the standing stones
+ */
+async function final_battle() {
+    addStoryText('\n--- FINAL CONFRONTATION ---\n');
+    
+    await typeText(`The standing stones loom in the darkness, illuminated by torchlight.
+
+The cultists are there - a dozen of them, gathered around the circle. 
+At the center, bound to a stake, is a young woman. Their next victim.
+
+And standing at the head of the circle, directing the ritual...
+
+Your body. Marcus's body. Stolen and worn by someone else.
+
+The cult leader turns, and you see your own face twisted into an 
+expression you've never worn - cruel, arrogant, hungry for power.
+
+"Well well," he says in your voice - but the accent is wrong, the 
+mannerisms foreign. "The lost soul returns. Tell me, do you like your 
+new skin? I quite enjoy mine."
+
+"Who are you?" you demand.
+
+"Someone who was dying. Someone who needed a second chance at life. 
+Your body was... convenient."
+
+"You killed me. Stole my body. Murdered innocent people."
+
+He shrugs. "Casualties of progress. You should be honored - your flesh 
+serves a greater purpose now."
+
+Rage boils in your chest. "I want my body back."
+
+"Come and take it."
+
+He raises his hands, and the cultists move to attack.
+
+The villagers surge forward. Battle erupts around the standing stones.
+    `);
+    
+    await showContinue();
+    
+    // Create a boss version of the possessed body
+    const boss = createEnemy('The Possessed Marcus', 120, 80, 5, 'boss');
+    
+    await typeText(`\nYou charge toward your stolen body, pushing through cultists.
+
+He meets you in the center of the circle, a sword in hand.
+
+"How ironic," he laughs. "Fighting yourself. Shall we see who's the 
+better Marcus?"
+
+The final battle begins.
+    `);
+    
+    await showContinue();
+    
+    const combat = new Combat(gameState.currentCharacter, boss);
     const result = await combat.start();
     
     if (result === 'victory') {
-        addGold(gameState.currentCharacter, 75);
-        addExperience(gameState.currentCharacter, 150);
-        updateQuestLog('Defeated corrupted guardians');
-        await showContinue();
-        await elara_encounter();
+        await victory_ending();
     } else if (result === 'fled') {
-        forestState.corruption_level += 2;
-        await showContinue();
-        await tunnel_exploration();
+        await fled_ending();
     }
+    // Death handled by system
 }
 
 /**
- * Tunnel exploration
+ * Victory ending
  */
-async function tunnel_exploration() {
-    addStoryText('\n--- THE DRAINAGE TUNNELS ---\n');
-    
-    await typeText(`You descend into the dank tunnels beneath the ruins. 
-Water drips from the ceiling, and the walls are covered in strange fungi 
-that glow with a faint purple light.
+async function victory_ending() {
+    await typeText(`\nYour blade finds its mark. The cult leader - wearing your body - 
+falls to his knees, blood spreading across his chest.
 
-As you navigate the narrow passages, you hear something moving in the 
-darkness ahead...
+Your chest. Your blood.
+
+"Clever," he gasps. "You... aimed for the heart. Quick death. Almost... 
+merciful."
+
+"I couldn't let you suffer in my body," you say. "Even if you don't 
+deserve mercy."
+
+He laughs, blood on his lips. "The ritual... it can't be reversed. 
+You know that, right? You're stuck. Forever wearing someone else's skin."
+
+Horror washes over you. "No. There has to be a way-"
+
+"There isn't. I made sure of that." His eyes are fading. "You'll live 
+the rest of your life as an imposter. Every mirror a reminder. Every 
+friend a stranger. Enjoy your victory... Marcus."
+
+He dies.
+
+You stand over your own corpse, numb.
+
+Elara approaches, placing a hand on your shoulder. "I'm sorry."
+
+The other cultists are dead or captured. The ritual broken. The bound 
+woman freed.
+
+But you... you're trapped.
+
+Marcus the hunter is dead. His body cold on the ground.
+
+And you're... someone else. Some unfortunate soul whose body you now 
+inhabit. Whose name you still don't know.
     `);
-    
-    const perception = statCheck(gameState.currentCharacter, 'perception', 13);
-    
-    if (perception) {
-        await typeText(`\n[SUCCESS] You spot the danger just in time - 
-massive poisonous mushrooms that would have released spores if disturbed!
-
-You carefully navigate around them.
-        `);
-        forestState.purity_level += 1;
-    } else {
-        await typeText(`\n[FAILED] You brush against a large mushroom, and 
-it bursts, releasing toxic spores!
-        `);
-        takeDamage(gameState.currentCharacter, 15);
-        updateCharacterDisplay();
-        updateQuestLog('Poisoned by spore mushrooms');
-    }
-    
-    await typeText(`\nThe tunnel opens into a small chamber. In the center 
-sits an old chest, partially buried in debris.
-    `);
-    
-    const choice = await showChoices([
-        { text: 'Open the chest', value: 'open' },
-        { text: 'Check for traps first', value: 'check' },
-        { text: 'Leave it and continue', value: 'leave' }
-    ]);
-    
-    if (choice === 'check') {
-        const investigation = statCheck(gameState.currentCharacter, 'intelligence', 12);
-        
-        if (investigation) {
-            await typeText(`\n[SUCCESS] You find and disarm a poison needle trap!
-
-Inside the chest, you find:
-- 100 gold pieces
-- An ornate key with runic inscriptions
-- A scroll of protection
-            `);
-            addGold(gameState.currentCharacter, 100);
-            forestState.hasOldKey = true;
-            forestState.purity_level += 2;
-            updateQuestLog('Found ancient key in trapped chest');
-        } else {
-            await typeText(`\n[FAILED] The trap springs as you open the chest!
-
-A needle jabs your hand, and you feel poison enter your bloodstream.
-            `);
-            takeDamage(gameState.currentCharacter, 20);
-            addGold(gameState.currentCharacter, 50);
-            updateCharacterDisplay();
-        }
-    } else if (choice === 'open') {
-        await typeText(`\nYou open the chest without checking. A needle 
-shoots out, stabbing your hand!
-        `);
-        takeDamage(gameState.currentCharacter, 20);
-        addGold(gameState.currentCharacter, 50);
-        updateCharacterDisplay();
-    }
     
     await showContinue();
-    await elara_encounter();
+    await epilogue();
 }
 
 /**
- * Elara encounter - Main antagonist
+ * Epilogue
  */
-async function elara_encounter() {
+async function epilogue() {
     addStoryText('\n═══════════════════════════════════════════════════════════════════');
-    addStoryText('                      ELARA THE CORRUPTED');
+    addStoryText('                         EPILOGUE');
     addStoryText('═══════════════════════════════════════════════════════════════════\n');
     
-    await typeText(`You enter the heart of the ruins. The woman you saw before 
-stands at an altar, dark energy swirling around her. She turns to face you.
+    await typeText(`Three months later.
 
-"So, someone finally comes to stop me," Elara says with a cold smile. 
-"The village sent you, I assume? To 'save' their precious forest?"
+You stand in Oakridge village, no longer a stranger. The villagers know 
+the truth now - that their friend Marcus died protecting them, and his 
+soul lives on in a borrowed body.
 
-She laughs bitterly. "This forest killed my family. Took everything 
-from me. Now I take everything from it. I'll harness its power, bend 
-it to my will, and burn the whole cursed place to ash!"
+They've accepted you. Call you Marcus still. But you know the truth.
 
-The corruption around her intensifies. You can feel her pain and rage.
+Elara found records eventually. The body you wear belonged to a wanderer 
+named Erik - a nobody, a drifter with no family, no ties. Convenient 
+for the cultists.
+
+Erik is gone. You're what remains.
+
+You've taken over Marcus's old cabin. His work. The villagers pay you 
+to hunt and track, same as they did before.
+
+Almost like nothing changed.
+
+Except everything changed.
+
+You catch your reflection in the well water sometimes - Erik's face 
+staring back. Still strange. Still wrong.
+
+But you're alive. The cult is destroyed. The village is safe.
+
+It's not the ending you wanted.
+
+But it's the ending you earned.
+
+The adventure continues. Just... not as yourself.
     `);
-    
-    const choice = await showChoices([
-        { text: 'Try to reason with her', value: 'reason' },
-        { text: 'Offer to help her another way', value: 'help' },
-        { text: 'Attack her immediately', value: 'attack' },
-        { text: 'Use the moonstone (if you have it)', value: 'moonstone' }
-    ]);
-    
-    if (choice === 'reason') {
-        const persuasion = statCheck(gameState.currentCharacter, 'charisma', 16);
-        
-        if (persuasion && forestState.purity_level >= 5) {
-            await typeText(`\n[SUCCESS] Your words reach her through the corruption!
-
-"You've suffered terrible loss," you say. "But destroying the forest 
-won't bring them back. This power is consuming you. Please, let me 
-help you find peace."
-
-Elara's eyes clear for a moment. Tears stream down her face.
-
-"I... I've gone too far, haven't I? The darkness... it promised me 
-revenge, but all it gave me was hate..."
-
-She falls to her knees, and the dark energy begins to dissipate.
-            `);
-            await peaceful_resolution();
-            
-        } else {
-            await typeText(`\n[FAILED] "Empty words!" she shouts. 
-"You know nothing of my pain!"
-
-She attacks!
-            `);
-            await boss_battle();
-        }
-        
-    } else if (choice === 'help') {
-        await typeText(`\nYou offer to help her find justice another way, 
-without destroying the forest.
-
-"It's too late for that," she says sadly. "The corruption has already 
-taken root in me. There's only one way this ends now..."
-
-She raises her hands, dark energy crackling.
-        `);
-        await boss_battle();
-        
-    } else if (choice === 'moonstone' && forestState.hasMoonStone) {
-        await typeText(`\nYou hold up the moonstone, and it begins to glow 
-with pure white light!
-
-Elara recoils. "What is that?! That light... it's burning the darkness!"
-
-The moonstone pulses, and the corruption around Elara begins to crack 
-and fall away like shattered glass. She gasps, her eyes clearing.
-
-"What... what have I done?" She looks at her hands in horror. "The 
-darkness... it was controlling me..."
-        `);
-        await peaceful_resolution();
-        
-    } else {
-        await typeText(`\nYou attack without hesitation!
-
-"So be it!" Elara raises her hands, and corrupted energy surges forth!
-        `);
-        await boss_battle();
-    }
-}
-
-/**
- * Final boss battle
- */
-async function boss_battle() {
-    addStoryText('\n--- BOSS: ELARA THE CORRUPTED ---\n');
-    
-    await typeText(`Elara transforms, dark energy wrapping around her like 
-armor. Her eyes glow purple, and shadow tendrils lash out!
-
-This will be your greatest challenge!
-    `);
-    
-    const boss = createEnemy('Elara the Corrupted', 120, 80, 5, 'boss');
-    boss.attacks = [
-        { name: 'Shadow Bolt', damage: 20, mpCost: 15 },
-        { name: 'Corruption Wave', damage: 30, mpCost: 25 },
-        { name: 'Life Drain', damage: 15, heal: 15, mpCost: 20 }
-    ];
-    
-    const combat = new Combat(gameState.currentCharacter, [boss]);
-    const result = await combat.start();
-    
-    if (result === 'victory') {
-        await typeText(`\nElara falls to her knees, the dark energy dissipating. 
-She looks at you with clear eyes, free from corruption at last.
-
-"Thank you..." she whispers. "I was lost in the darkness. End it... 
-please..."
-
-She closes her eyes and fades into silver mist, finally at peace.
-        `);
-        
-        addGold(gameState.currentCharacter, 200);
-        addExperience(gameState.currentCharacter, 500);
-        updateQuestLog('Defeated Elara and freed her from corruption');
-        
-        await showContinue();
-        await epilogue_purify();
-        
-    } else {
-        // Death handled by combat system
-        return;
-    }
-}
-
-/**
- * Peaceful resolution path
- */
-async function peaceful_resolution() {
-    await typeText(`\nWith Elara's cooperation, you work together to undo 
-the damage. She uses her knowledge of the rituals to reverse the corruption.
-
-The forest around you begins to heal. The purple glow fades, replaced 
-by natural moonlight. You hear the sounds of normal animals returning.
-
-"I can never undo what I've done," Elara says quietly. "But at least 
-I can make sure the forest heals. I'll stay here, as its guardian, 
-to atone for my crimes."
-
-She places a hand on your shoulder. "Thank you for saving me from myself."
-    `);
-    
-    addGold(gameState.currentCharacter, 250);
-    addExperience(gameState.currentCharacter, 750);
-    updateQuestLog('Redeemed Elara - Peaceful resolution achieved');
     
     await showContinue();
-    await epilogue_peaceful();
-}
-
-/**
- * Epilogue - Purification ending
- */
-async function epilogue_purify() {
+    
     addStoryText('\n═══════════════════════════════════════════════════════════════════');
-    addStoryText('                          EPILOGUE');
+    addStoryText('                    ADVENTURE COMPLETE');
     addStoryText('═══════════════════════════════════════════════════════════════════\n');
     
-    await typeText(`With Elara defeated, you work to purify the corruption. 
-Using the ancient knowledge from the hermit and the power of the moonstone, 
-you perform a cleansing ritual at the altar.
-
-Light spreads from the ruins, washing over the forest. The twisted 
-trees straighten, poisoned water runs clear, and the darkness recedes.
-
-The forest is saved.
-
-You return to the village as a hero. The elders reward you with 
-the promised gold, plus extra for your bravery. Tales of your 
-adventure will be told for generations.
-    `);
+    addGold(gameState.currentCharacter, 200);
+    addExperience(gameState.currentCharacter, 500);
+    updateQuestLog('COMPLETED: Blood in the Woods');
+    updateQuestLog('The cult was destroyed, but at great cost');
+    updateQuestLog('You live on in Erik\'s body, Marcus\'s soul enduring');
     
-    addGold(gameState.currentCharacter, 300);
-    updateQuestLog('QUEST COMPLETE: The Dark Forest has been purified!');
+    await typeText(`\nYou have completed BLOOD IN THE WOODS!
+
+Rewards:
+• 200 Gold
+• 500 Experience
+• Title: "Soul Survivor"
+• The knowledge that some mysteries are better left unsolved
+
+Thank you for playing!
+    `);
     
     await showContinue();
     await adventure_complete();
 }
 
 /**
- * Epilogue - Peaceful ending
- */
-async function epilogue_peaceful() {
-    addStoryText('\n═══════════════════════════════════════════════════════════════════');
-    addStoryText('                          EPILOGUE');
-    addStoryText('═══════════════════════════════════════════════════════════════════\n');
-    
-    await typeText(`You return to the village with news of the forest's healing. 
-The elders are amazed that you managed to redeem the corrupted sorceress 
-rather than simply defeating her.
-
-Elara keeps her word, becoming the forest's guardian. Under her watchful 
-care, the Shadowfen Forest becomes a place of wonder and magic once more.
-
-The village prospers, and you are hailed as both a hero and a peacemaker. 
-Your wisdom and compassion have not only saved the forest, but also 
-saved a lost soul.
-
-This is the best possible outcome.
-    `);
-    
-    addGold(gameState.currentCharacter, 400);
-    addExperience(gameState.currentCharacter, 200); // Bonus XP for perfect ending
-    updateQuestLog('QUEST COMPLETE: Perfect ending - Forest healed, Elara redeemed!');
-    
-    await showContinue();
-    await adventure_complete();
-}
-
-/**
- * Adventure completion
+ * Adventure complete - return to main menu
  */
 async function adventure_complete() {
-    addStoryText('\n\n🏆 ADVENTURE COMPLETE! 🏆\n');
-    
-    await typeText(`
-═══════════════════════════════════════════════════════════════════
-                      ADVENTURE STATISTICS
-═══════════════════════════════════════════════════════════════════
-
-Final Level: ${calculateLevel(gameState.currentCharacter.experience)}
-Total Experience: ${gameState.currentCharacter.experience}
-Total Gold Earned: ${gameState.currentCharacter.gold}
-
-Corruption Level: ${forestState.corruption_level}
-Purity Level: ${forestState.purity_level}
-
-The Dark Forest adventure is complete!
-═══════════════════════════════════════════════════════════════════
-    `);
-    
-    // Clear current adventure
     gameState.currentAdventure = null;
-    gameState.adventureState = null;
-    saveGameData();
+    saveGameProgress();
     
-    await showChoices([
-        { text: 'Return to Adventure Select', value: 'return' },
-        { text: 'View Character Sheet', value: 'sheet' }
-    ]).then(choice => {
-        if (choice === 'return') {
-            showScreen('adventureSelect');
-            loadAdventureList();
-        } else {
-            showCharacterSheet();
-        }
-    });
+    const choice = await showChoice([
+        'Return to Main Menu',
+        'Explore Oakridge (Free Roam)',
+        'Start New Adventure'
+    ]);
+    
+    if (choice === 0) {
+        showMainMenu();
+    } else if (choice === 1) {
+        await freeRoamOakridge();
+    } else {
+        showAdventureSelect();
+    }
 }
 
-console.log('✅ dark_forest.js loaded');
+// Placeholder functions for branches not fully implemented
+async function wash_blood() {
+    await typeText("\nThis path is still being written...");
+    await showContinue();
+    await search_clearing();
+}
+
+async function find_village() {
+    await typeText("\nThis path is still being written...");
+    await showContinue();
+    await search_clearing();
+}
+
+async function find_more_clues() {
+    await typeText("\nThis path is still being written...");
+    await showContinue();
+    await after_hunter_body();
+}
+
+async function search_around_body() {
+    await typeText("\nThis path is still being written...");
+    await showContinue();
+    await after_hunter_body();
+}
+
+async function after_villagers_leave() {
+    await typeText("\nYou're alone again. Time to decide your next move...");
+    await showContinue();
+    await deeper_forest();
+}
+
+async function deeper_forest() {
+    await typeText("\nYou venture deeper into the forest...");
+    await showContinue();
+    await find_village();
+}
+
+async function prepare_for_fight() {
+    await typeText("\nYou prepare to defend yourself...");
+    await showContinue();
+    await meet_villagers();
+}
+
+async function partial_truth() {
+    await tell_full_truth(); // For now, same outcome
+}
+
+async function ask_for_help() {
+    await tell_full_truth(); // For now, same outcome
+}
+
+async function demand_release() {
+    await typeText("\nDemanding your freedom doesn't go well...");
+    forestState.villagersSuspicion += 2;
+    await showContinue();
+    await tell_full_truth();
+}
+
+async function marcus_cabin_quest() {
+    await typeText("\nMarcus's cabin might hold clues...");
+    await showContinue();
+    await standing_stones_quest();
+}
+
+async function survivor_interviews() {
+    await typeText("\nTalking to other survivors...");
+    await showContinue();
+    await standing_stones_quest();
+}
+
+async function forest_search() {
+    await typeText("\nSearching the forest for clues...");
+    await showContinue();
+    await standing_stones_quest();
+}
+
+async function attack_cultists() {
+    await typeText("\nYou attack, but they overwhelm you...");
+    await showContinue();
+    await keep_listening();
+}
+
+async function sneak_away() {
+    await typeText("\nYou sneak away to warn the village...");
+    await showContinue();
+    await keep_listening();
+}
+
+async function capture_cultist() {
+    await typeText("\nYou try to capture one, but they escape...");
+    await showContinue();
+    await keep_listening();
+}
+
+async function fled_ending() {
+    await typeText("\nYou flee, but the cult remains...");
+    await showContinue();
+    await bad_ending();
+}
+
+async function bad_ending() {
+    await typeText("\nThe adventure ends in failure. The cult continues their dark work...");
+    await showContinue();
+    await adventure_complete();
+}
+
+async function quick_cleanup() {
+    await typeText("\nYou try to clean up, but it's too late...");
+    await showContinue();
+    await meet_villagers_after_combat();
+}
+
+async function hide_evidence() {
+    await typeText("\nYou try to hide the bodies, but the villagers arrive...");
+    await showContinue();
+    await meet_villagers_after_combat();
+}
+
+async function freeRoamOakridge() {
+    await typeText("\nFree roam mode not yet implemented...");
+    await showContinue();
+    showMainMenu();
+}
+
+console.log('✅ dark_forest.js loaded - BLOOD IN THE WOODS edition');

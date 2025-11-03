@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Skill Tree System
+ * MULTI-VENTURE - Skill Tree System
  * Class-specific skill trees and talent points
  */
 

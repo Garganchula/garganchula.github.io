@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Enhanced Inventory System
+ * MULTI-VENTURE - Enhanced Inventory System
  * Item management, categories, weight, and equipment
  */
 
@@ -311,6 +311,7 @@ const SAMPLE_ITEMS = {
         name: 'Iron Sword',
         description: 'A sturdy iron blade',
         category: ITEM_CATEGORIES.WEAPON,
+        slot: EQUIPMENT_SLOTS.WEAPON,
         rarity: 'COMMON',
         weight: 5,
         value: 100,
@@ -321,6 +322,7 @@ const SAMPLE_ITEMS = {
         name: 'Leather Armor',
         description: 'Light protective armor',
         category: ITEM_CATEGORIES.ARMOR,
+        slot: EQUIPMENT_SLOTS.CHEST,
         rarity: 'COMMON',
         weight: 8,
         value: 80,

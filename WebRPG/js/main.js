@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Main JavaScript Entry Point
+ * MULTI-VENTURE - Main JavaScript Entry Point
  * Handles screen transitions and initialization
  */
 
@@ -38,6 +38,11 @@ function showScreen(screenId) {
     }
     
     playSFX('select');
+    
+    // Try to start background music on first user interaction
+    if (typeof startBackgroundMusic === 'function') {
+        startBackgroundMusic();
+    }
 }
 
 /**
@@ -86,6 +91,76 @@ function playSFX(type) {
 }
 
 /**
+ * Start background music
+ */
+function startBackgroundMusic() {
+    const bgMusic = document.getElementById('bgMusic');
+    if (!bgMusic) {
+        console.log('Background music element not found');
+        return;
+    }
+    
+    // Check if settingsManager exists and music is enabled
+    const musicEnabled = settingsManager ? settingsManager.settings.sound.musicEnabled : true;
+    if (!musicEnabled) {
+        console.log('Music is disabled in settings');
+        return;
+    }
+    
+    // Set volume
+    if (settingsManager) {
+        const masterVolume = settingsManager.settings.sound.volume;
+        const musicVolume = settingsManager.settings.sound.musicVolume;
+        bgMusic.volume = masterVolume * musicVolume;
+    } else {
+        bgMusic.volume = 0.5; // Default volume
+    }
+    
+    console.log('Attempting to play background music...');
+    bgMusic.play().catch(err => {
+        console.log('Background music autoplay prevented:', err.message);
+        console.log('Music will start on next user interaction');
+        // Try to play on next user interaction
+        document.addEventListener('click', () => {
+            console.log('User clicked, attempting to start music...');
+            bgMusic.play().catch(e => console.log('Music play failed:', e.message));
+        }, { once: true });
+    });
+}
+
+/**
+ * Stop background music
+ */
+function stopBackgroundMusic() {
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+    }
+}
+
+/**
+ * Update background music volume
+ */
+function updateBackgroundMusicVolume() {
+    if (!settingsManager) return;
+    
+    const bgMusic = document.getElementById('bgMusic');
+    if (bgMusic) {
+        const masterVolume = settingsManager.settings.sound.volume;
+        const musicVolume = settingsManager.settings.sound.musicVolume;
+        bgMusic.volume = masterVolume * musicVolume;
+        
+        // Play or pause based on settings
+        if (settingsManager.settings.sound.musicEnabled && bgMusic.paused) {
+            bgMusic.play().catch(err => console.log('Music play error:', err));
+        } else if (!settingsManager.settings.sound.musicEnabled && !bgMusic.paused) {
+            bgMusic.pause();
+        }
+    }
+}
+
+/**
  * Show confirmation dialog
  */
 function confirmQuit() {
@@ -113,7 +188,7 @@ function backToMenu() {
  * Initialize the game on page load
  */
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🎮 Quest of Legends - Initializing...');
+    console.log('🎮 Multi-Venture - Initializing...');
     
     // Load saved games from localStorage
     loadGameData();
@@ -129,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Show title screen
     showScreen('titleScreen');
+    
+    // Start background music (will handle autoplay restrictions)
+    startBackgroundMusic();
     
     console.log('✅ Game initialized successfully');
 });
@@ -159,7 +237,13 @@ function loadGameData() {
     try {
         const saved = localStorage.getItem('questOfLegends_saves');
         if (saved) {
-            gameState.savedGames = JSON.parse(saved);
+            const parsedSaves = JSON.parse(saved);
+            // Deserialize characters
+            gameState.savedGames = parsedSaves.map(save => ({
+                timestamp: save.timestamp,
+                character: deserializeCharacter(save.character),
+                adventureState: save.adventureState
+            }));
         }
         
         const settings = localStorage.getItem('questOfLegends_settings');
@@ -172,15 +256,115 @@ function loadGameData() {
 }
 
 /**
+ * Deserialize character when loading (restore proper objects)
+ */
+function deserializeCharacter(characterData) {
+    if (!characterData) return null;
+    
+    const character = { ...characterData };
+    
+    // Restore InventorySystem
+    if (character.inventory && Array.isArray(character.inventory)) {
+        const inventorySystem = new InventorySystem(100);
+        character.inventory.forEach(itemData => {
+            inventorySystem.addItem(itemData, itemData.quantity || 1);
+        });
+        character.inventory = inventorySystem;
+    } else if (!character.inventory) {
+        character.inventory = new InventorySystem(100);
+    }
+    
+    // Restore EquipmentManager
+    if (character.equipment && !character.equipment.equip) {
+        const equipmentManager = new EquipmentManager(character);
+        if (character.equipment.slots) {
+            equipmentManager.slots = character.equipment.slots;
+        }
+        character.equipment = equipmentManager;
+    } else if (!character.equipment) {
+        character.equipment = new EquipmentManager(character);
+    }
+    
+    // Restore SkillTreeManager
+    if (character.skillTree && !character.skillTree.learnSkill) {
+        const skillTreeManager = new SkillTreeManager(character);
+        if (character.skillTree.skills) {
+            skillTreeManager.skills = character.skillTree.skills;
+        }
+        if (character.skillTree.availablePoints !== undefined) {
+            skillTreeManager.availablePoints = character.skillTree.availablePoints;
+        }
+        character.skillTree = skillTreeManager;
+    } else if (!character.skillTree) {
+        character.skillTree = new SkillTreeManager(character);
+    }
+    
+    return character;
+}
+
+/**
  * Save game data to localStorage
  */
 function saveGameData() {
     try {
-        localStorage.setItem('questOfLegends_saves', JSON.stringify(gameState.savedGames));
+        // Serialize saved games with proper handling of circular references
+        const serializedSaves = gameState.savedGames.map(save => {
+            return {
+                timestamp: save.timestamp,
+                character: serializeCharacter(save.character),
+                adventureState: save.adventureState
+            };
+        });
+        
+        localStorage.setItem('questOfLegends_saves', JSON.stringify(serializedSaves));
         localStorage.setItem('questOfLegends_settings', JSON.stringify(gameState.settings));
     } catch (err) {
         console.error('Error saving game data:', err);
     }
+}
+
+/**
+ * Serialize character for saving (remove circular references)
+ */
+function serializeCharacter(character) {
+    if (!character) return null;
+    
+    const serialized = { ...character };
+    
+    // Convert InventorySystem to simple array
+    if (serialized.inventory && serialized.inventory.items) {
+        serialized.inventory = serialized.inventory.items.map(item => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            category: item.category,
+            rarity: item.rarity,
+            weight: item.weight,
+            value: item.value,
+            stackable: item.stackable,
+            quantity: item.quantity,
+            stats: item.stats,
+            effects: item.effects,
+            icon: item.icon
+        }));
+    }
+    
+    // Convert EquipmentManager to simple object
+    if (serialized.equipment && serialized.equipment.slots) {
+        serialized.equipment = {
+            slots: { ...serialized.equipment.slots }
+        };
+    }
+    
+    // Convert SkillTreeManager to simple object
+    if (serialized.skillTree && serialized.skillTree.skills) {
+        serialized.skillTree = {
+            skills: { ...serialized.skillTree.skills },
+            availablePoints: serialized.skillTree.availablePoints || 0
+        };
+    }
+    
+    return serialized;
 }
 
 /**
@@ -252,7 +436,13 @@ function saveGameProgress() {
     }
     
     saveGameData();
-    showMessage('✅ Game saved successfully!', 'success');
+    
+    // Show different message based on whether in adventure
+    if (gameState.currentAdventure) {
+        showMessage('✅ Character saved! (Adventure will restart on load)', 'warning');
+    } else {
+        showMessage('✅ Game saved successfully!', 'success');
+    }
 }
 
 /**
@@ -262,11 +452,17 @@ function showMessage(text, type = 'info') {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message message-${type}`;
     messageDiv.textContent = text;
+    
+    let bgColor = '#00ff00'; // success
+    if (type === 'error') bgColor = '#ff0000';
+    if (type === 'warning') bgColor = '#ffaa00';
+    if (type === 'info') bgColor = '#00aaff';
+    
     messageDiv.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        background: ${type === 'success' ? '#00ff00' : '#ff0000'};
+        background: ${bgColor};
         color: #000;
         padding: 15px 25px;
         border: 3px solid #000;

@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Settings System
+ * MULTI-VENTURE - Settings System
  * Manages game settings, preferences, and accessibility options
  */
 
@@ -8,7 +8,8 @@ const DEFAULT_SETTINGS = {
         enabled: true,
         volume: 0.7,
         sfxVolume: 0.8,
-        musicVolume: 0.5
+        musicVolume: 0.5,
+        musicEnabled: true
     },
     display: {
         textSpeed: 50, // milliseconds per character
@@ -97,6 +98,11 @@ class SettingsManager {
             document.body.classList.add('reduce-motion');
         } else {
             document.body.classList.remove('reduce-motion');
+        }
+        
+        // Update background music volume and state
+        if (typeof updateBackgroundMusicVolume === 'function') {
+            updateBackgroundMusicVolume();
         }
     }
 
@@ -191,6 +197,7 @@ function populateSettingsUI() {
     
     // Sound settings
     document.getElementById('soundEnabled').checked = s.sound.enabled;
+    document.getElementById('musicEnabled').checked = s.sound.musicEnabled;
     document.getElementById('soundVolume').value = s.sound.volume * 100;
     document.getElementById('sfxVolume').value = s.sound.sfxVolume * 100;
     document.getElementById('musicVolume').value = s.sound.musicVolume * 100;
@@ -229,6 +236,7 @@ function saveSettingsFromUI() {
     
     // Sound
     s.sound.enabled = document.getElementById('soundEnabled').checked;
+    s.sound.musicEnabled = document.getElementById('musicEnabled').checked;
     s.sound.volume = document.getElementById('soundVolume').value / 100;
     s.sound.sfxVolume = document.getElementById('sfxVolume').value / 100;
     s.sound.musicVolume = document.getElementById('musicVolume').value / 100;

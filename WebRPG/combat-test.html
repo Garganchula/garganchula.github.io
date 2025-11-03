@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combat System Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/enhanced.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Press Start 2P', cursive;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border: 3px solid #8b4513;
+            padding: 20px;
+        }
+        .test-header {
+            text-align: center;
+            color: #ffa500;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        .enemy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .enemy-card {
+            background: #2a2a2a;
+            border: 2px solid #8b4513;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .enemy-card:hover {
+            background: #3a3a3a;
+            border-color: #ffa500;
+            transform: scale(1.05);
+        }
+        .enemy-card h3 {
+            color: #ffa500;
+            font-size: 0.7em;
+            margin-bottom: 10px;
+        }
+        .enemy-card .stats {
+            font-size: 0.5em;
+            color: #00ff00;
+            margin-top: 10px;
+        }
+        .test-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .test-btn {
+            padding: 15px 30px;
+            background: #8b4513;
+            border: 3px solid #ffa500;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7em;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        .test-btn:hover {
+            background: #ffa500;
+            color: #000;
+            transform: translateY(-2px);
+        }
+        .test-btn:active {
+            transform: translateY(0);
+        }
+        .info-box {
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.6em;
+        }
+        #testLog {
+            background: #0a0a0a;
+            border: 2px solid #8b4513;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            ⚔️ COMBAT SYSTEM TEST ⚔️
+        </div>
+
+        <div class="info-box">
+            <p>Click on any enemy below to start a combat test!</p>
+            <p>Character: Level 5 Warrior | HP: 100 | Attack: 15 | Defense: 10</p>
+        </div>
+
+        <h2 style="color: #ffa500; font-size: 0.8em; margin: 20px 0;">Select Enemy:</h2>
+        
+        <div class="enemy-grid" id="enemyGrid">
+            <!-- Enemies will be populated here -->
+        </div>
+
+        <div class="test-controls">
+            <button class="test-btn" onclick="testRandomEnemy()">🎲 RANDOM ENEMY</button>
+            <button class="test-btn" onclick="testArrayCombat()">👥 MULTI-ENEMY (Array)</button>
+            <button class="test-btn" onclick="clearLog()">🗑️ CLEAR LOG</button>
+        </div>
+
+        <div id="testLog"></div>
+    </div>
+
+    <!-- Combat Modal -->
+    <div id="combatModal" class="modal">
+        <div class="modal-content combat-modal">
+            <h2>⚔️ COMBAT TEST</h2>
+            <div id="combatScreen">
+                <!-- Combat interface -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/statusEffects.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/equipment.js"></script>
+    <script src="js/skillTree.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/character.js"></script>
+    <script src="js/combat.js"></script>
+
+    <script>
+        // Initialize systems
+        document.addEventListener('DOMContentLoaded', function() {
+            initNotifications();
+            initSettings();
+            initEffects();
+            initStatusEffects();
+            console.log('✅ Test page initialized');
+            populateEnemyGrid();
+        });
+
+        // Create a test character
+        const gameState = {
+            currentCharacter: null,
+            currentAdventure: null
+        };
+
+        // Initialize test character
+        function initTestCharacter() {
+            gameState.currentCharacter = {
+                name: "Test Warrior",
+                class: "Warrior",
+                level: 5,
+                health: 100,
+                maxHealth: 100,
+                mana: 50,
+                maxMana: 50,
+                stamina: 100,
+                maxStamina: 100,
+                attack: 15,
+                defense: 10,
+                stats: {
+                    strength: 15,
+                    dexterity: 10,
+                    constitution: 12,
+                    intelligence: 8,
+                    wisdom: 8,
+                    charisma: 10
+                },
+                inventory: [],
+                gold: 100,
+                experience: 0,
+                experienceToNext: 1000
+            };
+            return gameState.currentCharacter;
+        }
+
+        // Enemy list from combat.js
+        const enemyNames = [
+            'Corrupted Stag',
+            'Corrupted Wolf',
+            'Alpha Wolf',
+            'Corrupted Bear',
+            'Twisted Treant',
+            'Shadow Wraith',
+            'Kobold Scout',
+            'Fire Elemental',
+            'Wolf Pack',
+            'Corrupted Treant',
+            'Shadow Tendrils',
+            'Shadow Beast',
+            'Elara the Corrupted',
+            'Scalefire the Eternal'
+        ];
+
+        // Populate enemy grid
+        function populateEnemyGrid() {
+            const grid = document.getElementById('enemyGrid');
+            
+            enemyNames.forEach(name => {
+                const card = document.createElement('div');
+                card.className = 'enemy-card';
+                
+                // Get enemy sprite
+                const sprites = {
+                    'Corrupted Stag': '🦌',
+                    'Corrupted Wolf': '🐺',
+                    'Alpha Wolf': '🐺',
+                    'Wolf Pack': '🐺🐺',
+                    'Corrupted Treant': '🌲',
+                    'Twisted Treant': '🌲',
+                    'Shadow Tendrils': '🌑',
+                    'Shadow Beast': '👹',
+                    'Shadow Wraith': '👻',
+                    'Corrupted Bear': '🐻',
+                    'Kobold Scout': '👺',
+                    'Fire Elemental': '🔥',
+                    'Elara the Corrupted': '👑',
+                    'Scalefire the Eternal': '🐉'
+                };
+                
+                const sprite = sprites[name] || '👾';
+                
+                // Try to get enemy stats
+                let stats = '';
+                try {
+                    const enemy = createEnemy(name, 1);
+                    stats = `HP: ${enemy.maxHealth} | DMG: ${enemy.damage}`;
+                } catch(e) {
+                    stats = 'Stats unavailable';
+                }
+                
+                card.innerHTML = `
+                    <div style="font-size: 2em; margin-bottom: 10px;">${sprite}</div>
+                    <h3>${name}</h3>
+                    <div class="stats">${stats}</div>
+                `;
+                
+                card.onclick = () => testCombat(name);
+                grid.appendChild(card);
+            });
+        }
+
+        // Test combat with specific enemy
+        function testCombat(enemyName) {
+            log(`🎮 Testing combat with: ${enemyName}`);
+            
+            const character = initTestCharacter();
+            const enemy = createEnemy(enemyName, 1);
+            
+            log(`📊 Enemy created: ${JSON.stringify(enemy)}`);
+            
+            const combat = new Combat(character, enemy, (result) => {
+                log(`✅ Combat ended with result: ${result}`);
+                closeCombatModal();
+            });
+            
+            combat.start();
+        }
+
+        // Test with random enemy
+        function testRandomEnemy() {
+            const randomName = enemyNames[Math.floor(Math.random() * enemyNames.length)];
+            log(`🎲 Random enemy selected: ${randomName}`);
+            testCombat(randomName);
+        }
+
+        // Test array combat (multiple enemies)
+        function testArrayCombat() {
+            log(`👥 Testing multi-enemy combat (array)`);
+            
+            const character = initTestCharacter();
+            const enemies = [
+                createEnemy('Corrupted Wolf', 1),
+                createEnemy('Corrupted Wolf', 1),
+                createEnemy('Alpha Wolf', 2)
+            ];
+            
+            log(`📊 Created ${enemies.length} enemies`);
+            
+            const combat = new Combat(character, enemies, (result) => {
+                log(`✅ Multi-enemy combat ended with result: ${result}`);
+                closeCombatModal();
+            });
+            
+            combat.start();
+        }
+
+        // Close combat modal
+        function closeCombatModal() {
+            const modal = document.getElementById('combatModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Logging
+        function log(message) {
+            const logDiv = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div style="color: #00ff00; margin-bottom: 5px;">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+            log('📝 Log cleared');
+        }
+
+        // Mock playSFX function
+        function playSFX(sound) {
+            console.log('🔊 SFX:', sound);
+        }
+
+        // Mock showNotification function if not available
+        if (typeof showNotification !== 'function') {
+            function showNotification(message, type) {
+                log(`📢 ${type.toUpperCase()}: ${message}`);
+            }
+        }
+    </script>
+</body>
+</html>

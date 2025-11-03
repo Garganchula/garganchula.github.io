@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Notification System
+ * MULTI-VENTURE - Notification System
  * Toast notifications for game events
  */
 

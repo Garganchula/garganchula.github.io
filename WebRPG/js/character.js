@@ -1,5 +1,5 @@
 /**
- * QUEST OF LEGENDS - Character System
+ * MULTI-VENTURE - Character System
  * Handles character creation, stats, and progression
  */
 
@@ -430,12 +430,14 @@ function generateCharacterSheetHTML(character) {
             
             <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">INVENTORY</h4>
-                ${character.inventory.length > 0 ? 
-                    character.inventory.map(item => `
-                        <div style="padding: 5px; font-size: 0.7em;">• ${item}</div>
-                    `).join('') :
-                    '<p style="color: #888; font-size: 0.7em;">Empty</p>'
-                }
+                ${(() => {
+                    const inventoryItems = character.inventory && character.inventory.items ? character.inventory.items : (Array.isArray(character.inventory) ? character.inventory : []);
+                    return inventoryItems.length > 0 ? 
+                        inventoryItems.map(item => `
+                            <div style="padding: 5px; font-size: 0.7em;">• ${item.icon || '📦'} ${item.name || item} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</div>
+                        `).join('') :
+                        '<p style="color: #888; font-size: 0.7em;">Empty</p>';
+                })()}
             </div>
             
             <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
@@ -492,10 +494,11 @@ function updateCharacterDisplay() {
     }
     
     if (inventoryDiv) {
-        inventoryDiv.innerHTML = char.inventory.length > 0 ?
-            char.inventory.map(item => `
+        const inventoryItems = char.inventory && char.inventory.items ? char.inventory.items : (Array.isArray(char.inventory) ? char.inventory : []);
+        inventoryDiv.innerHTML = inventoryItems.length > 0 ?
+            inventoryItems.map(item => `
                 <div style="padding: 5px; font-size: 0.6em; border-bottom: 1px solid var(--border-color);">
-                    ${item}
+                    ${item.icon || '📦'} ${item.name || item} ${item.quantity > 1 ? `(x${item.quantity})` : ''}
                 </div>
             `).join('') :
             '<p style="color: #888; font-size: 0.6em; text-align: center;">Empty</p>';

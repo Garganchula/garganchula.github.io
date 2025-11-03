@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚔️ Quest of Legends - A Retro RPG Adventure</title>
+    <title>⚔️ Multi-Venture - A Retro RPG Adventure</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,8 +15,8 @@
         <!-- Title Screen -->
         <div id="titleScreen" class="screen active">
             <div class="title-content">
-                <h1 class="game-title glitch" data-text="QUEST OF LEGENDS">QUEST OF LEGENDS</h1>
-                <p class="subtitle">A Retro Fantasy Adventure</p>
+                <h1 class="game-title glitch" data-text="MULTI-VENTURE">MULTI-VENTURE</h1>
+                <p class="subtitle">Choose your Adventure!</p>
                 <div class="title-menu">
                     <button class="menu-btn" onclick="playSFX('select'); switchTab('create'); showScreen('characterSelect')">▶ NEW CHARACTER</button>
                     <button class="menu-btn" onclick="playSFX('select'); switchTab('load'); showScreen('characterSelect')">▶ LOAD CHARACTER</button>
@@ -25,7 +25,7 @@
                     <button class="menu-btn" onclick="playSFX('select'); showSettings()">▶ SETTINGS</button>
                     <button class="menu-btn" onclick="playSFX('select'); showScreen('credits')">▶ CREDITS</button>
                 </div>
-                <p class="copyright">© 2025 - Press START</p>
+                <p class="copyright">© 2025 - Garganchula Studios - pre-beta 1.0</p>
             </div>
         </div>
 
@@ -166,20 +166,20 @@
                 <h2>CREDITS</h2>
                 <div class="credits-scroll">
                     <p>Adventure</p>
-                    <p>A Retro RPG Adventure</p>
+                    <p>Texted Based Adventures bro</p>
                     <br>
-                    <p>GAME DESIGN</p>
-                    <p>Classic RPG Engine</p>
+                    <p>I love RPGs lol</p>
+                    <p>A lot of place holders right now, but working on it prolly</p>
                     <br>
                     <p>PROGRAMMING</p>
-                    <p>JavaScript & Python Backend</p>
+                    <p>JavaScript Backend</p>
                     <br>
                     <p>INSPIRED BY</p>
-                    <p>Final Fantasy • Dragon Quest</p>
-                    <p>The Elder Scrolls • Ultima</p>
+                    <p>Old texted based adventures</p>
+                    <p>Elder Scrolls 1</p>
                     <br>
                     <p>SPECIAL THANKS</p>
-                    <p>To all adventurers who dare to quest!</p>
+                    <p>To my bois</p>
                     <br>
                     <p class="press-start">PRESS ESC TO RETURN</p>
                 </div>
@@ -220,6 +220,12 @@
                             <span class="setting-label">Sound Enabled:</span>
                             <div class="setting-control">
                                 <input type="checkbox" id="soundEnabled">
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">Music Enabled:</span>
+                            <div class="setting-control">
+                                <input type="checkbox" id="musicEnabled">
                             </div>
                         </div>
                         <div class="setting-item">
@@ -385,6 +391,9 @@
     <audio id="sfxSelect" src="SFX/beep 1.ogg" preload="auto"></audio>
     <audio id="sfxConfirm" src="SFX/beep 1.ogg" preload="auto"></audio>
     <audio id="sfxBattle" src="SFX/beep 1.ogg" preload="auto"></audio>
+    
+    <!-- Background Music -->
+    <audio id="bgMusic" src="SFX/Forrest Sounds 1.ogg" loop preload="auto"></audio>
 
     <!-- Enhanced CSS -->
     <link rel="stylesheet" href="css/enhanced.css">
