@@ -19,6 +19,20 @@ const ITEM_RARITY = {
     LEGENDARY: { name: 'Legendary', color: '#ffd700' }
 };
 
+// Equipment slots (must be defined before SAMPLE_ITEMS uses it)
+const EQUIPMENT_SLOTS = {
+    HEAD: 'head',
+    CHEST: 'chest',
+    LEGS: 'legs',
+    FEET: 'feet',
+    HANDS: 'hands',
+    WEAPON: 'weapon',
+    OFFHAND: 'offhand',
+    RING1: 'ring1',
+    RING2: 'ring2',
+    AMULET: 'amulet'
+};
+
 class Item {
     constructor(data) {
         this.id = data.id || Date.now().toString();

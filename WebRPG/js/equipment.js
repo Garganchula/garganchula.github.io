@@ -3,18 +3,7 @@
  * Manage character equipment with slots and stat bonuses
  */
 
-const EQUIPMENT_SLOTS = {
-    HEAD: 'head',
-    CHEST: 'chest',
-    LEGS: 'legs',
-    FEET: 'feet',
-    HANDS: 'hands',
-    WEAPON: 'weapon',
-    OFFHAND: 'offhand',
-    RING1: 'ring1',
-    RING2: 'ring2',
-    AMULET: 'amulet'
-};
+// EQUIPMENT_SLOTS is now defined in inventory.js to avoid circular dependencies
 
 class EquipmentManager {
     constructor(character) {

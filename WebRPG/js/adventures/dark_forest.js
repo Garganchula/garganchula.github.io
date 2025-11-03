@@ -120,7 +120,7 @@ hours ago. Maybe last night?
 You need to think. You need to figure out what happened. But where to start?
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Search yourself for clues',
         'Look around the clearing',
         'Follow a trail of blood leading into the trees',
@@ -202,7 +202,7 @@ This wasn't a simple murder. This was a hunt.
     updateQuestLog('Found: Evidence of a violent struggle');
     updateQuestLog('Clue: Arrows, torn cloak, claw marks');
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Follow the blood trail into the forest',
         'Search for more clues',
         'Try to find a stream to wash off',
@@ -254,7 +254,7 @@ You search the body. In his pack you find:
     forestState.examedBody = true;
     forestState.cluesFound++;
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Read the note',
         'Take the supplies and leave quickly',
         'Examine the wounds more closely',
@@ -366,7 +366,7 @@ You look down at your own hands, still stained with blood.
     updateQuestLog('Realized: The killer was skilled');
     updateQuestLog('Disturbing thought: Your hands remember this?');
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Read the note he was carrying',
         'Take his supplies and leave',
         'Search the area for more clues'
@@ -453,7 +453,7 @@ holding a knife you just took from the dead man.
 *This looks... really bad.*
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Hide and observe who\'s coming',
         'Run before they see you',
         'Stay and try to explain',
@@ -700,7 +700,7 @@ The villagers. They must have heard the combat.
 You need to decide - do you wait for them, or keep moving?
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Wait for the villagers to arrive',
         'Leave before they see you',
         'Try to clean the blood off before they arrive',
@@ -849,7 +849,7 @@ forest. I remember my name - ${gameState.currentCharacter.name} -
 and nothing else. I'm trying to find out what happened."
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Tell them everything you found',
         'Keep some details to yourself',
         'Ask for their help investigating',
@@ -1000,7 +1000,7 @@ She looks at you seriously. "Tomorrow we start. We have three leads:
 Where do you want to start?"
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Go to the standing stones',
         'Investigate Marcus\'s cabin',
         'Talk to the survivors',
@@ -1126,7 +1126,7 @@ have no memory?"
 *They're talking about ME.*
     `);
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Attack them now while they\'re unprepared',
         'Sneak away and warn the village',
         'Try to capture one for questioning',
@@ -1534,7 +1534,7 @@ async function adventure_complete() {
     gameState.currentAdventure = null;
     saveGameProgress();
     
-    const choice = await showChoice([
+    const choice = await showChoices([
         'Return to Main Menu',
         'Explore Oakridge (Free Roam)',
         'Start New Adventure'

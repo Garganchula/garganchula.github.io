@@ -5,6 +5,7 @@
 
 /**
  * Show choice buttons
+ * Supports both string arrays and object arrays with {text, value} properties
  */
 async function showChoices(choices) {
     return new Promise((resolve) => {
@@ -14,12 +15,17 @@ async function showChoices(choices) {
         choices.forEach((choice, index) => {
             const btn = document.createElement('button');
             btn.className = 'choice-btn';
-            btn.innerHTML = `${index + 1}. ${choice.text}`;
+            
+            // Handle both string and object formats
+            const choiceText = typeof choice === 'string' ? choice : choice.text;
+            const choiceValue = typeof choice === 'string' ? index : choice.value;
+            
+            btn.innerHTML = `${index + 1}. ${choiceText}`;
             btn.onclick = () => {
                 playSFX('select');
                 // Disable all buttons
                 choiceDiv.querySelectorAll('button').forEach(b => b.disabled = true);
-                resolve(choice.value);
+                resolve(choiceValue);
             };
             choiceDiv.appendChild(btn);
         });
