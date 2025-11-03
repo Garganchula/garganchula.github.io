@@ -167,7 +167,7 @@ class EquipmentManager {
                         ${item ? `
                             <div class="slot-icon">${item.icon}</div>
                             <div class="slot-name">${item.name}</div>
-                            <button class="unequip-btn" onclick="unequipSlot('${slotName}')">✖</button>
+                            <button class="unequip-btn" onclick="playSFX('select'); unequipSlot('${slotName}')">✖</button>
                         ` : `
                             <div class="slot-empty">Empty</div>
                         `}

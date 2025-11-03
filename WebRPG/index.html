@@ -18,12 +18,12 @@
                 <h1 class="game-title glitch" data-text="QUEST OF LEGENDS">QUEST OF LEGENDS</h1>
                 <p class="subtitle">A Retro Fantasy Adventure</p>
                 <div class="title-menu">
-                    <button class="menu-btn" onclick="switchTab('create'); showScreen('characterSelect')">▶ NEW CHARACTER</button>
-                    <button class="menu-btn" onclick="switchTab('load'); showScreen('characterSelect')">▶ LOAD CHARACTER</button>
-                    <button class="menu-btn" onclick="showScreen('adventureSelect')">▶ ADVENTURE SELECT</button>
-                    <button class="menu-btn" onclick="showAchievements()">▶ ACHIEVEMENTS</button>
-                    <button class="menu-btn" onclick="showSettings()">▶ SETTINGS</button>
-                    <button class="menu-btn" onclick="showScreen('credits')">▶ CREDITS</button>
+                    <button class="menu-btn" onclick="playSFX('select'); switchTab('create'); showScreen('characterSelect')">▶ NEW CHARACTER</button>
+                    <button class="menu-btn" onclick="playSFX('select'); switchTab('load'); showScreen('characterSelect')">▶ LOAD CHARACTER</button>
+                    <button class="menu-btn" onclick="playSFX('select'); showScreen('adventureSelect')">▶ ADVENTURE SELECT</button>
+                    <button class="menu-btn" onclick="playSFX('select'); showAchievements()">▶ ACHIEVEMENTS</button>
+                    <button class="menu-btn" onclick="playSFX('select'); showSettings()">▶ SETTINGS</button>
+                    <button class="menu-btn" onclick="playSFX('select'); showScreen('credits')">▶ CREDITS</button>
                 </div>
                 <p class="copyright">© 2025 - Press START</p>
             </div>
@@ -37,8 +37,8 @@
                 </div>
                 <div class="window-content">
                     <div class="character-tabs">
-                        <button class="tab-btn active" onclick="switchTab('create')">CREATE NEW</button>
-                        <button class="tab-btn" onclick="switchTab('load')">LOAD CHARACTER</button>
+                        <button class="tab-btn active" onclick="playSFX('select'); switchTab('create')">CREATE NEW</button>
+                        <button class="tab-btn" onclick="playSFX('select'); switchTab('load')">LOAD CHARACTER</button>
                     </div>
 
                     <!-- Create Character Tab -->
@@ -60,7 +60,7 @@
                         <div class="stat-preview" id="statPreview">
                             <!-- Stats will be populated here -->
                         </div>
-                        <button class="action-btn" onclick="createCharacter()">CREATE CHARACTER</button>
+                        <button class="action-btn" onclick="playSFX('confirm'); createCharacter()">CREATE CHARACTER</button>
                     </div>
 
                     <!-- Load Character Tab -->
@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                    <button class="back-btn" onclick="showScreen('titleScreen')">← BACK</button>
+                    <button class="back-btn" onclick="playSFX('select'); showScreen('titleScreen')">← BACK</button>
                 </div>
             </div>
         </div>
@@ -90,7 +90,7 @@
                         <!-- Adventures will be populated here -->
                     </div>
 
-                    <button class="back-btn" onclick="showScreen('titleScreen')">← BACK</button>
+                    <button class="back-btn" onclick="playSFX('select'); showScreen('titleScreen')">← BACK</button>
                 </div>
             </div>
         </div>
@@ -151,12 +151,12 @@
             </div>
 
             <div class="game-footer">
-                <button class="footer-btn" onclick="saveGameProgress()">💾 SAVE</button>
-                <button class="footer-btn" onclick="showCharacterSheet()">📊 STATS</button>
-                <button class="footer-btn" onclick="showEquipmentPanel()">⚔️ EQUIPMENT</button>
-                <button class="footer-btn" onclick="showSkillTree()">🌳 SKILLS</button>
-                <button class="footer-btn" onclick="showAchievements()">🏆 ACHIEVEMENTS</button>
-                <button class="footer-btn" onclick="confirmQuit()">🚪 QUIT</button>
+                <button class="footer-btn" onclick="playSFX('select'); saveGameProgress()">💾 SAVE</button>
+                <button class="footer-btn" onclick="playSFX('select'); showCharacterSheet()">📊 STATS</button>
+                <button class="footer-btn" onclick="playSFX('select'); showEquipmentPanel()">⚔️ EQUIPMENT</button>
+                <button class="footer-btn" onclick="playSFX('select'); showSkillTree()">🌳 SKILLS</button>
+                <button class="footer-btn" onclick="playSFX('select'); showAchievements()">🏆 ACHIEVEMENTS</button>
+                <button class="footer-btn" onclick="playSFX('select'); confirmQuit()">🚪 QUIT</button>
             </div>
         </div>
 
@@ -211,7 +211,7 @@
         <!-- Settings Modal -->
         <div id="settingsModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeSettings()">&times;</span>
+                <span class="close" onclick="playSFX('select'); closeSettings()">&times;</span>
                 <h2>⚙️ SETTINGS</h2>
                 <div class="settings-content">
                     <div class="settings-section">
@@ -344,8 +344,8 @@
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 20px;">
-                    <button class="action-btn" onclick="saveSettingsFromUI()">SAVE SETTINGS</button>
-                    <button class="back-btn" onclick="resetSettings()">RESET TO DEFAULT</button>
+                    <button class="action-btn" onclick="playSFX('confirm'); saveSettingsFromUI()">SAVE SETTINGS</button>
+                    <button class="back-btn" onclick="playSFX('select'); resetSettings()">RESET TO DEFAULT</button>
                 </div>
             </div>
         </div>
@@ -353,7 +353,7 @@
         <!-- Equipment Modal -->
         <div id="equipmentModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeEquipmentPanel()">&times;</span>
+                <span class="close" onclick="playSFX('select'); closeEquipmentPanel()">&times;</span>
                 <h2>⚔️ EQUIPMENT</h2>
                 <div id="equipmentPanel"></div>
             </div>
@@ -362,7 +362,7 @@
         <!-- Skill Tree Modal -->
         <div id="skillTreeModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeSkillTree()">&times;</span>
+                <span class="close" onclick="playSFX('select'); closeSkillTree()">&times;</span>
                 <div id="skillTreePanel"></div>
             </div>
         </div>
@@ -370,7 +370,7 @@
         <!-- Achievements Modal -->
         <div id="achievementsModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeAchievements()">&times;</span>
+                <span class="close" onclick="playSFX('select'); closeAchievements()">&times;</span>
                 <div id="achievementsContent"></div>
             </div>
         </div>
@@ -381,10 +381,10 @@
         💾 Game Saved
     </div>
 
-    <!-- Sound Effects (optional) -->
-    <audio id="sfxSelect" src=""></audio>
-    <audio id="sfxConfirm" src=""></audio>
-    <audio id="sfxBattle" src=""></audio>
+    <!-- Sound Effects -->
+    <audio id="sfxSelect" src="SFX/beep 1.ogg" preload="auto"></audio>
+    <audio id="sfxConfirm" src="SFX/beep 1.ogg" preload="auto"></audio>
+    <audio id="sfxBattle" src="SFX/beep 1.ogg" preload="auto"></audio>
 
     <!-- Enhanced CSS -->
     <link rel="stylesheet" href="css/enhanced.css">

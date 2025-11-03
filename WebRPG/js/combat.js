@@ -94,26 +94,26 @@ class Combat {
         
         return `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button class="combat-btn" onclick="currentCombat.playerAction('attack')">
+                <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('attack')">
                     ⚔️ ATTACK
                 </button>
-                <button class="combat-btn" onclick="currentCombat.playerAction('defend')">
+                <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('defend')">
                     🛡️ DEFEND
                 </button>
-                <button class="combat-btn" onclick="currentCombat.playerAction('magic')" 
+                <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('magic')" 
                     ${this.character.mana < 20 ? 'disabled' : ''}>
                     🔮 MAGIC (20 MP)
                 </button>
-                <button class="combat-btn" onclick="currentCombat.playerAction('special')"
+                <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('special')"
                     ${this.character.stamina < 30 ? 'disabled' : ''}>
                     ⚡ SPECIAL (30 ST)
                 </button>
                 ${potions.length > 0 ? `
-                    <button class="combat-btn" onclick="currentCombat.playerAction('item')">
+                    <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('item')">
                         🎒 USE ITEM
                     </button>
                 ` : ''}
-                <button class="combat-btn" onclick="currentCombat.playerAction('flee')">
+                <button class="combat-btn" onclick="playSFX('select'); currentCombat.playerAction('flee')">
                     🏃 FLEE
                 </button>
             </div>

@@ -68,13 +68,19 @@ function switchTab(tabName) {
  * Play sound effect
  */
 function playSFX(type) {
-    if (!gameState.settings.soundEnabled) return;
+    // Check if settings manager exists and sound is enabled
+    if (settingsManager && !settingsManager.settings.sound.enabled) return;
     
     const sfx = document.getElementById(`sfx${type.charAt(0).toUpperCase() + type.slice(1)}`);
     if (sfx && sfx.src) {
         sfx.currentTime = 0;
+        // Apply volume settings
+        if (settingsManager) {
+            sfx.volume = settingsManager.settings.sound.sfxVolume * settingsManager.settings.sound.volume;
+        }
         sfx.play().catch(err => {
-            // Ignore autoplay errors
+            // Ignore autoplay errors (browsers block autoplay before user interaction)
+            console.log('Audio playback prevented:', err.message);
         });
     }
 }

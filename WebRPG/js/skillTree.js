@@ -433,7 +433,7 @@ class SkillTreeManager {
                 <h3>${tree.icon} ${tree.name}</h3>
                 <div class="talent-points">
                     <span>Available Points: ${this.availablePoints}</span>
-                    <button class="reset-btn" onclick="resetSkillTree()">Reset (100g)</button>
+                    <button class="reset-btn" onclick="playSFX('confirm'); resetSkillTree()">Reset (100g)</button>
                 </div>
             </div>
             <div class="skills-grid">
@@ -453,7 +453,7 @@ class SkillTreeManager {
                         <div class="skill-rank">Rank: ${currentRank}/${skill.maxRank}</div>
                         ${currentRank < skill.maxRank ? `
                             <button class="learn-btn ${canLearn.success ? '' : 'disabled'}" 
-                                    onclick="learnSkill('${skillId}')"
+                                    onclick="playSFX('confirm'); learnSkill('${skillId}')"
                                     ${!canLearn.success ? 'disabled' : ''}>
                                 Learn (${skill.cost} ${skill.cost === 1 ? 'point' : 'points'})
                             </button>
