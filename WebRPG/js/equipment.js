@@ -50,12 +50,21 @@ class EquipmentManager {
         const canEquipResult = this.canEquip(item, slot);
         if (!canEquipResult.success) {
             showNotification(canEquipResult.reason, 'error');
-            return false;
+            return { success: false };
         }
 
-        // Unequip current item in slot
+        // Unequip current item in slot (if any)
         if (this.slots[slot]) {
             this.unequip(slot);
+        }
+
+        // Remove item from inventory (if it's there)
+        if (this.character.inventory) {
+            const inventoryIndex = this.character.inventory.items.findIndex(i => i.name === item.name);
+            if (inventoryIndex !== -1) {
+                this.character.inventory.items.splice(inventoryIndex, 1);
+                console.log(`🎒 Removed ${item.name} from inventory`);
+            }
         }
 
         // Equip new item
@@ -69,7 +78,7 @@ class EquipmentManager {
             effectsManager.flash('rgba(255, 215, 0, 0.2)', 300);
         }
         
-        return true;
+        return { success: true };
     }
 
     unequip(slot) {

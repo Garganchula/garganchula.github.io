@@ -31,6 +31,29 @@ class ForestState {
         this.knowsAboutBandits = false;
         this.knowsAboutRitual = false;
         this.examedBody = false;
+        
+        // NEW: Player choices and morality
+        this.moralityScore = 0; // Positive = good, negative = dark
+        this.washedBlood = false;
+        this.keptEvidence = false;
+        this.helpedStranger = false;
+        this.liedToVillagers = false;
+        this.stealthApproach = false;
+        this.violenceLevel = 0; // Track how violent player is
+        
+        // NEW: NPC relationships
+        this.elderTrust = 0;
+        this.guardHostility = 0;
+        this.cultistAwareness = 0;
+        
+        // NEW: Investigation paths
+        this.visitedLocations = [];
+        this.interrogatedNPCs = [];
+        this.foundClueTypes = {
+            physical: 0,
+            witness: 0,
+            supernatural: 0
+        };
     }
 }
 
@@ -59,12 +82,7 @@ async function startDarkForestAdventure() {
  * Prologue - Awakening
  */
 async function prologue() {
-    addStoryText(`
-═══════════════════════════════════════════════════════════════════
-               🌲 BLOOD IN THE WOODS 🌲
-                      800 AD
-═══════════════════════════════════════════════════════════════════
-    `);
+    addStoryText(`🌲 BLOOD IN THE WOODS 🌲 - 800 AD`);
     
     await typeText(`Pain.
 
@@ -1551,21 +1569,336 @@ async function adventure_complete() {
 
 // Placeholder functions for branches not fully implemented
 async function wash_blood() {
-    await typeText("\nThis path is still being written...");
+    addStoryText('\n--- THE STREAM ---\n');
+    
+    await typeText(`You follow the sound of running water until you find a small stream, 
+crystal clear and cold.
+
+You kneel beside it and plunge your hands into the icy water. The blood 
+turns the stream pink as it washes away. You scrub your arms, your face, 
+trying to remove every trace of what happened.
+
+But some stains run deeper than skin.
+
+As you wash, you notice your reflection in the water. Your face is gaunt, 
+exhausted. There are scratches on your cheek you don't remember getting.
+
+*Who am I? What did I do?*
+
+The blood washes away, but not the questions. Not the guilt.`);
+    
+    forestState.washedBlood = true;
+    forestState.moralityScore += 1; // Trying to clean up = slight good tendency
+    updateQuestLog('Washed the blood away - but questions remain');
+    
     await showContinue();
-    await search_clearing();
+    
+    await typeText(`As you finish washing, you hear something - footsteps approaching 
+through the undergrowth.
+
+Someone's coming!`);
+    
+    const choice = await showChoices([
+        'Hide behind the rocks and observe',
+        'Stand up and call out to them',
+        'Grab a rock as a weapon and wait',
+        'Run deeper into the forest'
+    ]);
+    
+    if (choice === 0) {
+        await hide_by_stream();
+    } else if (choice === 1) {
+        await call_out_at_stream();
+    } else if (choice === 2) {
+        await prepare_ambush_stream();
+    } else {
+        await run_from_stream();
+    }
+}
+
+async function hide_by_stream() {
+    addStoryText('\n--- HIDDEN OBSERVER ---\n');
+    
+    await typeText(`You quickly duck behind the rocks, peering out carefully.
+
+A young woman emerges from the trees carrying a water jug. She can't be 
+more than twenty, with long dark hair and simple peasant clothes.
+
+She kneels at the stream to fill her jug, humming softly to herself.
+
+Then she stops. She's staring at the water - at the pink tinge from your 
+blood-washing.
+
+Her eyes widen. She looks around nervously.`);
+    
+    forestState.stealthApproach = true;
+    
+    const choice = await showChoices([
+        'Reveal yourself calmly - "I mean no harm"',
+        'Stay hidden until she leaves',
+        'Approach quietly and grab her - demand answers',
+        'Make noise to scare her away'
+    ]);
+    
+    if (choice === 0) {
+        await reveal_to_water_girl();
+    } else if (choice === 1) {
+        await wait_for_girl_to_leave();
+    } else if (choice === 2) {
+        forestState.violenceLevel++;
+        await attack_water_girl();
+    } else {
+        await scare_water_girl();
+    }
+}
+
+async function reveal_to_water_girl() {
+    await typeText(`You step out slowly, hands raised. "I mean no harm."
+
+She gasps and jumps back, nearly dropping her jug. Her hand goes to a 
+small knife at her belt.
+
+"Who... who are you?" she stammers. "That blood in the water - what 
+happened?"
+
+You look down at yourself. The blood is gone, but your clothes are still 
+stained and torn.
+
+"I... I don't know," you admit. "I woke up in the forest. I can't 
+remember anything."
+
+She studies you warily. "You're the one they're looking for, aren't you? 
+The bloody stranger from the forest?"
+
+*They're looking for me?*`);
+    
+    const choice = await showChoices([
+        'Ask who is looking for you',
+        'Beg her not to tell anyone',
+        'Demand she tell you everything she knows',
+        'Offer her money to keep quiet'
+    ]);
+    
+    if (choice === 0) {
+        await ask_about_searchers();
+    } else if (choice === 1) {
+        await beg_for_silence();
+    } else if (choice === 2) {
+        forestState.violenceLevel++;
+        await threaten_water_girl();
+    } else {
+        await bribe_water_girl();
+    }
+}
+
+async function ask_about_searchers() {
+    await typeText(`"Who's looking for me?" you ask.
+
+She hesitates, then: "The village sent out search parties this morning. 
+Old Marcus the hunter didn't come home last night. They found... they 
+found blood. And tracks. Leading into the deep forest."
+
+*Marcus. The dead hunter.*
+
+"They think someone killed him," she continues. "Bandits, maybe. Or... 
+something worse. There are stories about these woods."
+
+You feel a chill. "What kind of stories?"
+
+"Strange things," she whispers. "People disappearing. Voices in the 
+night. Some say there's a cult in the old ruins, doing dark rituals."
+
+She looks at you differently now - not just with fear, but with a strange 
+kind of understanding.
+
+"You really don't remember anything?" she asks softly.
+
+You shake your head.
+
+"Then maybe..." she pauses. "Maybe you should come to the village. Talk 
+to Elder Aldric. He might be able to help you."
+
+Or he might throw you in chains.`);
+    
+    forestState.metWaterGirl = true;
+    forestState.elderTrust += 5;
+    
+    const choice = await showChoices([
+        'Accept her offer - go to the village',
+        'Ask her to bring the Elder here instead',
+        'Decline and go deeper into the forest',
+        'Ask her to tell you more about Marcus first'
+    ]);
+    
+    if (choice === 0) {
+        await follow_water_girl_to_village();
+    } else if (choice === 1) {
+        await request_elder_visit();
+    } else if (choice === 2) {
+        await decline_village_offer();
+    } else {
+        await ask_about_marcus();
+    }
 }
 
 async function find_village() {
-    await typeText("\nThis path is still being written...");
-    await showContinue();
-    await search_clearing();
+    addStoryText('\n--- SEARCHING FOR CIVILIZATION ---\n');
+    
+    await typeText(`You decide to find help - or at least answers. Somewhere nearby 
+there must be a village or settlement.
+
+You walk for about an hour, following what looks like an old game trail. 
+The forest is dense here, the canopy blocking most of the sunlight.
+
+Then you smell it - woodsmoke.
+
+Following the scent, you emerge onto a small rise. Below, nestled in a 
+valley, you see a village. Perhaps two dozen buildings, a small chapel, 
+fields of crops.
+
+Normal. Peaceful. Everything you're not right now.
+
+From this vantage point, you can observe the village before approaching. 
+Several villagers are going about their daily work. You can see:
+
+• A market square with a merchant's stall
+• The village chapel with an elderly priest tending the garden
+• A smithy with smoke rising from the forge
+• What looks like a tavern or inn
+• Guards patrolling - about four armed men
+
+They haven't seen you yet. You're still covered in blood-stained clothes.`);
+    
+    forestState.foundVillagePath = true;
+    forestState.cluesFound++;
+    updateQuestLog('Found a village - but how to approach?');
+    
+    const choice = await showChoices([
+        'Walk in openly and ask for help',
+        'Sneak into the village and steal fresh clothes first',
+        'Observe from hiding and gather information',
+        'Approach the isolated priest at the chapel',
+        'Try to signal the merchant to come meet you privately'
+    ]);
+    
+    if (choice === 0) {
+        await walk_into_village_bloody();
+    } else if (choice === 1) {
+        forestState.stealthApproach = true;
+        await sneak_into_village();
+    } else if (choice === 2) {
+        await observe_village();
+    } else if (choice === 3) {
+        await approach_priest();
+    } else {
+        await signal_merchant();
+    }
 }
 
 async function find_more_clues() {
-    await typeText("\nThis path is still being written...");
+    addStoryText('\n--- THOROUGH SEARCH ---\n');
+    
+    await typeText(`You search the clearing methodically, looking for anything that 
+might explain what happened here.
+
+Examining the broken arrows more closely, you notice they're crudely made - 
+not military or hunter's arrows. Bandits? Or something worse?
+
+You find several footprints in the soft earth:
+• Your own boots (you recognize the pattern now)
+• Bare feet - large, with claw-like impressions
+• Standard boots - probably the hunter's
+• And something else... strange symbols scraped into the dirt
+
+The symbols are unlike anything you've seen. They form a rough circle 
+around the blood pool. Ritual markings?
+
+Then you find something else - partially buried under leaves. A small 
+leather journal.`);
+    
+    forestState.cluesFound++;
+    forestState.foundClueTypes.physical++;
+    
+    const choice = await showChoices([
+        'Read the journal',
+        'Examine the ritual symbols more closely',
+        'Follow the bare footprints',
+        'Continue searching for more evidence'
+    ]);
+    
+    if (choice === 0) {
+        await read_mysterious_journal();
+    } else if (choice === 1) {
+        await examine_ritual_symbols();
+    } else if (choice === 2) {
+        await follow_bare_footprints();
+    } else {
+        await continue_search_clearing();
+    }
+}
+
+async function read_mysterious_journal() {
+    await typeText(`You open the journal. The handwriting is shaky, desperate.
+
+"They came for me in the night. The Others. They said I was chosen. 
+Said I would be reborn.
+
+I ran. God help me, I ran. But they're in my head now. I can hear 
+them whispering. Telling me to come back. To accept it.
+
+The ritual happens on the new moon. At the old stone circle. They'll 
+transfer the soul of their fallen leader into a new vessel. A hunter. 
+A strong body to house an ancient evil.
+
+Marcus is tracking me. Good man. Maybe he can stop this. Maybe he can 
+end me before I become... something else.
+
+If you're reading this, I'm probably dead. Or worse.
+
+Destroy the stone circle. Break the ritual. Don't let them complete it.
+
+My name is... was... Thomas. And I was a fool to trust them."
+
+The journal ends there.
+
+*Thomas. The body in the woods must be Thomas. But where's Marcus?*
+
+*And what about me? Am I another victim? Or...*`);
+    
+    forestState.knowsAboutRitual = true;
+    forestState.cluesFound += 2;
+    forestState.foundClueTypes.supernatural++;
+    updateQuestLog('CRITICAL: Learned about the soul transfer ritual!');
+    updateQuestLog('The stone circle must be destroyed');
+    
     await showContinue();
-    await after_hunter_body();
+    await after_journal_discovery();
+}
+
+async function after_journal_discovery() {
+    await typeText(`The pieces are starting to come together, but questions remain.
+
+If Thomas was the target of the ritual, and Marcus was tracking him... 
+then where do YOU fit into all this?
+
+You need more information.`);
+    
+    const choice = await showChoices([
+        'Head to the stone circle immediately',
+        'Try to find Marcus - he might still be alive',
+        'Go to the village and warn them',
+        'Search for more evidence about the cult'
+    ]);
+    
+    if (choice === 0) {
+        await rush_to_stone_circle();
+    } else if (choice === 1) {
+        await search_for_marcus();
+    } else if (choice === 2) {
+        await warn_village();
+    } else {
+        await investigate_cult_further();
+    }
 }
 
 async function search_around_body() {
@@ -1673,4 +2006,725 @@ async function freeRoamOakridge() {
     showMainMenu();
 }
 
+// ============================================
+// NEW EXPANDED CONTENT - WATER GIRL PATH
+// ============================================
+
+async function call_out_at_stream() {
+    await typeText(`You stand up and call out: "Hello! I need help!"
+
+The woman screams and drops her jug, stumbling backwards.
+
+"Please, wait!" you shout. "I'm not going to hurt you!"
+
+But she's already running, crashing through the undergrowth.
+
+Damn it.`);
+    
+    forestState.villagersSuspicion += 10;
+    updateQuestLog('Scared the water-carrier - she will warn the village');
+    
+    await showContinue();
+    await village_on_alert();
+}
+
+async function prepare_ambush_stream() {
+    await typeText(`You grab a heavy rock and crouch low, waiting.
+
+When the woman kneels to fill her jug, you stand up behind her.
+
+"Don't scream," you say quietly, menacingly.
+
+She freezes, terrified.
+
+This isn't who you want to be. But you need answers.`);
+    
+    forestState.violenceLevel += 2;
+    forestState.moralityScore -= 5;
+    
+    await threaten_water_girl();
+}
+
+async function run_from_stream() {
+    await typeText(`You turn and run deeper into the forest before she can see you.
+
+Better to avoid people until you understand what's happening.
+
+You run until your lungs burn, then collapse against a tree.
+
+You're alone. Lost. And no closer to answers.`);
+    
+    await showContinue();
+    await deeper_into_forest_alone();
+}
+
+async function wait_for_girl_to_leave() {
+    await typeText(`You wait silently as she fills her jug. She keeps glancing at the 
+pink water, clearly disturbed.
+
+Finally, she hurries away, constantly looking back over her shoulder.
+
+You're alone again.
+
+But now you know: there's a village nearby. And they're probably looking 
+for whoever left that blood.`);
+    
+    forestState.stealthApproach = true;
+    
+    const choice = await showChoices([
+        'Follow her to the village at a distance',
+        'Search for another way to approach',
+        'Go deeper into the forest instead'
+    ]);
+    
+    if (choice === 0) {
+        await follow_to_village_stealthily();
+    } else if (choice === 1) {
+        await find_village();
+    } else {
+        await deeper_into_forest_alone();
+    }
+}
+
+async function beg_for_silence() {
+    await typeText(`"Please," you say, your voice breaking. "I don't know what happened. 
+I woke up covered in blood and I can't remember anything. If they find 
+me like this, they'll kill me."
+
+She studies your face, searching for deception.
+
+"You really don't remember?" she asks softly.
+
+You shake your head.
+
+She bites her lip, thinking. "My name is Elena. I... I believe you. 
+There's something wrong in these woods. People have been acting strange. 
+Disappearing."
+
+She makes a decision. "Come with me. There's an old hunting cabin not 
+far from here. You can hide there while I bring you some clean clothes 
+and food. Then we'll figure out what to do."
+
+Maybe there's still kindness in this dark world.`);
+    
+    forestState.metElena = true;
+    forestState.helperCount = (forestState.helperCount || 0) + 1;
+    forestState.moralityScore += 3;
+    
+    await showContinue();
+    await hide_in_cabin_with_elena();
+}
+
+async function threaten_water_girl() {
+    await typeText(`You grab her roughly. "Tell me everything. What village? Who's looking 
+for me? What happened to Marcus?"
+
+She whimpers in fear. "P-please! I'll tell you anything! Just don't 
+hurt me!"
+
+"Talk," you growl.
+
+She tells you about Oakridge village, about the search parties, about 
+the strange disappearances. She's terrified, trembling.
+
+When you finally let her go, she runs without looking back.
+
+You feel sick. This isn't right. But you got what you needed.`);
+    
+    forestState.villagersSuspicion += 20;
+    forestState.violenceLevel += 3;
+    forestState.moralityScore -= 10;
+    updateQuestLog('Threatened an innocent woman - the village will know');
+    
+    await showContinue();
+    await village_on_high_alert();
+}
+
+async function bribe_water_girl() {
+    await typeText(`You pull out the few copper coins you found. "I have money. Not much, 
+but it's yours if you help me. I need information and I need you to 
+stay quiet."
+
+She eyes the coins. For a peasant girl, even a few copper might mean 
+the difference between eating and starving.
+
+"How much?" she asks warily.`);
+    
+    const playerGold = gameState.currentCharacter.gold;
+    
+    const choice = await showChoices([
+        `Give her all your gold (${playerGold} gold)`,
+        'Give her half (promise more later)',
+        'Just a few coins to start',
+        'Never mind - withdraw the offer'
+    ]);
+    
+    if (choice === 0 && playerGold >= 5) {
+        removeGold(gameState.currentCharacter, playerGold);
+        forestState.bribedElena = true;
+        forestState.elderTrust += 10;
+        await elena_fully_bribed();
+    } else if (choice === 1 && playerGold >= 3) {
+        removeGold(gameState.currentCharacter, Math.floor(playerGold / 2));
+        forestState.bribedElena = true;
+        await elena_partially_bribed();
+    } else if (choice === 2) {
+        removeGold(gameState.currentCharacter, 2);
+        await elena_small_bribe();
+    } else {
+        await elena_insulted();
+    }
+}
+
+async function follow_water_girl_to_village() {
+    await typeText(`Elena leads you through the forest, taking hidden paths you would 
+never have found alone.
+
+"Stay close," she whispers. "And let me do the talking."
+
+After about twenty minutes, you reach the edge of Oakridge village.`);
+    
+    forestState.metElena = true;
+    forestState.hasAlly = true;
+    
+    await showContinue();
+    await arrive_at_oakridge_with_elena();
+}
+
+// ============================================
+// VILLAGE APPROACH PATHS
+// ============================================
+
+async function walk_into_village_bloody() {
+    addStoryText('\n--- BOLD APPROACH ---\n');
+    
+    await typeText(`You take a deep breath and walk straight down the hill toward the 
+village.
+
+People stop what they're doing and stare. A woman gasps and pulls her 
+child close. The guards immediately draw their weapons.
+
+"HALT!" one shouts. "Identify yourself!"
+
+You're surrounded in seconds. Four guards, weapons pointed at you.
+
+"I... I need help," you say. "I can explain."
+
+"Explain the blood?" the guard captain snarls. "Marcus the hunter went 
+missing last night. You're covered in blood. I think we found our killer."
+
+This isn't going well.`);
+    
+    forestState.villagersSuspicion += 30;
+    forestState.guardHostility += 20;
+    
+    const choice = await showChoices([
+        'Surrender peacefully',
+        'Try to explain about your amnesia',
+        'Fight your way out',
+        'Run back to the forest'
+    ]);
+    
+    if (choice === 0) {
+        await surrender_to_guards();
+    } else if (choice === 1) {
+        await explain_amnesia_to_guards();
+    } else if (choice === 2) {
+        forestState.violenceLevel += 5;
+        await fight_village_guards();
+    } else {
+        await flee_from_village();
+    }
+}
+
+async function sneak_into_village() {
+    addStoryText('\n--- STEALTH APPROACH ---\n');
+    
+    await typeText(`You wait until dusk, then circle around to the back of the village.
+
+There's a clothesline behind one of the houses. Perfect.
+
+You creep forward, staying in the shadows. Grab a simple tunic and 
+trousers. They smell of woodsmoke and honest labor.
+
+You change quickly, burying your blood-stained clothes under some leaves.
+
+Now you look like any other peasant.`);
+    
+    forestState.hasStolenClothes = true;
+    forestState.stealthApproach = true;
+    forestState.moralityScore -= 2;
+    
+    await showContinue();
+    await typeText(`You slip into the village, joining the evening crowd. No one gives you 
+a second glance.
+
+You can see:
+• The tavern - warm light and laughter spilling out
+• The market stalls are closing for the night  
+• The chapel - a priest is lighting candles
+• The guard post - men changing shifts
+
+Where to start?`);
+    
+    const choice = await showChoices([
+        'Go to the tavern - loosen some tongues with ale',
+        'Visit the merchant before he closes',
+        'Speak with the priest - maybe confess?',
+        'Eavesdrop on the guards'
+    ]);
+    
+    if (choice === 0) {
+        await visit_tavern();
+    } else if (choice === 1) {
+        await visit_merchant();
+    } else if (choice === 2) {
+        await visit_priest();
+    } else {
+        await eavesdrop_on_guards();
+    }
+}
+
+// ============================================
+// MERCHANT / SHOP SYSTEM
+// ============================================
+
+async function visit_merchant() {
+    addStoryText('\n--- THE MERCHANT\'S STALL ---\n');
+    
+    await typeText(`The merchant is an older man with sharp eyes and a calculating smile. 
+His stall is filled with goods - weapons, tools, potions, and trinkets.
+
+"Welcome, friend!" he says cheerily. "Oswald's Oddities and Essentials. 
+Looking for anything in particular?"
+
+He looks you over carefully, noting your simple clothes.
+
+"Just arrived in Oakridge, have you? Terrible time for it. There's been... 
+unpleasantness in the forest."
+
+You try to keep your expression neutral.`);
+    
+    const playerGold = gameState.currentCharacter.gold;
+    
+    await typeText(`\nYou have ${playerGold} gold.
+
+OSWALD'S SHOP:
+• Health Potion (Heals 50 HP) - 15 gold
+• Better Knife (Attack +3) - 25 gold
+• Leather Armor (Defense +5) - 40 gold
+• Rope and Grappling Hook - 10 gold
+• Lantern and Oil - 8 gold
+• Information about the forest - 20 gold
+• Map of the area - 5 gold
+• "Special item" (???) - 50 gold`);
+    
+    const choice = await showChoices([
+        'Buy Health Potion (15g)',
+        'Buy Better Knife (25g)',
+        'Buy Leather Armor (40g)',
+        'Buy Information (20g)',
+        'Buy Map (5g)',
+        'Ask about the "special item"',
+        'Just browse and leave'
+    ]);
+    
+    if (choice === 0 && playerGold >= 15) {
+        await buy_health_potion();
+    } else if (choice === 1 && playerGold >= 25) {
+        await buy_better_knife();
+    } else if (choice === 2 && playerGold >= 40) {
+        await buy_leather_armor();
+    } else if (choice === 3 && playerGold >= 20) {
+        await buy_information_from_merchant();
+    } else if (choice === 4 && playerGold >= 5) {
+        await buy_map();
+    } else if (choice === 5) {
+        await ask_about_special_item();
+    } else if (playerGold < 5) {
+        await too_poor_for_shop();
+    } else {
+        await leave_merchant();
+    }
+}
+
+async function buy_health_potion() {
+    removeGold(gameState.currentCharacter, 15);
+    gameState.currentCharacter.inventory.addItem(SAMPLE_ITEMS.healthPotion, 1);
+    
+    await typeText(`You buy the health potion. Oswald wraps it carefully in cloth.
+
+"Good choice," he says. "You never know when you might need healing out 
+here."
+
+He gives you a knowing look.`);
+    
+    await showContinue();
+    await merchant_followup();
+}
+
+async function buy_better_knife() {
+    removeGold(gameState.currentCharacter, 25);
+    gameState.currentCharacter.stats.attack += 3;
+    forestState.hasBetterKnife = true;
+    
+    await typeText(`You purchase the knife. It's well-balanced, sharp, and deadly.
+
+"That's hunter's steel," Oswald says. "Belonged to old Marcus, actually. 
+He sold it to me last week. Said he had a bad feeling and wanted the gold..."
+
+He trails off, realizing what he's said.
+
+"Poor bastard," he mutters.`);
+    
+    updateQuestLog('Acquired Marcus\'s knife - Attack +3');
+    
+    await showContinue();
+    await merchant_followup();
+}
+
+async function buy_information_from_merchant() {
+    removeGold(gameState.currentCharacter, 20);
+    
+    await typeText(`"Information, eh?" Oswald leans in close. "What do you want to know?"
+
+"The forest," you say. "The disappearances. What's really going on?"
+
+He glances around to make sure no one's listening.
+
+"There's a cult," he whispers. "Been around for years, hiding in the old 
+ruins north of here. The Stone Circle. They worship something dark - 
+something that predates the village."
+
+"What do they want?"
+
+"Immortality," he says. "They believe they can transfer souls from dying 
+bodies into healthy ones. Keep living forever by stealing new flesh."
+
+Your blood runs cold.
+
+"Three people have gone missing in the last month," he continues. "Including 
+a traveler named Thomas. And now Marcus..."
+
+He looks at you meaningfully. "You should leave Oakridge, stranger. Before 
+you're next."
+
+But you might already BE next.`);
+    
+    forestState.knowsAboutCult = true;
+    forestState.cluesFound += 3;
+    updateQuestLog('CRITICAL: Learned cult seeks immortality through soul transfer!');
+    
+    await showContinue();
+    await merchant_followup();
+}
+
+async function merchant_followup() {
+    await typeText(`"Anything else?" Oswald asks.`);
+    
+    const playerGold = gameState.currentCharacter.gold;
+    
+    if (playerGold >= 5) {
+        const choice = await showChoices([
+            'Buy something else',
+            'Ask more questions',
+            'Leave the shop'
+        ]);
+        
+        if (choice === 0) {
+            await visit_merchant();
+        } else if (choice === 1) {
+            await ask_merchant_questions();
+        } else {
+            await leave_merchant();
+        }
+    } else {
+        await typeText(`You're out of gold.`);
+        await showContinue();
+        await leave_merchant();
+    }
+}
+
+// ============================================
+// TAVERN PATH
+// ============================================
+
+async function visit_tavern() {
+    addStoryText('\n--- THE RUSTY BOAR TAVERN ---\n');
+    
+    await typeText(`The tavern is warm and crowded. The smell of roasted meat and cheap 
+ale fills the air.
+
+You slip inside and find a dark corner table. A barmaid approaches.
+
+"What'll it be?" she asks, eyeing you. "We got ale, wine, or stew."
+
+Around the tavern you can hear fragments of conversation:
+• A group of hunters discussing Marcus's disappearance
+• Two farmers whispering about "the cult"
+• A drunk man ranting about monsters in the woods
+• A hooded figure sitting alone in the far corner
+
+Where to focus your attention?`);
+    
+    const playerGold = gameState.currentCharacter.gold;
+    
+    const choice = await showChoices([
+        `Buy ale and listen to the hunters (3 gold)`,
+        `Buy drinks for the farmers and chat (5 gold)`,
+        'Try to talk to the drunk man (free but risky)',
+        'Approach the hooded figure',
+        'Just listen from your corner'
+    ]);
+    
+    if (choice === 0 && playerGold >= 3) {
+        await eavesdrop_on_hunters();
+    } else if (choice === 1 && playerGold >= 5) {
+        await drink_with_farmers();
+    } else if (choice === 2) {
+        await talk_to_drunk();
+    } else if (choice === 3) {
+        await approach_hooded_figure();
+    } else {
+        await tavern_passive_listening();
+    }
+}
+
 console.log('✅ dark_forest.js loaded - BLOOD IN THE WOODS edition');
+
+
+// ============================================
+// PLACEHOLDER FUNCTIONS (To be expanded)
+// ============================================
+
+async function village_on_alert() {
+    await typeText("\nThe village is now on high alert. Guards patrol everywhere...");
+    await showContinue();
+    await find_village();
+}
+
+async function deeper_into_forest_alone() {
+    await typeText("\nYou venture deeper into the dark forest, alone and afraid...");
+    await showContinue();
+    await deeper_forest();
+}
+
+async function hide_in_cabin_with_elena() {
+    await typeText("\nElena leads you to a hidden cabin. 'Stay here,' she says. 'I'll help you.'");
+    forestState.helperCount = (forestState.helperCount || 0) + 1;
+    await showContinue();
+    await elena_brings_supplies();
+}
+
+async function village_on_high_alert() {
+    await typeText("\nThe entire village is mobilizing. You've made enemies today...");
+    forestState.villagersSuspicion += 30;
+    await showContinue();
+    await hunted_by_village();
+}
+
+async function elena_fully_bribed() {
+    await typeText("\nElena pockets the gold, eyes wide. 'This is... more than I make in a month. Thank you. I'll help you however I can.'");
+    forestState.hasStrongAlly = true;
+    await showContinue();
+    await elena_offers_full_help();
+}
+
+async function elena_partially_bribed() {
+    await typeText("\nElena takes the gold. 'It's a start. I'll tell you what I know.'");
+    await showContinue();
+    await ask_about_searchers();
+}
+
+async function elena_small_bribe() {
+    await typeText("\nElena frowns. 'That's... not much. But I suppose it's honest. Fine.'");
+    await showContinue();
+    await ask_about_searchers();
+}
+
+async function elena_insulted() {
+    await typeText("\nElena's face hardens. 'You try to bribe me then take it back? I'm telling the village about you!'");
+    forestState.villagersSuspicion += 15;
+    await showContinue();
+    await village_on_alert();
+}
+
+async function arrive_at_oakridge_with_elena() {
+    await typeText("\nElena smuggles you into the village through a back way. 'Come to my home,' she says. 'We can talk safely there.'");
+    await showContinue();
+    await elena_home_base();
+}
+
+async function surrender_to_guards() {
+    await typeText("\nYou drop to your knees. 'I surrender. But I'm not your killer.' The guards bind your hands...");
+    await showContinue();
+    await imprisoned_path();
+}
+
+async function explain_amnesia_to_guards() {
+    await typeText("\nYou try to explain, but they don't believe you. 'A likely story!' the captain sneers.");
+    await showContinue();
+    await surrender_to_guards();
+}
+
+async function fight_village_guards() {
+    await typeText("\nYou grab a weapon and fight! Bad idea - you're outnumbered...");
+    await showContinue();
+    await combat_guards();
+}
+
+async function flee_from_village() {
+    await typeText("\nYou turn and run! Arrows whistle past your head...");
+    await showContinue();
+    await escape_to_forest();
+}
+
+async function leave_merchant() {
+    await typeText("\n'Come back anytime,' Oswald says with a wave.");
+    await showContinue();
+    await village_exploration_hub();
+}
+
+async function too_poor_for_shop() {
+    await typeText("\nOswald sees your empty purse. 'Come back when you have coin, friend.'");
+    await showContinue();
+    await village_exploration_hub();
+}
+
+async function ask_about_special_item() {
+    await typeText("\nOswald grins. 'Ah, interested in the special, are we? It's a charm - protects against dark magic. Very useful against... certain rituals.' He winks.");
+    const playerGold = gameState.currentCharacter.gold;
+    if (playerGold >= 50) {
+        const choice = await showChoices(['Buy it (50g)', 'Maybe later']);
+        if (choice === 0) {
+            await buy_anti_ritual_charm();
+        } else {
+            await leave_merchant();
+        }
+    } else {
+        await typeText("\nBut you can't afford it.");
+        await showContinue();
+        await leave_merchant();
+    }
+}
+
+async function buy_anti_ritual_charm() {
+    removeGold(gameState.currentCharacter, 50);
+    forestState.hasAntiRitualCharm = true;
+    await typeText("\nYou buy the charm. It pulses with strange energy. 'This will save your life,' Oswald promises.");
+    updateQuestLog('Acquired Anti-Ritual Charm - may be critical later!');
+    await showContinue();
+    await merchant_followup();
+}
+
+async function ask_merchant_questions() {
+    await typeText("\n'What do you want to know?' Oswald asks.");
+    const choice = await showChoices([
+        'Ask about Marcus',
+        'Ask about the cult',
+        'Ask about strange happenings',
+        'Never mind'
+    ]);
+    if (choice === 0) await ask_about_marcus_merchant();
+    else if (choice === 1) await ask_about_cult_merchant();
+    else if (choice === 2) await ask_about_strange_events();
+    else await leave_merchant();
+}
+
+async function eavesdrop_on_hunters() {
+    removeGold(gameState.currentCharacter, 3);
+    await typeText("\nYou buy ale and sit near the hunters. They're planning a search party for Marcus. 'He was tracking something,' one says. 'Something dangerous.'");
+    forestState.foundClueTypes.witness++;
+    await showContinue();
+    await tavern_continue();
+}
+
+async function drink_with_farmers() {
+    removeGold(gameState.currentCharacter, 5);
+    await typeText("\nYou buy drinks and join the farmers. They loosen up. 'Strange lights in the forest,' one whispers. 'And chanting. We heard chanting near the old stones.'");
+    forestState.knowsAboutCult = true;
+    await showContinue();
+    await tavern_continue();
+}
+
+async function talk_to_drunk() {
+    await typeText("\nThe drunk grabs you. 'The wolves! They walk like men! I seen 'em!' No one believes him, but maybe there's truth in the madness...");
+    forestState.foundClueTypes.supernatural++;
+    await showContinue();
+    await tavern_continue();
+}
+
+async function approach_hooded_figure() {
+    await typeText("\nYou approach the hooded figure. They look up - a woman, scarred and dangerous-looking. 'You're new,' she says. 'And you're looking for answers. I might have some... for a price.'");
+    await showContinue();
+    await meet_mysterious_contact();
+}
+
+async function tavern_passive_listening() {
+    await typeText("\nYou listen quietly. Bits and pieces. Marcus. The forest. Disappearances. It's all connected.");
+    await showContinue();
+    await tavern_continue();
+}
+
+async function tavern_continue() {
+    const choice = await showChoices([
+        'Stay longer in the tavern',
+        'Leave and explore elsewhere'
+    ]);
+    if (choice === 0) await visit_tavern();
+    else await village_exploration_hub();
+}
+
+async function village_exploration_hub() {
+    await typeText("\nYou're in Oakridge village. Where to next?");
+    const choice = await showChoices([
+        'Visit the merchant',
+        'Go to the tavern',
+        'Speak with the priest',
+        'Investigate the forest edge',
+        'Continue the main quest'
+    ]);
+    if (choice === 0) await visit_merchant();
+    else if (choice === 1) await visit_tavern();
+    else if (choice === 2) await visit_priest();
+    else if (choice === 3) await investigate_forest_edge();
+    else await village_investigation_start();
+}
+
+// Additional stubs for referenced functions
+async function follow_to_village_stealthily() { await find_village(); }
+async function elena_brings_supplies() { await village_investigation_start(); }
+async function elena_offers_full_help() { await village_investigation_start(); }
+async function elena_home_base() { await village_investigation_start(); }
+async function imprisoned_path() { await typeText("\nYou're thrown in the village jail..."); await showContinue(); }
+async function combat_guards() { await first_combat(); }
+async function escape_to_forest() { await deeper_forest(); }
+async function buy_map() { removeGold(gameState.currentCharacter, 5); await typeText("\nYou buy the map. Useful!"); await showContinue(); await merchant_followup(); }
+async function buy_leather_armor() { removeGold(gameState.currentCharacter, 40); gameState.currentCharacter.stats.defense += 5; await typeText("\nYou buy the armor. Defense +5!"); await showContinue(); await merchant_followup(); }
+async function ask_about_marcus_merchant() { await typeText("\n'Marcus was a good man,' Oswald says sadly. 'The best hunter we had.'"); await showContinue(); await merchant_followup(); }
+async function ask_about_cult_merchant() { await typeText("\n'Dangerous topic,' Oswald warns. 'But for 20 gold, I'll tell you everything.'"); await showContinue(); await merchant_followup(); }
+async function ask_about_strange_events() { await typeText("\n'People disappearing. Animals acting strange. The forest itself feels... wrong.'"); await showContinue(); await merchant_followup(); }
+async function meet_mysterious_contact() { await typeText("\n'I'm a hunter of the supernatural,' she says. 'And something very dark is happening here.'"); await showContinue(); await village_investigation_start(); }
+async function investigate_forest_edge() { await typeText("\nYou investigate the forest edge, finding more clues..."); await showContinue(); await find_more_clues(); }
+async function visit_priest() { await typeText("\nThe priest welcomes you. 'My child, you look troubled. How can I help?'"); await showContinue(); await village_investigation_start(); }
+async function eavesdrop_on_guards() { await typeText("\nYou listen to the guards. They're planning patrols and talking about the missing hunter."); await showContinue(); await village_exploration_hub(); }
+async function observe_village() { await typeText("\nYou observe from the shadows, learning the village routines..."); await showContinue(); await find_village(); }
+async function approach_priest() { await typeText("\nYou approach the priest at the chapel. He seems kind and welcoming."); await showContinue(); await visit_priest(); }
+async function signal_merchant() { await typeText("\nYou signal the merchant. He comes to meet you privately."); await showContinue(); await visit_merchant(); }
+async function examine_ritual_symbols() { await typeText("\nThe symbols are ancient and dark. They speak of soul transfer and rebirth."); forestState.knowsAboutRitual = true; await showContinue(); await find_more_clues(); }
+async function follow_bare_footprints() { await typeText("\nYou follow the strange prints deeper into the forest..."); await showContinue(); await deeper_forest(); }
+async function continue_search_clearing() { await typeText("\nYou continue searching and find more disturbing clues..."); await showContinue(); await after_hunter_body(); }
+async function rush_to_stone_circle() { await typeText("\nYou rush toward the stone circle, ready to confront the cult!"); await showContinue(); await final_confrontation(); }
+async function search_for_marcus() { await typeText("\nYou search for Marcus, hoping he's still alive..."); await showContinue(); await follow_blood_trail(); }
+async function warn_village() { await typeText("\nYou rush to warn the village of the danger!"); await showContinue(); await find_village(); }
+async function investigate_cult_further() { await typeText("\nYou decide to learn more about the cult before acting..."); await showContinue(); await village_investigation_start(); }
+async function hunted_by_village() { await typeText("\nThe entire village is hunting you now. You must flee or fight!"); await showContinue(); await deeper_forest(); }
+async function attack_water_girl() { await typeText("\nYou grab her violently. This is wrong. So wrong."); forestState.moralityScore -= 15; await showContinue(); await threaten_water_girl(); }
+async function scare_water_girl() { await typeText("\nYou make a loud noise. She screams and runs."); forestState.villagersSuspicion += 5; await showContinue(); await wait_for_girl_to_leave(); }
+async function request_elder_visit() { await typeText("\n'I'll ask him,' Elena says. 'But stay hidden until I return.'"); await showContinue(); await hide_and_wait_for_elder(); }
+async function decline_village_offer() { await typeText("\n'I understand,' Elena says sadly. 'Be careful out there.'"); await showContinue(); await deeper_into_forest_alone(); }
+async function ask_about_marcus() { await typeText("\n'Marcus was tracking someone,' Elena says. 'A man covered in blood. Like you...'"); await showContinue(); await reveal_to_water_girl(); }
+async function hide_and_wait_for_elder() { await typeText("\nYou hide and wait for Elena to return with the village elder..."); await showContinue(); await meet_elder_in_forest(); }
+async function meet_elder_in_forest() { await typeText("\nThe elder arrives. An old man with wise eyes. 'Tell me your story,' he says."); await showContinue(); await village_investigation_start(); }
+async function final_confrontation() { await typeText("\nYou arrive at the stone circle for the final battle..."); await showContinue(); }
+

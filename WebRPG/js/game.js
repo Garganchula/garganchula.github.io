@@ -23,9 +23,19 @@ async function showChoices(choices) {
             btn.innerHTML = `${index + 1}. ${choiceText}`;
             btn.onclick = () => {
                 playSFX('select');
-                // Disable all buttons
-                choiceDiv.querySelectorAll('button').forEach(b => b.disabled = true);
-                resolve(choiceValue);
+                // Only skip if we're actively typing
+                if (isCurrentlyTyping) {
+                    skipTyping = true;
+                    // Wait a moment for skip to complete
+                    setTimeout(() => {
+                        choiceDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                        resolve(choiceValue);
+                    }, 100);
+                } else {
+                    // Not typing, proceed immediately
+                    choiceDiv.querySelectorAll('button').forEach(b => b.disabled = true);
+                    resolve(choiceValue);
+                }
             };
             choiceDiv.appendChild(btn);
         });
@@ -45,7 +55,17 @@ async function showContinue(text = 'Continue...') {
         btn.textContent = text;
         btn.onclick = () => {
             playSFX('select');
-            resolve();
+            // Only skip if we're actively typing
+            if (isCurrentlyTyping) {
+                skipTyping = true;
+                // Wait a moment for skip to complete
+                setTimeout(() => {
+                    resolve();
+                }, 100);
+            } else {
+                // Not typing, proceed immediately
+                resolve();
+            }
         };
         choiceDiv.appendChild(btn);
     });

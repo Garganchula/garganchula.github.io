@@ -346,6 +346,32 @@ body {
     color: var(--text-highlight);
 }
 
+.stat-btn {
+    background: var(--button-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 5px;
+}
+
+.stat-btn:hover:not(:disabled) {
+    background: var(--button-hover);
+    border-color: var(--text-highlight);
+    transform: scale(1.1);
+}
+
+.stat-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.stat-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
 /* Buttons */
 .action-btn {
     width: 100%;

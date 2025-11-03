@@ -12,7 +12,7 @@ const DEFAULT_SETTINGS = {
         musicEnabled: true
     },
     display: {
-        textSpeed: 50, // milliseconds per character
+        textSpeed: 1, // milliseconds per character (lower = faster, recommended: 10-50)
         screenShake: true,
         particles: true,
         crtEffect: true,
@@ -66,8 +66,9 @@ class SettingsManager {
 
     applySettings() {
         // Apply display settings
+        // small = 10px, normal = 12px, large = 16px
         document.body.style.fontSize = 
-            this.settings.accessibility.fontSize === 'large' ? '14px' :
+            this.settings.accessibility.fontSize === 'large' ? '16px' :
             this.settings.accessibility.fontSize === 'small' ? '10px' : '12px';
 
         // Apply CRT effect
@@ -175,6 +176,7 @@ let settingsManager = null;
 function initSettings() {
     settingsManager = new SettingsManager();
     settingsManager.applySettings();
+    console.log('⚙️ Settings initialized. Text Speed:', settingsManager.settings.display.textSpeed, 'ms');
 }
 
 function showSettings() {

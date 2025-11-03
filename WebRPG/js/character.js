@@ -121,8 +121,15 @@ function createCharacter() {
         experienceToNext: 100,
         gold: 50,
         
-        // Stats
-        stats: { ...classData.stats },
+        // Stats (with bonus points applied)
+        stats: {
+            strength: classData.stats.strength + allocatedStats.strength,
+            dexterity: classData.stats.dexterity + allocatedStats.dexterity,
+            constitution: classData.stats.constitution + allocatedStats.constitution,
+            intelligence: classData.stats.intelligence + allocatedStats.intelligence,
+            wisdom: classData.stats.wisdom + allocatedStats.wisdom,
+            charisma: classData.stats.charisma + allocatedStats.charisma
+        },
         
         // Resources
         health: classData.baseHP,
@@ -182,6 +189,9 @@ function createCharacter() {
     gameState.savedGames.push(saveData);
     saveGameData();
     
+    // Reset bonus points for next character creation
+    resetBonusPoints();
+    
     playSFX('confirm');
     showMessage(`${name} the ${className} created!`, 'success');
     
@@ -194,6 +204,16 @@ function createCharacter() {
 /**
  * Update stat preview when class is selected
  */
+let bonusPoints = 3; // Points available to allocate
+let allocatedStats = {
+    strength: 0,
+    dexterity: 0,
+    constitution: 0,
+    intelligence: 0,
+    wisdom: 0,
+    charisma: 0
+};
+
 function updateStatPreview() {
     const className = document.getElementById('charClass').value;
     const classData = CHARACTER_CLASSES[className];
@@ -206,44 +226,76 @@ function updateStatPreview() {
         <h4 style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.8em;">
             ${classData.name} - ${classData.description}
         </h4>
-        <div class="stat-row">
-            <span class="stat-label">⚔️ STRENGTH:</span>
-            <span class="stat-value">${classData.stats.strength}</span>
+        <div style="text-align: center; margin-bottom: 15px; padding: 10px; background: rgba(0,255,0,0.1); border: 1px solid var(--text-highlight);">
+            <span style="color: var(--text-highlight); font-weight: bold; font-size: 0.9em;">
+                BONUS POINTS: <span id="bonusPointsDisplay">${bonusPoints}</span>
+            </span>
         </div>
-        <div class="stat-row">
-            <span class="stat-label">🏃 DEXTERITY:</span>
-            <span class="stat-value">${classData.stats.dexterity}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">💪 CONSTITUTION:</span>
-            <span class="stat-value">${classData.stats.constitution}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">🧠 INTELLIGENCE:</span>
-            <span class="stat-value">${classData.stats.intelligence}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">👁️ WISDOM:</span>
-            <span class="stat-value">${classData.stats.wisdom}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">💬 CHARISMA:</span>
-            <span class="stat-value">${classData.stats.charisma}</span>
-        </div>
-        <hr style="margin: 15px 0; border-color: var(--border-color);">
-        <div class="stat-row">
-            <span class="stat-label">❤️ HEALTH:</span>
-            <span class="stat-value">${classData.baseHP}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">💙 MANA:</span>
-            <span class="stat-value">${classData.baseMP}</span>
-        </div>
-        <div class="stat-row">
-            <span class="stat-label">⚡ STAMINA:</span>
-            <span class="stat-value">${classData.baseStamina}</span>
+        ${generateStatRow('strength', '⚔️ STRENGTH', classData.stats.strength)}
+        ${generateStatRow('dexterity', '🏃 DEXTERITY', classData.stats.dexterity)}
+        ${generateStatRow('constitution', '💪 CONSTITUTION', classData.stats.constitution)}
+        ${generateStatRow('intelligence', '🧠 INTELLIGENCE', classData.stats.intelligence)}
+        ${generateStatRow('wisdom', '👁️ WISDOM', classData.stats.wisdom)}
+        ${generateStatRow('charisma', '💬 CHARISMA', classData.stats.charisma)}
+        <div style="margin-top: 15px; text-align: center; font-size: 0.7em; color: #888;">
+            <p>❤️ HP: ${classData.baseHP} | 💙 MP: ${classData.baseMP} | ⚡ Stamina: ${classData.baseStamina}</p>
         </div>
     `;
+}
+
+function generateStatRow(statName, label, baseValue) {
+    const allocated = allocatedStats[statName];
+    const total = baseValue + allocated;
+    const canDecrease = allocated > 0;
+    const canIncrease = bonusPoints > 0;
+    
+    return `
+        <div class="stat-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="stat-label" style="flex: 1;">${label}:</span>
+            <button 
+                onclick="playSFX('select'); adjustStat('${statName}', -1)" 
+                class="stat-btn" 
+                style="width: 30px; height: 30px; margin: 0 5px; ${!canDecrease ? 'opacity: 0.3; cursor: not-allowed;' : ''}"
+                ${!canDecrease ? 'disabled' : ''}>
+                -
+            </button>
+            <span class="stat-value" style="min-width: 60px; text-align: center; font-weight: bold;">
+                ${baseValue}${allocated > 0 ? ` <span style="color: var(--text-highlight);">+${allocated}</span>` : ''} = ${total}
+            </span>
+            <button 
+                onclick="playSFX('select'); adjustStat('${statName}', 1)" 
+                class="stat-btn"
+                style="width: 30px; height: 30px; margin: 0 5px; ${!canIncrease ? 'opacity: 0.3; cursor: not-allowed;' : ''}"
+                ${!canIncrease ? 'disabled' : ''}>
+                +
+            </button>
+        </div>
+    `;
+}
+
+function adjustStat(statName, delta) {
+    // Check if we can make this adjustment
+    if (delta > 0 && bonusPoints <= 0) return;
+    if (delta < 0 && allocatedStats[statName] <= 0) return;
+    
+    // Apply the adjustment
+    allocatedStats[statName] += delta;
+    bonusPoints -= delta;
+    
+    // Update the display
+    updateStatPreview();
+}
+
+function resetBonusPoints() {
+    bonusPoints = 3;
+    allocatedStats = {
+        strength: 0,
+        dexterity: 0,
+        constitution: 0,
+        intelligence: 0,
+        wisdom: 0,
+        charisma: 0
+    };
 }
 
 /**

@@ -3,6 +3,10 @@
  * Helper functions used throughout the game
  */
 
+// Global flag to skip text animation
+let skipTyping = false;
+let isCurrentlyTyping = false; // Track if we're actively typing
+
 /**
  * Delay execution
  */
@@ -24,10 +28,52 @@ async function typeText(elementOrText, text = null, speed = 10) {
     // Otherwise, type to specific element
     const element = elementOrText;
     element.textContent = '';
+    
+    // Get the scrollable story container (the parent .story-window, not #storyText)
+    const storyTextDiv = document.getElementById('storyText');
+    const storyWindow = storyTextDiv?.parentElement; // This is the .story-window div with overflow
+    
+    isCurrentlyTyping = true; // Mark that we're typing
+    
+    // If skip is requested, show all text immediately
+    if (skipTyping) {
+        element.textContent = text;
+        if (storyWindow && storyWindow.contains(element)) {
+            storyWindow.scrollTop = storyWindow.scrollHeight;
+        }
+        skipTyping = false; // Reset immediately after use
+        isCurrentlyTyping = false;
+        return;
+    }
+    
     for (let char of text) {
+        // Check if skip was triggered during typing
+        if (skipTyping) {
+            element.textContent = text; // Show remaining text
+            if (storyWindow && storyWindow.contains(element)) {
+                storyWindow.scrollTop = storyWindow.scrollHeight;
+            }
+            skipTyping = false; // Reset immediately after use
+            isCurrentlyTyping = false;
+            return;
+        }
+        
         element.textContent += char;
+        
+        // Auto-scroll the story-window container after every character
+        if (storyWindow && storyWindow.contains(element)) {
+            storyWindow.scrollTop = storyWindow.scrollHeight;
+        }
+        
         await sleep(speed);
     }
+    
+    // Final scroll to ensure we're at the bottom
+    if (storyWindow && storyWindow.contains(element)) {
+        storyWindow.scrollTop = storyWindow.scrollHeight;
+    }
+    
+    isCurrentlyTyping = false; // Done typing
 }
 
 /**
@@ -36,6 +82,9 @@ async function typeText(elementOrText, text = null, speed = 10) {
 async function addStoryText(text, animate = true) {
     const storyDiv = document.getElementById('storyText');
     if (!storyDiv) return;
+    
+    // Get the scrollable container (story-window)
+    const storyWindow = storyDiv.parentElement;
     
     const p = document.createElement('p');
     
@@ -47,14 +96,31 @@ async function addStoryText(text, animate = true) {
     if (!animate || isDecorative) {
         p.textContent = text;
         storyDiv.appendChild(p);
+        // Immediate scroll for non-animated text
+        if (storyWindow) {
+            storyWindow.scrollTop = storyWindow.scrollHeight;
+        }
     } else {
         // Append element first so typing is visible
         storyDiv.appendChild(p);
-        await typeText(p, text, 15);  // Type directly into the already-appended element
+        
+        // Use text speed from settings, default to 30ms if not available
+        let speed = 30; // Default fallback
+        
+        if (settingsManager && settingsManager.settings && settingsManager.settings.display) {
+            speed = settingsManager.settings.display.textSpeed;
+            console.log('✅ Using settings speed:', speed, 'ms');
+        } else {
+            console.log('⚠️ Settings not loaded, using default:', speed, 'ms');
+        }
+        
+        await typeText(p, text, speed);
+        
+        // Ensure scroll after typing completes
+        if (storyWindow) {
+            storyWindow.scrollTop = storyWindow.scrollHeight;
+        }
     }
-    
-    // Auto-scroll to bottom
-    storyDiv.scrollTop = storyDiv.scrollHeight;
 }
 
 /**
