@@ -7,78 +7,157 @@
 const CHARACTER_CLASSES = {
     Warrior: {
         name: 'Warrior',
-        description: 'Strong melee fighter with high HP',
+        description: 'Unstoppable tank with unmatched defense',
+        playstyle: 'High survivability, can withstand massive damage and protect allies',
         stats: {
-            strength: 14,
-            dexterity: 10,
-            constitution: 13,
-            intelligence: 8,
-            wisdom: 10,
-            charisma: 9
+            strength: 16,
+            dexterity: 8,
+            constitution: 15,
+            intelligence: 6,
+            wisdom: 9,
+            charisma: 8
         },
-        baseHP: 120,
-        baseMP: 50,
-        baseStamina: 100
+        baseHP: 150,
+        baseMP: 40,
+        baseStamina: 120,
+        specialAbility: 'Iron Wall',
+        abilityDesc: 'Reduce incoming damage by 50% for 3 turns',
+        passive: 'Natural Armor: +25% defense from equipment',
+        startingGold: 80,
+        uniqueBonus: {
+            defenseMultiplier: 1.25,
+            hpRegenPerTurn: 5,
+            critResistance: 0.3
+        }
     },
     Mage: {
         name: 'Mage',
-        description: 'Master of magic with high MP',
+        description: 'Devastating spellcaster with arcane mastery',
+        playstyle: 'Glass cannon - extreme damage but fragile',
         stats: {
-            strength: 7,
-            dexterity: 9,
-            constitution: 9,
-            intelligence: 15,
-            wisdom: 13,
+            strength: 5,
+            dexterity: 8,
+            constitution: 7,
+            intelligence: 18,
+            wisdom: 14,
             charisma: 10
         },
-        baseHP: 80,
-        baseMP: 150,
-        baseStamina: 60
+        baseHP: 70,
+        baseMP: 180,
+        baseStamina: 50,
+        specialAbility: 'Arcane Surge',
+        abilityDesc: 'Next 3 spells deal double damage',
+        passive: 'Spell Mastery: +50% MP regeneration',
+        startingGold: 120,
+        uniqueBonus: {
+            magicDamageMultiplier: 1.5,
+            mpRegenPerTurn: 10,
+            spellCritChance: 0.25
+        }
     },
     Rogue: {
         name: 'Rogue',
-        description: 'Swift and cunning',
+        description: 'Lightning-fast assassin who strikes from shadows',
+        playstyle: 'High critical damage and evasion, rewards skill and timing',
         stats: {
             strength: 10,
-            dexterity: 15,
-            constitution: 10,
-            intelligence: 11,
+            dexterity: 18,
+            constitution: 9,
+            intelligence: 12,
             wisdom: 10,
-            charisma: 11
+            charisma: 13
         },
         baseHP: 90,
         baseMP: 70,
-        baseStamina: 120
+        baseStamina: 140,
+        specialAbility: 'Shadow Strike',
+        abilityDesc: 'Guaranteed critical hit with 3x damage',
+        passive: 'Backstab: 40% chance to deal critical damage',
+        startingGold: 100,
+        uniqueBonus: {
+            critChance: 0.4,
+            critMultiplier: 2.5,
+            evasionChance: 0.25,
+            firstStrikeDamage: 1.5
+        }
     },
     Cleric: {
         name: 'Cleric',
-        description: 'Holy healer and support',
+        description: 'Divine support who keeps the party alive',
+        playstyle: 'Balanced fighter with powerful healing and buffs',
         stats: {
             strength: 10,
-            dexterity: 9,
-            constitution: 11,
+            dexterity: 8,
+            constitution: 12,
             intelligence: 11,
-            wisdom: 15,
-            charisma: 12
+            wisdom: 17,
+            charisma: 14
         },
-        baseHP: 100,
-        baseMP: 120,
-        baseStamina: 80
+        baseHP: 110,
+        baseMP: 140,
+        baseStamina: 90,
+        specialAbility: 'Divine Blessing',
+        abilityDesc: 'Heal to full HP and cure all status effects',
+        passive: 'Holy Aura: Regenerate 3% HP and MP each turn',
+        startingGold: 90,
+        uniqueBonus: {
+            healingMultiplier: 1.75,
+            hpRegenPerTurn: 3,
+            mpRegenPerTurn: 5,
+            statusResistance: 0.5
+        }
     },
     Ranger: {
         name: 'Ranger',
-        description: "Nature's archer",
+        description: 'Versatile wilderness expert with deadly precision',
+        playstyle: 'Balanced offense and utility, bonus against beasts',
         stats: {
-            strength: 11,
-            dexterity: 14,
-            constitution: 11,
-            intelligence: 10,
-            wisdom: 13,
+            strength: 12,
+            dexterity: 16,
+            constitution: 12,
+            intelligence: 11,
+            wisdom: 14,
             charisma: 9
         },
-        baseHP: 100,
-        baseMP: 80,
-        baseStamina: 110
+        baseHP: 105,
+        baseMP: 90,
+        baseStamina: 130,
+        specialAbility: 'Hunters Mark',
+        abilityDesc: 'Mark enemy for +75% damage for 5 turns',
+        passive: 'Nature Bond: +50% damage vs beasts, +10% evasion in forests',
+        startingGold: 110,
+        uniqueBonus: {
+            beastDamageMultiplier: 1.5,
+            rangedDamageBonus: 1.3,
+            evasionChance: 0.15,
+            forestBonus: 0.2
+        }
+    },
+    Paladin: {
+        name: 'Paladin',
+        description: 'Holy warrior combining strength with divine magic',
+        playstyle: 'Balanced tank/healer hybrid with strong damage',
+        stats: {
+            strength: 14,
+            dexterity: 9,
+            constitution: 14,
+            intelligence: 10,
+            wisdom: 13,
+            charisma: 15
+        },
+        baseHP: 130,
+        baseMP: 100,
+        baseStamina: 100,
+        specialAbility: 'Righteous Fury',
+        abilityDesc: 'Deal holy damage equal to 50% missing HP',
+        passive: 'Divine Shield: Immune to critical hits',
+        startingGold: 75,
+        uniqueBonus: {
+            critImmunity: true,
+            holyDamageBonus: 1.4,
+            hpRegenPerTurn: 4,
+            underdogBonus: 0.5 // Damage increases when low HP
+        }
     }
 };
 
@@ -119,7 +198,7 @@ function createCharacter() {
         level: 1,
         experience: 0,
         experienceToNext: 100,
-        gold: 50,
+        gold: classData.startingGold || 50,
         
         // Stats (with bonus points applied)
         stats: {
@@ -139,12 +218,18 @@ function createCharacter() {
         stamina: classData.baseStamina,
         maxStamina: classData.baseStamina,
         
-        // Combat stats
-        attack: 10,
-        defense: 5,
+        // Combat stats (base + class modifiers)
+        attack: 10 + Math.floor(classData.stats.strength / 2),
+        defense: 5 + Math.floor(classData.stats.constitution / 3),
         critChance: 0.1,
         critMultiplier: 2.0,
-        evasion: 0.05,
+        evasion: 0.05 + (classData.stats.dexterity > 12 ? (classData.stats.dexterity - 12) * 0.01 : 0),
+        
+        // Class-specific bonuses
+        classAbility: classData.specialAbility,
+        classAbilityDesc: classData.abilityDesc,
+        classPassive: classData.passive,
+        uniqueBonus: classData.uniqueBonus,
         
         // Progression
         inventory: null, // Will be initialized below
@@ -154,7 +239,7 @@ function createCharacter() {
         completedAdventures: [],
         questLog: [],
         spells: [],
-        abilities: [],
+        abilities: [classData.specialAbility], // Start with class ability
         
         // Adventure tracking
         adventureStartTime: null,
@@ -165,6 +250,19 @@ function createCharacter() {
         created: new Date().toISOString(),
         lastPlayed: new Date().toISOString()
     };
+    
+    // Apply class-specific starting bonuses
+    if (classData.uniqueBonus) {
+        if (classData.uniqueBonus.critChance) {
+            character.critChance = classData.uniqueBonus.critChance;
+        }
+        if (classData.uniqueBonus.critMultiplier) {
+            character.critMultiplier = classData.uniqueBonus.critMultiplier;
+        }
+        if (classData.uniqueBonus.evasionChance) {
+            character.evasion = classData.uniqueBonus.evasionChance;
+        }
+    }
     
     // Initialize new systems
     character.inventory = new InventorySystem(100);
@@ -223,22 +321,48 @@ function updateStatPreview() {
     const previewDiv = document.getElementById('statPreview');
     
     previewDiv.innerHTML = `
-        <h4 style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.8em;">
-            ${classData.name} - ${classData.description}
-        </h4>
-        <div style="text-align: center; margin-bottom: 15px; padding: 10px; background: rgba(0,255,0,0.1); border: 1px solid var(--text-highlight);">
+        <div style="background: linear-gradient(135deg, var(--bg-secondary), var(--bg-window)); padding: 15px; border-radius: 10px; border: 2px solid var(--accent-primary); margin-bottom: 15px;">
+            <h4 style="color: var(--text-highlight); margin-bottom: 8px; font-size: 0.9em; text-align: center;">
+                ${classData.name}
+            </h4>
+            <p style="color: var(--text-secondary); font-size: 0.65em; margin-bottom: 10px; text-align: center;">
+                ${classData.description}
+            </p>
+            <div style="background: rgba(58, 134, 255, 0.1); padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                <div style="color: var(--text-highlight); font-size: 0.65em; margin-bottom: 4px;">
+                    <strong>⚡ Special:</strong> ${classData.specialAbility}
+                </div>
+                <div style="color: var(--text-secondary); font-size: 0.6em;">
+                    ${classData.abilityDesc}
+                </div>
+            </div>
+            <div style="background: rgba(100, 255, 218, 0.1); padding: 8px; border-radius: 6px;">
+                <div style="color: var(--text-highlight); font-size: 0.65em;">
+                    <strong>🛡️ Passive:</strong> ${classData.passive}
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 15px; padding: 10px; background: linear-gradient(135deg, rgba(255, 217, 61, 0.2), rgba(100, 255, 218, 0.2)); border: 2px solid var(--text-highlight); border-radius: 8px;">
             <span style="color: var(--text-highlight); font-weight: bold; font-size: 0.9em;">
-                BONUS POINTS: <span id="bonusPointsDisplay">${bonusPoints}</span>
+                💎 BONUS POINTS: <span id="bonusPointsDisplay">${bonusPoints}</span>
             </span>
         </div>
+        
         ${generateStatRow('strength', '⚔️ STRENGTH', classData.stats.strength)}
         ${generateStatRow('dexterity', '🏃 DEXTERITY', classData.stats.dexterity)}
         ${generateStatRow('constitution', '💪 CONSTITUTION', classData.stats.constitution)}
         ${generateStatRow('intelligence', '🧠 INTELLIGENCE', classData.stats.intelligence)}
         ${generateStatRow('wisdom', '👁️ WISDOM', classData.stats.wisdom)}
         ${generateStatRow('charisma', '💬 CHARISMA', classData.stats.charisma)}
-        <div style="margin-top: 15px; text-align: center; font-size: 0.7em; color: #888;">
-            <p>❤️ HP: ${classData.baseHP} | 💙 MP: ${classData.baseMP} | ⚡ Stamina: ${classData.baseStamina}</p>
+        
+        <div style="margin-top: 15px; padding: 12px; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color);">
+            <div style="text-align: center; font-size: 0.7em; color: var(--text-secondary); margin-bottom: 8px;">
+                <div style="margin: 4px 0;">❤️ HP: <span style="color: var(--hp-color); font-weight: bold;">${classData.baseHP}</span></div>
+                <div style="margin: 4px 0;">💙 MP: <span style="color: var(--mp-color); font-weight: bold;">${classData.baseMP}</span></div>
+                <div style="margin: 4px 0;">⚡ Stamina: <span style="color: var(--exp-color); font-weight: bold;">${classData.baseStamina}</span></div>
+                <div style="margin: 4px 0;">💰 Starting Gold: <span style="color: var(--text-highlight); font-weight: bold;">${classData.startingGold || 50}</span></div>
+            </div>
         </div>
     `;
 }
@@ -432,14 +556,32 @@ function deleteCharacter(event, index) {
  * Generate full character sheet HTML
  */
 function generateCharacterSheetHTML(character) {
+    const classData = CHARACTER_CLASSES[character.class];
+    
     return `
         <div style="font-size: 0.8em;">
             <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="color: var(--text-secondary);">${character.name}</h3>
-                <p style="color: var(--text-highlight);">Level ${character.level} ${character.class}</p>
+                <h3 style="color: var(--text-highlight);">${character.name}</h3>
+                <p style="color: var(--text-secondary);">Level ${character.level} ${character.class}</p>
             </div>
             
-            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
+            ${character.classAbility ? `
+            <div style="background: linear-gradient(135deg, var(--bg-secondary), var(--bg-window)); padding: 15px; margin: 15px 0; border: 2px solid var(--accent-primary); border-radius: 8px;">
+                <h4 style="color: var(--text-highlight); margin-bottom: 10px;">⚡ CLASS ABILITY</h4>
+                <div style="color: var(--text-primary); font-size: 0.85em; margin-bottom: 8px;">
+                    <strong>${character.classAbility}</strong>
+                </div>
+                <div style="color: var(--text-secondary); font-size: 0.7em; margin-bottom: 10px;">
+                    ${character.classAbilityDesc}
+                </div>
+                <h4 style="color: var(--text-highlight); margin-top: 15px; margin-bottom: 8px;">🛡️ PASSIVE</h4>
+                <div style="color: var(--text-secondary); font-size: 0.7em;">
+                    ${character.classPassive}
+                </div>
+            </div>
+            ` : ''}
+            
+            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0; border-radius: 8px;">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">ATTRIBUTES</h4>
                 ${Object.entries(character.stats).map(([stat, value]) => `
                     <div class="stat-row">
@@ -449,7 +591,27 @@ function generateCharacterSheetHTML(character) {
                 `).join('')}
             </div>
             
-            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
+            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0; border-radius: 8px;">
+                <h4 style="color: var(--text-secondary); margin-bottom: 10px;">COMBAT STATS</h4>
+                <div class="stat-row">
+                    <span class="stat-label">⚔️ ATTACK:</span>
+                    <span class="stat-value">${character.attack || 10}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">🛡️ DEFENSE:</span>
+                    <span class="stat-value">${character.defense || 5}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">💥 CRIT CHANCE:</span>
+                    <span class="stat-value">${((character.critChance || 0.1) * 100).toFixed(0)}%</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">💫 EVASION:</span>
+                    <span class="stat-value">${((character.evasion || 0.05) * 100).toFixed(0)}%</span>
+                </div>
+            </div>
+            
+            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0; border-radius: 8px;">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">RESOURCES</h4>
                 <div class="stat-row">
                     <span class="stat-label">❤️ HP:</span>
@@ -469,7 +631,7 @@ function generateCharacterSheetHTML(character) {
                 </div>
             </div>
             
-            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
+            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0; border-radius: 8px;">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">PROGRESSION</h4>
                 <div class="stat-row">
                     <span class="stat-label">EXP:</span>
@@ -480,7 +642,7 @@ function generateCharacterSheetHTML(character) {
                 </div>
             </div>
             
-            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0;">
+            <div style="background: var(--bg-secondary); padding: 15px; margin: 15px 0; border-radius: 8px;">
                 <h4 style="color: var(--text-secondary); margin-bottom: 10px;">INVENTORY</h4>
                 ${(() => {
                     const inventoryItems = character.inventory && character.inventory.items ? character.inventory.items : (Array.isArray(character.inventory) ? character.inventory : []);

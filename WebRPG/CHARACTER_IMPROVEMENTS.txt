@@ -1,0 +1,61 @@
+﻿CHARACTER CLASS IMPROVEMENTS COMPLETE!
+
+NEW CLASS SYSTEM:
+==================
+
+Each class now has UNIQUE mechanics and purpose:
+
+WARRIOR - The Unstoppable Tank
+- HP: 150 (Highest survivability)
+- Special: Iron Wall (50% damage reduction for 3 turns)
+- Passive: Natural Armor (+25% defense from equipment)
+- Unique: +5 HP regen per turn, 30% crit resistance
+- Purpose: Frontline tank that protects and survives
+
+MAGE - The Glass Cannon
+- MP: 180 (Highest spell power)
+- Special: Arcane Surge (Next 3 spells deal double damage)
+- Passive: Spell Mastery (+50% MP regeneration)
+- Unique: 1.5x magic damage, +10 MP regen, 25% spell crit
+- Purpose: Maximum damage output, high risk/reward
+
+ROGUE - The Shadow Assassin
+- Stamina: 140 (Most mobile)
+- Special: Shadow Strike (Guaranteed 3x crit damage)
+- Passive: Backstab (40% chance for critical hits)
+- Unique: 40% crit chance, 2.5x crit damage, 25% evasion, 1.5x first strike
+- Purpose: High burst damage and evasion specialist
+
+CLERIC - The Divine Support
+- HP: 110, MP: 140 (Balanced)
+- Special: Divine Blessing (Full heal + cure all status)
+- Passive: Holy Aura (3% HP & MP regen each turn)
+- Unique: 1.75x healing power, 50% status resistance
+- Purpose: Support/healer with good survivability
+
+RANGER - The Versatile Hunter
+- Balanced stats across the board
+- Special: Hunters Mark (+75% damage for 5 turns)
+- Passive: Nature Bond (+50% vs beasts, +10% evasion in forests)
+- Unique: 1.5x damage to beasts, 1.3x ranged damage, forest bonuses
+- Purpose: Adaptable fighter, excels against nature enemies
+
+PALADIN - The Holy Hybrid (NEW!)
+- HP: 130, MP: 100
+- Special: Righteous Fury (Holy damage = 50% missing HP)
+- Passive: Divine Shield (Immune to critical hits)
+- Unique: Crit immunity, damage increases when low HP
+- Purpose: Tank/damage hybrid that gets stronger when wounded
+
+IMPROVEMENTS:
+==============
+ Each class has unique starting gold
+ Special abilities and passives clearly defined
+ Combat bonuses automatically applied
+ Beautiful class preview in character creation
+ Character sheet shows abilities and passives
+ Stats display includes combat stats (crit chance, evasion, etc.)
+ Enhanced stat allocation UI with visual improvements
+
+Now every class has a CLEAR PURPOSE and UNIQUE PLAYSTYLE!
+

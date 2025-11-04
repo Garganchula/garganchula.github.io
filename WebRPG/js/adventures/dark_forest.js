@@ -2696,9 +2696,397 @@ async function follow_to_village_stealthily() { await find_village(); }
 async function elena_brings_supplies() { await village_investigation_start(); }
 async function elena_offers_full_help() { await village_investigation_start(); }
 async function elena_home_base() { await village_investigation_start(); }
-async function imprisoned_path() { await typeText("\nYou're thrown in the village jail..."); await showContinue(); }
-async function combat_guards() { await first_combat(); }
-async function escape_to_forest() { await deeper_forest(); }
+async function imprisoned_path() {
+    await typeText("\nYou're thrown into a dark cell beneath the village hall. The door slams shut. You're alone... or are you?");
+    await typeText("\n\nAs your eyes adjust, you see another figure in the cell. A man, beaten and bloody. He looks up weakly.");
+    await typeText("\n\n'You too, huh?' he coughs. 'They think I'm involved with the disappearances. I'm just a trader who was in the wrong place...'");
+    
+    const choice = await showChoices([
+        'Ask about the disappearances',
+        'Ask if he knows Marcus',
+        'Plan an escape together',
+        'Stay silent and wait'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\n'People vanishing at night,' he says. 'Always near the full moon. The guards know something but won't say. They're scared.'");
+        forestState.foundClueTypes.witness++;
+        await showContinue();
+        await imprisoned_conversation();
+    } else if (choice === 1) {
+        await typeText("\n'Marcus? The hunter? Yeah, I knew him. He discovered something in the forest. Came to the tavern raving about cultists and rituals. Next day, he was gone.'");
+        forestState.foundClueTypes.witness++;
+        updateQuestLog('Marcus discovered the cult before disappearing');
+        await showContinue();
+        await imprisoned_conversation();
+    } else if (choice === 2) {
+        await typeText("\n'I like your thinking,' he grins despite his injuries. 'I know these cells. There's a loose stone in the back wall. Been working on it for days...'");
+        await showContinue();
+        await prison_escape_attempt();
+    } else {
+        await typeText("\nYou wait in silence. Hours pass. Eventually, guards come for you.");
+        await showContinue();
+        await guard_interrogation();
+    }
+}
+
+async function imprisoned_conversation() {
+    await typeText("\nThe trader looks at you closely. 'You don't look like a cultist. You look... lost. Scared. Like you don't know what's happening.'");
+    await typeText("\n\n'Listen,' he whispers. 'When they interrogate you, tell them about the blood. About your amnesia. The captain - he's harsh but fair. If you're honest, he might help.'");
+    
+    forestState.hasAdviceFromTrader = true;
+    
+    const choice = await showChoices([
+        'Thank him and plan to be honest',
+        'Plan to escape instead',
+        'Ask more questions'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\nYou nod. Honesty might be your best weapon here.");
+        await showContinue();
+        await guard_interrogation();
+    } else if (choice === 1) {
+        await typeText("\n'Alright,' he says. 'Let's do this.'");
+        await showContinue();
+        await prison_escape_attempt();
+    } else {
+        await typeText("\nYou ask about the village, the cult, the stone circle. He tells you everything he knows...");
+        forestState.foundClueTypes.witness += 2;
+        updateQuestLog('Learned extensive information about the cult from trader');
+        await showContinue();
+        await imprisoned_conversation();
+    }
+}
+
+async function prison_escape_attempt() {
+    await typeText("\nTogether, you work at the loose stone. Your fingers bleed. The stone shifts... shifts... and finally comes free!");
+    await typeText("\n\nBehind it is a narrow gap leading to a drainage tunnel. You can squeeze through, but it'll be tight and dark.");
+    
+    const choice = await showChoices([
+        'Crawl through the tunnel',
+        'Convince the trader to go first',
+        'Change your mind - too risky',
+        'Use the stone as a weapon and fight the guards'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\nYou squeeze into the darkness. The walls press against you. You can barely breathe. But you move forward, inch by inch...");
+        const escapeCheck = Math.random();
+        if (escapeCheck > 0.4) {
+            await typeText("\n\nYou emerge in the forest outside the village! Free! The trader follows, gasping for air. 'We made it!' he laughs.");
+            forestState.hasTraderAlly = true;
+            await showContinue();
+            await escaped_with_trader();
+        } else {
+            await typeText("\n\nYou're stuck! The passage is too narrow! Behind you, the trader is also wedged in. Then you hear guards entering the cell...");
+            await showContinue();
+            await caught_in_tunnel();
+        }
+    } else if (choice === 1) {
+        await typeText("\nThe trader goes first. He gets stuck halfway. 'Help!' he gasps. His struggling alerts the guards!");
+        await showContinue();
+        await caught_escaping();
+    } else if (choice === 2) {
+        await typeText("\nYou put the stone back. Better to take your chances with the interrogation.");
+        await showContinue();
+        await guard_interrogation();
+    } else {
+        await typeText("\nYou hide by the door with the stone. When a guard enters, you strike! It's a desperate move...");
+        await showContinue();
+        await prison_fight();
+    }
+}
+
+async function guard_interrogation() {
+    await typeText("\nYou're brought to an interrogation room. Captain Thorne, a grizzled veteran with a scar across his jaw, sits across from you.");
+    await typeText("\n\n'Talk,' he commands. 'Who are you? Why were you covered in blood? What do you know about the disappearances?'");
+    
+    const choice = await showChoices([
+        'Tell the complete truth (amnesia, blood, confusion)',
+        'Lie and say you were attacked by cultists',
+        'Demand to know about Marcus',
+        'Refuse to speak',
+        'Tell partial truth (leave out the amnesia)'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\nYou tell him everything. The waking, the blood, the voices, the amnesia. He listens carefully, his expression unreadable.");
+        if (forestState.hasAdviceFromTrader) {
+            await typeText("\n\nHis expression softens slightly. 'That... actually matches what we found at the scene. You're either telling the truth or you're the best liar I've ever met.'");
+            forestState.elderTrust += 20;
+            await showContinue();
+            await captain_believes_you();
+        } else {
+            await typeText("\n\n'Amnesia?' he scoffs. 'Convenient. Very convenient.'");
+            await showContinue();
+            await captain_skeptical();
+        }
+    } else if (choice === 1) {
+        await typeText("\n'Cultists?' His eyes narrow. 'Describe them.' You try to make up details, but he sees through it. 'You're lying. I can always tell.'");
+        forestState.elderTrust -= 10;
+        await showContinue();
+        await captain_angry();
+    } else if (choice === 2) {
+        await typeText("\n'Marcus?' His face darkens. 'What do you know about Marcus?' The intensity in his voice reveals this is personal.");
+        await showContinue();
+        await ask_about_marcus_captain();
+    } else if (choice === 3) {
+        await typeText("\n'Silent, are we? Fine. You'll talk eventually. They always do.' He stands. 'Enjoy the cell.'");
+        await showContinue();
+        await back_to_cell();
+    } else {
+        await typeText("\n'I woke up in the forest, covered in blood. I don't know whose blood. I came here for answers.' He considers this.");
+        await showContinue();
+        await captain_skeptical();
+    }
+}
+
+async function captain_believes_you() {
+    await typeText("\nCaptain Thorne leans back. 'I've seen strange things in my years. Your story... it fits with something we've been investigating. The cult.'");
+    await typeText("\n\nHe slides a map across the table. 'They operate from the old stone circle. They've been taking people, using them in dark rituals. Marcus was tracking them when he vanished.'");
+    await typeText("\n\n'If your amnesia is real, you might have been their next victim. Something went wrong with their ritual. That blood on you... it might not be yours, or it might not be all yours.'");
+    
+    forestState.knowsAboutCult = true;
+    forestState.knowsAboutRitual = true;
+    forestState.captainAlliance = true;
+    updateQuestLog('Allied with Captain Thorne against the cult');
+    
+    const choice = await showChoices([
+        'Offer to help stop the cult',
+        'Ask about the ritual specifics',
+        'Request weapons and supplies',
+        'Ask to leave the village'
+    ]);
+    
+    if (choice === 0) await volunteer_against_cult();
+    else if (choice === 1) await learn_ritual_details();
+    else if (choice === 2) await captain_supplies_you();
+    else await released_from_custody();
+}
+
+async function captain_skeptical() {
+    await typeText("\n'I'm not convinced,' Thorne says. 'But I'm not a fool either. You're connected to this somehow. I'm going to keep you here while I investigate.'");
+    await typeText("\n\n'If you're innocent, you'll be released. If you're guilty...' He doesn't finish the sentence.");
+    
+    const choice = await showChoices([
+        'Offer information about what you found',
+        'Plead for a chance to prove yourself',
+        'Accept the imprisonment quietly',
+        'Try to escape during transfer'
+    ]);
+    
+    if (choice === 0) {
+        if (forestState.cluesFound > 3) {
+            await typeText("\nYou tell him about the clues you found - the journal, the symbols, the footprints. His eyes widen.");
+            forestState.elderTrust += 15;
+            await showContinue();
+            await captain_believes_you();
+        } else {
+            await typeText("\nYou don't have enough information to convince him. He sends you back to the cell.");
+            await showContinue();
+            await back_to_cell();
+        }
+    } else if (choice === 1) {
+        await typeText("\n'Please,' you beg. 'Give me a chance. Let me help investigate. I need to know the truth too.'");
+        await typeText("\n\nHe considers. 'Fine. But you'll be under guard. And if you try anything...'");
+        forestState.underGuardWatch = true;
+        await showContinue();
+        await supervised_investigation();
+    } else if (choice === 2) {
+        await showContinue();
+        await back_to_cell();
+    } else {
+        await typeText("\nAs the guards escort you back, you make a break for it!");
+        await showContinue();
+        await escape_attempt_from_guards();
+    }
+}
+async function combat_guards() {
+    await typeText("\nYou're fighting the village guards! This is madness - they're trained soldiers!");
+    
+    // Create guard enemies
+    const guard1 = {
+        name: 'Village Guard',
+        hp: 35,
+        maxHp: 35,
+        attack: 8,
+        defense: 6,
+        level: 3,
+        goldDrop: 15,
+        xpDrop: 25
+    };
+    
+    const guard2 = {
+        name: 'Guard Sergeant',
+        hp: 45,
+        maxHp: 45,
+        attack: 10,
+        defense: 8,
+        level: 4,
+        goldDrop: 25,
+        xpDrop: 35
+    };
+    
+    await showContinue();
+    
+    // Fight multiple guards
+    const result1 = await startCombat([guard1]);
+    
+    if (result1 === 'victory') {
+        await typeText("\nYou've defeated the first guard, but more are coming!");
+        forestState.violenceLevel += 5;
+        forestState.elderTrust -= 20;
+        forestState.villagersSuspicion += 40;
+        await showContinue();
+        
+        await typeText("\nThe sergeant charges at you with his sword!");
+        const result2 = await startCombat([guard2]);
+        
+        if (result2 === 'victory') {
+            await typeText("\nYou've defeated the guards, but you've made enemies of the entire village! You must flee!");
+            forestState.bannedFromVillage = true;
+            updateQuestLog('WANTED: Attacked village guards - village hostile');
+            await showContinue();
+            await flee_from_village();
+        } else {
+            await typeText("\nThe sergeant overpowers you. You're beaten and imprisoned.");
+            await showContinue();
+            await imprisoned_after_combat();
+        }
+    } else if (result1 === 'fled') {
+        await typeText("\nYou flee from the guards! They're in pursuit!");
+        forestState.villagersSuspicion += 25;
+        await showContinue();
+        await chase_sequence();
+    } else {
+        await typeText("\nYou're defeated and captured.");
+        await showContinue();
+        await imprisoned_after_combat();
+    }
+}
+
+async function imprisoned_after_combat() {
+    await typeText("\nYou wake up in the cell, bruised and beaten. Captain Thorne stands over you, his face furious.");
+    await typeText("\n\n'You attacked my men!' he roars. 'Give me one reason I shouldn't hang you right now!'");
+    
+    forestState.elderTrust -= 30;
+    
+    const choice = await showChoices([
+        'Apologize and explain your panic',
+        'Warn him about the cult',
+        'Stay defiant',
+        'Beg for mercy'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\n'Panic?' he scoffs. 'Two trained guards, and you beat them. You're more than you appear.'");
+        await showContinue();
+        await captain_interrogation_harsh();
+    } else if (choice === 1) {
+        await typeText("\n'The cult?' He pauses. 'Talk. Now. And it better be good.'");
+        if (forestState.cluesFound >= 5) {
+            await typeText("\n\nYou tell him everything you've learned. His anger slowly turns to concern. 'If this is true... we have bigger problems than one violent prisoner.'");
+            await showContinue();
+            await reluctant_alliance();
+        } else {
+            await typeText("\n\n'You don't know enough. You're just trying to distract me. Nice try.'");
+            await showContinue();
+            await execution_threat();
+        }
+    } else if (choice === 2) {
+        await typeText("\n'Defiant to the end, are we?' He signals the guards. 'Take them to the gallows.'");
+        await showContinue();
+        await execution_sequence();
+    } else {
+        await typeText("\nYou beg for your life. He looks at you with disgust. 'Pathetic. But... I'll let you live. For now. You're going to help us hunt the cult. Redemption through service.'");
+        forestState.captainAlliance = true;
+        forestState.redemptionPath = true;
+        await showContinue();
+        await forced_alliance();
+    }
+}
+
+async function chase_sequence() {
+    await typeText("\nYou run through the village streets! Guards are shouting behind you. Dogs bark. Villagers point and scream.");
+    await typeText("\n\nYou have seconds to decide...");
+    
+    const choice = await showChoices([
+        'Head for the forest',
+        'Jump into the river',
+        'Hide in a building',
+        'Steal a horse',
+        'Turn and fight'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\nYou sprint for the forest edge! Arrows whistle past your head!");
+        const escapeCheck = Math.random() + (gameState.currentCharacter.stats.agility / 50);
+        if (escapeCheck > 0.6) {
+            await typeText("\n\nYou make it! You crash into the underbrush as arrows thud into trees behind you. You're safe... for now.");
+            forestState.escapedFromVillage = true;
+            await showContinue();
+            await escape_to_forest();
+        } else {
+            await typeText("\n\nAn arrow strikes your leg! You fall! The guards surround you!");
+            gameState.currentCharacter.stats.hp -= 15;
+            await showContinue();
+            await captured_after_chase();
+        }
+    } else if (choice === 1) {
+        await typeText("\nYou leap into the cold river! The current is strong!");
+        await typeText("\n\nYou're swept downstream, away from the village. You manage to crawl onto the far bank, soaked and freezing but free.");
+        forestState.escapedViaRiver = true;
+        gameState.currentCharacter.stats.hp -= 10;
+        await showContinue();
+        await downstream_location();
+    } else if (choice === 2) {
+        await typeText("\nYou duck into a building - it's someone's home! A family screams. You hide under their bed as guards search the village.");
+        const hideCheck = Math.random();
+        if (hideCheck > 0.5) {
+            await typeText("\n\nThe guards search the house but don't find you. The family is too terrified to reveal you. After hours, you sneak out at night.");
+            await showContinue();
+            await nighttime_village_exploration();
+        } else {
+            await typeText("\n\nThe homeowner points you out! 'Under the bed!' The guards drag you out.");
+            forestState.elderTrust -= 10;
+            await showContinue();
+            await captured_after_chase();
+        }
+    } else if (choice === 3) {
+        await typeText("\nYou spot a horse tied outside the tavern! You leap onto it and gallop away!");
+        await typeText("\n\nThe horse is fast! The village disappears behind you. You've escaped... but now you're a horse thief too.");
+        forestState.stoleHorse = true;
+        forestState.hasHorse = true;
+        updateQuestLog('Stole a horse - can travel faster but villagers will be furious');
+        await showContinue();
+        await escape_on_horseback();
+    } else {
+        await typeText("\nYou turn to fight the pursuing guards! Bad idea - there are too many!");
+        await showContinue();
+        await combat_guards();
+    }
+}
+
+async function escape_to_forest() {
+    await typeText("\nYou're deep in the forest now, the village far behind. You're an outlaw, hunted and alone.");
+    await typeText("\n\nBut you're free. And you still need answers about what happened to you.");
+    
+    forestState.outlawStatus = true;
+    updateQuestLog('Escaped from Oakridge - now hunted by village');
+    
+    const choice = await showChoices([
+        'Head to the stone circle (risky but direct)',
+        'Search for alternative allies in the forest',
+        'Try to find the cult hideout',
+        'Set up camp and plan your next move'
+    ]);
+    
+    if (choice === 0) await approach_stone_circle_alone();
+    else if (choice === 1) await search_for_forest_allies();
+    else if (choice === 2) await search_for_cult_hideout();
+    else await forest_camp();
+}
 async function buy_map() { removeGold(gameState.currentCharacter, 5); await typeText("\nYou buy the map. Useful!"); await showContinue(); await merchant_followup(); }
 async function buy_leather_armor() { removeGold(gameState.currentCharacter, 40); gameState.currentCharacter.stats.defense += 5; await typeText("\nYou buy the armor. Defense +5!"); await showContinue(); await merchant_followup(); }
 async function ask_about_marcus_merchant() { await typeText("\n'Marcus was a good man,' Oswald says sadly. 'The best hunter we had.'"); await showContinue(); await merchant_followup(); }
@@ -2706,10 +3094,208 @@ async function ask_about_cult_merchant() { await typeText("\n'Dangerous topic,' 
 async function ask_about_strange_events() { await typeText("\n'People disappearing. Animals acting strange. The forest itself feels... wrong.'"); await showContinue(); await merchant_followup(); }
 async function meet_mysterious_contact() { await typeText("\n'I'm a hunter of the supernatural,' she says. 'And something very dark is happening here.'"); await showContinue(); await village_investigation_start(); }
 async function investigate_forest_edge() { await typeText("\nYou investigate the forest edge, finding more clues..."); await showContinue(); await find_more_clues(); }
-async function visit_priest() { await typeText("\nThe priest welcomes you. 'My child, you look troubled. How can I help?'"); await showContinue(); await village_investigation_start(); }
-async function eavesdrop_on_guards() { await typeText("\nYou listen to the guards. They're planning patrols and talking about the missing hunter."); await showContinue(); await village_exploration_hub(); }
-async function observe_village() { await typeText("\nYou observe from the shadows, learning the village routines..."); await showContinue(); await find_village(); }
-async function approach_priest() { await typeText("\nYou approach the priest at the chapel. He seems kind and welcoming."); await showContinue(); await visit_priest(); }
+async function visit_priest() {
+    await typeText("\nYou enter the small chapel. Father Aldric, an elderly priest with kind eyes, greets you warmly. 'Welcome, child. You seem burdened. How may I help you?'");
+    
+    const choice = await showChoices([
+        'Ask about Marcus the hunter',
+        'Confess your amnesia',
+        'Ask about the cult',
+        'Seek sanctuary in the church',
+        'Leave the chapel'
+    ]);
+    
+    if (choice === 0) {
+        await typeText("\nThe priest's face saddens. 'Marcus was a good man. He came to me days ago, troubled. Said he'd seen things in the forest. Dark things. I warned him not to go back... but hunters are stubborn.'");
+        forestState.foundClueTypes.witness++;
+        updateQuestLog('Learned: Marcus knew about the forest dangers before disappearing');
+        await showContinue();
+        await priest_followup();
+    } else if (choice === 1) {
+        await typeText("\nYou tell him everything - waking in blood, the amnesia, the fear. He listens carefully. 'The divine tests us in strange ways,' he says. 'But I sense no evil in you. You seek truth, not deception.'");
+        forestState.elderTrust += 15;
+        forestState.hasPriestBlessing = true;
+        await showContinue();
+        await priest_offers_blessing();
+    } else if (choice === 2) {
+        await typeText("\nYou mention whispers of a cult. The priest's face darkens. 'The old ways never truly die,' he mutters. 'There are those who worship what should remain buried. If you've encountered them... you're in grave danger.'");
+        forestState.foundClueTypes.supernatural++;
+        await showContinue();
+        await priest_cult_warning();
+    } else if (choice === 3) {
+        await typeText("\n'Of course,' he says. 'The church offers sanctuary to all. You may rest here safely.'");
+        await showContinue();
+        await rest_in_church();
+    } else {
+        await typeText("\n'Go with grace, child,' the priest says.");
+        await showContinue();
+        await village_exploration_hub();
+    }
+}
+
+async function priest_followup() {
+    await typeText("\nFather Aldric studies you carefully. 'Is there more you wish to discuss?'");
+    const choice = await showChoices([
+        'Ask about strange rituals',
+        'Request his blessing',
+        'Ask about the stone circle',
+        'Thank him and leave'
+    ]);
+    
+    if (choice === 0) await priest_cult_warning();
+    else if (choice === 1) await priest_offers_blessing();
+    else if (choice === 2) await ask_about_stone_circle();
+    else await village_exploration_hub();
+}
+
+async function priest_offers_blessing() {
+    await typeText("\nThe priest places his hands on your head. 'May the light guide you through the darkness. May truth illuminate your path.' You feel... lighter. Stronger.");
+    forestState.hasPriestBlessing = true;
+    gameState.currentCharacter.stats.maxHp += 10;
+    gameState.currentCharacter.stats.hp = Math.min(gameState.currentCharacter.stats.hp + 10, gameState.currentCharacter.stats.maxHp);
+    updateQuestLog('Received Priest\'s Blessing - Max HP +10');
+    await showContinue();
+    await village_exploration_hub();
+}
+
+async function priest_cult_warning() {
+    await typeText("\n'The cult of the Blood Moon,' the priest whispers. 'They perform dark rituals at the ancient stone circle. They believe they can transfer souls, cheat death itself. It's blasphemy... but some say it works.'");
+    forestState.knowsAboutCult = true;
+    forestState.knowsAboutRitual = true;
+    await typeText("\n\n'If they're active again, we're all in danger. Someone must stop them before the next full moon... which is tonight.'");
+    updateQuestLog('URGENT: Cult plans ritual at stone circle - TONIGHT!');
+    await showContinue();
+    await priest_followup();
+}
+
+async function ask_about_stone_circle() {
+    await typeText("\n'The stone circle is ancient,' the priest explains. 'Pre-dates this village by centuries. It was used for dark purposes once. We tried to consecrate it, but... evil lingers there. Avoid it if you can.'");
+    forestState.knowsStoneCircleLocation = true;
+    updateQuestLog('Learned location of the stone circle');
+    await showContinue();
+    await priest_followup();
+}
+
+async function rest_in_church() {
+    await typeText("\nYou rest in the chapel. The peaceful atmosphere soothes your troubled mind. When you wake, you feel restored.");
+    gameState.currentCharacter.stats.hp = gameState.currentCharacter.stats.maxHp;
+    forestState.hasRestedInChurch = true;
+    await showContinue();
+    await village_exploration_hub();
+}
+
+async function eavesdrop_on_guards() {
+    await typeText("\nYou position yourself near the guard post, pretending to examine wares at a nearby stall. The guards are talking...");
+    await typeText("\n\n'...increased patrols tonight,' one says. 'Captain's orders. Something about the stone circle.'");
+    await typeText("\n\n'Always the stone circle,' another grumbles. 'Nothing ever happens there.'");
+    await typeText("\n\n'Tell that to Marcus. He went investigating and never came back.'");
+    
+    forestState.foundClueTypes.witness++;
+    forestState.guardsOnAlert = true;
+    updateQuestLog('Guards planning increased patrols near stone circle');
+    
+    await showContinue();
+    await village_exploration_hub();
+}
+
+async function observe_village() {
+    await typeText("\nYou observe the village from the tree line. Oakridge is a typical rural settlement - about 200 people, mostly farmers and hunters.");
+    await typeText("\n\nYou note the guard patterns, the location of the chapel, the merchant's shop, and the tavern. There's a well in the center square where Elena (the water girl) seems to spend time.");
+    await typeText("\n\nThe guards change shifts every few hours. The village seems peaceful... but there's an underlying tension. People glance at the forest nervously.");
+    
+    forestState.stealthApproach = true;
+    forestState.knowsVillageLayout = true;
+    updateQuestLog('Learned village layout and guard patterns');
+    
+    const choice = await showChoices([
+        'Sneak into the village',
+        'Wait for nightfall',
+        'Approach openly',
+        'Continue observing'
+    ]);
+    
+    if (choice === 0) await sneak_into_village();
+    else if (choice === 1) await wait_for_nightfall();
+    else if (choice === 2) await walk_into_village_bloody();
+    else await observe_village_more();
+}
+
+async function observe_village_more() {
+    await typeText("\nYou continue watching. You notice a hooded figure enter the tavern - the same mysterious woman you might have seen before. She moves like a predator.");
+    await typeText("\n\nYou also see Elena talking to an older man - possibly the village elder. She seems agitated, pointing toward the forest. Toward where you are...");
+    
+    forestState.villagersSuspicion += 5;
+    
+    const choice = await showChoices([
+        'Retreat deeper into forest',
+        'Sneak in before they organize',
+        'Reveal yourself peacefully'
+    ]);
+    
+    if (choice === 0) await deeper_forest();
+    else if (choice === 1) await sneak_into_village();
+    else await walk_into_village_bloody();
+}
+
+async function wait_for_nightfall() {
+    await typeText("\nYou wait as the sun sets. Darkness falls over Oakridge. Torches are lit. The guards seem more alert at night.");
+    await typeText("\n\nBut you also notice the tavern gets busier. More people to blend with... or more witnesses to your blood-stained appearance.");
+    
+    forestState.isNightTime = true;
+    
+    const choice = await showChoices([
+        'Sneak in under cover of darkness',
+        'Approach the tavern (busy, might blend in)',
+        'Wait until late night when guards are tired',
+        'Abandon this approach'
+    ]);
+    
+    if (choice === 0) await sneak_into_village_night();
+    else if (choice === 1) await approach_tavern_at_night();
+    else if (choice === 2) await wait_until_late_night();
+    else await deeper_forest();
+}
+
+async function sneak_into_village_night() {
+    await typeText("\nYou move silently between buildings, using the shadows. Your heart pounds with each step.");
+    
+    const stealthCheck = Math.random() + (forestState.stealthApproach ? 0.3 : 0);
+    
+    if (stealthCheck > 0.6) {
+        await typeText("\n\nYou successfully slip into the village undetected! You're near the merchant's shop, which is closed for the night.");
+        forestState.infiltratedVillage = true;
+        await showContinue();
+        await nighttime_village_exploration();
+    } else {
+        await typeText("\n\n'Halt!' A guard spots you! 'Who goes there?'");
+        await showContinue();
+        await caught_by_night_guard();
+    }
+}
+
+async function nighttime_village_exploration() {
+    await typeText("\nYou're in Oakridge at night. Most buildings are dark, but the tavern glows with firelight and you hear rowdy voices.");
+    
+    const choice = await showChoices([
+        'Investigate the chapel (unlocked)',
+        'Try the merchant\'s back door',
+        'Listen at tavern windows',
+        'Search for Elena\'s home',
+        'Head to the stone circle'
+    ]);
+    
+    if (choice === 0) await chapel_at_night();
+    else if (choice === 1) await merchant_back_door();
+    else if (choice === 2) await tavern_window_listen();
+    else if (choice === 3) await find_elena_home();
+    else await leave_for_stone_circle();
+}
+
+async function approach_priest() { 
+    await typeText("\nYou approach the priest at the chapel. He seems kind and welcoming."); 
+    await showContinue(); 
+    await visit_priest(); 
+}
 async function signal_merchant() { await typeText("\nYou signal the merchant. He comes to meet you privately."); await showContinue(); await visit_merchant(); }
 async function examine_ritual_symbols() { await typeText("\nThe symbols are ancient and dark. They speak of soul transfer and rebirth."); forestState.knowsAboutRitual = true; await showContinue(); await find_more_clues(); }
 async function follow_bare_footprints() { await typeText("\nYou follow the strange prints deeper into the forest..."); await showContinue(); await deeper_forest(); }
@@ -2727,4 +3313,161 @@ async function ask_about_marcus() { await typeText("\n'Marcus was tracking someo
 async function hide_and_wait_for_elder() { await typeText("\nYou hide and wait for Elena to return with the village elder..."); await showContinue(); await meet_elder_in_forest(); }
 async function meet_elder_in_forest() { await typeText("\nThe elder arrives. An old man with wise eyes. 'Tell me your story,' he says."); await showContinue(); await village_investigation_start(); }
 async function final_confrontation() { await typeText("\nYou arrive at the stone circle for the final battle..."); await showContinue(); }
+
+
+
+// ============================================
+// ENDING AND EXTENDED PATH STUBS
+// ============================================
+
+// New stub functions for recently added paths
+async function chapel_at_night() { await typeText("\nThe chapel is peaceful at night, lit by candles. Father Aldric is praying."); await showContinue(); await visit_priest(); }
+async function merchant_back_door() { await typeText("\nYou try the back door. It's locked. You could pick it or knock..."); await showContinue(); await nighttime_village_exploration(); }
+async function tavern_window_listen() { await typeText("\nYou listen at the window. Inside, people are talking about the cult and Marcus..."); forestState.foundClueTypes.witness++; await showContinue(); await nighttime_village_exploration(); }
+async function find_elena_home() { await typeText("\nYou find Elena's small cottage. A light is on inside. You could knock..."); await showContinue(); await nighttime_village_exploration(); }
+async function leave_for_stone_circle() { await typeText("\nYou decide it's time. You head for the stone circle."); await showContinue(); await approach_stone_circle_alone(); }
+async function caught_by_night_guard() { await typeText("\nThe guard advances. You can run, fight, or talk your way out..."); const c = await showChoices(['Fight', 'Run', 'Talk']); if (c === 0) await combat_guards(); else if (c === 1) await chase_sequence(); else await explain_amnesia_to_guards(); }
+async function caught_in_tunnel() { await typeText("\nThe guards pull you both out of the tunnel. 'Nice try,' the captain says grimly."); forestState.elderTrust -= 15; await showContinue(); await guard_interrogation(); }
+async function caught_escaping() { await typeText("\nGuards flood the cell. You're both dragged to interrogation."); await showContinue(); await guard_interrogation(); }
+async function prison_fight() { await typeText("\nYou strike the guard! He goes down! But more are coming!"); await showContinue(); await combat_guards(); }
+async function escaped_with_trader() { await typeText("\n'I owe you my life,' the trader says. 'Name's Garret. I know people, places. I can help you.'"); forestState.hasTraderAlly = true; await showContinue(); await trader_alliance(); }
+async function ask_about_marcus_captain() { await typeText("\n'Marcus was my brother,' Thorne says quietly. 'If you know what happened to him...'"); forestState.captainPersonalStake = true; await showContinue(); await guard_interrogation(); }
+async function back_to_cell() { await typeText("\nYou're thrown back in the cell. Hours pass. You need a new plan."); await showContinue(); await imprisoned_path(); }
+async function volunteer_against_cult() { await typeText("\n'Finally,' Thorne says. 'Someone willing to act. I'll equip you and we'll end this tonight.'"); forestState.captainAlliance = true; await showContinue(); await prepare_for_cult_raid(); }
+async function learn_ritual_details() { await typeText("\n'Soul transfer,' Thorne explains. 'They take a victim, kill them at the stones, and the cult leader's soul jumps to the new body. That's why the disappearances.'"); forestState.knowsRitualMechanic = true; await showContinue(); await captain_believes_you(); }
+async function captain_supplies_you() { await typeText("\nThorne provides weapons, armor, and healing potions. 'You'll need these.'"); addItemToInventory(gameState.currentCharacter, {name: 'Steel Sword', type: 'weapon', attack: 8}); addItemToInventory(gameState.currentCharacter, {name: 'Chainmail', type: 'armor', defense: 8}); addItemToInventory(gameState.currentCharacter, {name: 'Health Potion', type: 'consumable', healing: 30}); addItemToInventory(gameState.currentCharacter, {name: 'Health Potion', type: 'consumable', healing: 30}); await showContinue(); await prepare_for_cult_raid(); }
+async function released_from_custody() { await typeText("\n'You're free to go,' Thorne says. 'But stay in the village. We may need you.'"); await showContinue(); await village_exploration_hub(); }
+async function supervised_investigation() { await typeText("\nA guard escorts you as you investigate. It's better than prison, at least."); forestState.hasGuardEscort = true; await showContinue(); await village_investigation_start(); }
+async function escape_attempt_from_guards() { const escCheck = Math.random(); if (escCheck > 0.6) { await typeText("\nYou break free and run!"); await showContinue(); await chase_sequence(); } else { await typeText("\nThe guards tackle you. Now you're in even more trouble."); forestState.elderTrust -= 20; await showContinue(); await imprisoned_after_combat(); } }
+async function captain_interrogation_harsh() { await typeText("\n'You're dangerous,' he says. 'But maybe that's what we need against the cult.' He makes you an offer..."); await showContinue(); await forced_alliance(); }
+async function reluctant_alliance() { await typeText("\n'Fine,' Thorne says. 'You help us stop the cult, and I'll forget about the guards you beat. Deal?'"); forestState.captainAlliance = true; await showContinue(); await prepare_for_cult_raid(); }
+async function execution_threat() { await typeText("\n'You'll hang at dawn,' Thorne says. 'Unless you give me something useful. Now.'"); const c = await showChoices(['Reveal everything you know', 'Try to escape', 'Accept your fate']); if (c === 0 && forestState.cluesFound >= 3) await reluctant_alliance(); else if (c === 1) await prison_escape_attempt(); else await execution_sequence(); }
+async function execution_sequence() { await typeText("\nYou're led to the gallows. This is it. The end. Unless... a commotion! Cultists are attacking the village! In the chaos, you might escape!"); const c = await showChoices(['Escape in the chaos', 'Fight the cultists', 'Help the captain']); if (c === 0) await escape_during_attack(); else if (c === 1) await fight_cultists(); else await help_captain_fight(); }
+async function forced_alliance() { await typeText("\n'You work for me now,' Thorne says. 'Help us stop the cult, and you might live through this.'"); forestState.redemptionPath = true; forestState.captainAlliance = true; await showContinue(); await prepare_for_cult_raid(); }
+async function captured_after_chase() { await typeText("\nYou're captured, beaten, and dragged back to the cells."); gameState.currentCharacter.stats.hp -= 10; await showContinue(); await imprisoned_after_combat(); }
+async function downstream_location() { await typeText("\nYou're miles downstream, near the old mill. You're free but lost."); await showContinue(); await old_mill_location(); }
+async function escape_on_horseback() { await typeText("\nYou ride hard into the forest. The horse is a huge advantage. Where will you go?"); const c = await showChoices(['To the stone circle', 'Search for cult hideout', 'Set up camp']); if (c === 0) await approach_stone_circle_alone(); else if (c === 1) await search_for_cult_hideout(); else await forest_camp(); }
+async function approach_stone_circle_alone() { await typeText("\nYou approach the ancient stone circle. Dark energy pulses from the stones. Tonight is the night of the ritual..."); await showContinue(); await stone_circle_arrival(); }
+async function search_for_forest_allies() { await typeText("\nYou search the forest for anyone who might help - hermits, outcasts, other victims of the cult..."); await showContinue(); await find_hermit(); }
+async function search_for_cult_hideout() { await typeText("\nYou track the cultists through the forest, looking for their base of operations..."); await showContinue(); await find_cult_cave(); }
+async function forest_camp() { await typeText("\nYou make camp in a secluded grove. You need to rest and plan your next move carefully."); gameState.currentCharacter.stats.hp = Math.min(gameState.currentCharacter.stats.hp + 20, gameState.currentCharacter.stats.maxHp); await showContinue(); await camp_planning(); }
+async function trader_alliance() { await typeText("\n'I know a safe house,' Garret says. 'And I know people who hate the cult as much as you do. Let's gather allies.'"); await showContinue(); await gather_allies(); }
+async function prepare_for_cult_raid() { await typeText("\nCaptain Thorne assembles a strike team. 'Tonight, we end this. We raid the stone circle during their ritual and save whoever they've taken.'"); await showContinue(); await cult_raid_mission(); }
+async function escape_during_attack() { await typeText("\nYou slip away in the chaos. The village burns behind you."); await showContinue(); await escape_to_forest(); }
+async function fight_cultists() { await typeText("\nYou grab a weapon and fight the cultists attacking the village!"); await showContinue(); await cultist_combat(); }
+async function help_captain_fight() { await typeText("\nYou fight alongside Captain Thorne! He nods in respect. 'Maybe I was wrong about you.'"); forestState.elderTrust += 30; forestState.captainAlliance = true; await showContinue(); await cultist_combat(); }
+async function old_mill_location() { await typeText("\nThe old mill is abandoned. Or is it? You see signs of recent activity..."); await showContinue(); await investigate_old_mill(); }
+async function stone_circle_arrival() { await typeText("\nThe stone circle looms before you. Cultists chant in the moonlight. A victim is tied to the altar. This is it. The final confrontation."); await showContinue(); await final_battle_start(); }
+async function find_hermit() { await typeText("\nYou find a hermit's shack. An old woman emerges. 'I know why you're here,' she says. 'The cult took my daughter years ago. I'll help you end them.'"); forestState.hasHermitAlly = true; await showContinue(); await hermit_assistance(); }
+async function find_cult_cave() { await typeText("\nYou discover a cave entrance marked with cult symbols. This is their hideout!"); await showContinue(); await infiltrate_cult_cave(); }
+async function camp_planning() { await typeText("\nYou plan your approach. You can go to the stone circle alone, try to gather allies, or infiltrate the cult."); const c = await showChoices(['Stone circle raid', 'Gather allies', 'Infiltrate cult']); if (c === 0) await approach_stone_circle_alone(); else if (c === 1) await search_for_forest_allies(); else await infiltrate_cult(); }
+async function gather_allies() { await typeText("\nGarret takes you to meet outcasts, former victims, and those who've lost loved ones to the cult. You're building an army..."); forestState.hasAllies = true; await showContinue(); await allied_assault(); }
+async function cult_raid_mission() { await typeText("\nYou and the guards march on the stone circle. Battle is inevitable."); await showContinue(); await final_battle_with_guards(); }
+async function cultist_combat() { const cultist = {name: 'Cultist Raider', hp: 40, maxHp: 40, attack: 9, defense: 5, level: 4, goldDrop: 20, xpDrop: 30}; const result = await startCombat([cultist]); if (result === 'victory') { await typeText("\nYou've defeated the cultist! The village is saved!"); forestState.elderTrust += 25; await showContinue(); await prepare_for_cult_raid(); } else { await typeText("\nYou fall in battle..."); await showContinue(); } }
+async function investigate_old_mill() { await typeText("\nThe mill contains supplies and weapons. And a journal - it belongs to Marcus! He was here!"); updateQuestLog('Found Marcus\'s journal at the old mill'); await showContinue(); await read_marcus_journal(); }
+async function final_battle_start() { await typeText("\nYou charge into the ritual circle! Cultists turn to face you. The leader, wearing a bone mask, laughs. 'You're too late! The ritual is complete!'"); await showContinue(); await cult_leader_battle(); }
+async function hermit_assistance() { await typeText("\nThe hermit gives you an enchanted talisman. 'This protects against dark magic. Use it when you face the cult leader.'"); forestState.hasProtectionTalisman = true; await showContinue(); await approach_stone_circle_alone(); }
+async function infiltrate_cult_cave() { await typeText("\nYou sneak into the cave. Inside, you find prisoners! And documents revealing the cult's plans!"); await showContinue(); await rescue_prisoners(); }
+async function infiltrate_cult() { await typeText("\nYou disguise yourself and infiltrate the cult. Risky, but it might work..."); await showContinue(); await cult_infiltration(); }
+async function allied_assault() { await typeText("\nYour gathered allies storm the stone circle! It's an all-out war against the cult!"); await showContinue(); await final_battle_with_allies(); }
+async function final_battle_with_guards() { await typeText("\nThe village guards fight alongside you. Captain Thorne charges the cult leader!"); await showContinue(); await final_battle_start(); }
+async function read_marcus_journal() { await typeText("\nMarcus's journal reveals everything - the cult leader's identity, the ritual's weakness, everything! You have the knowledge to stop them!"); forestState.knowsCultWeakness = true; await showContinue(); await approach_stone_circle_alone(); }
+async function cult_leader_battle() { 
+    await typeText("\n\nThe cult leader steps forward, removing his bone mask. His eyes glow with unnatural power.");
+    await typeText("\n\n'You cannot stop what has already begun,' he hisses. 'My immortality is assured!'");
+    await typeText("\n\nThis is it. The final battle!");
+    await showContinue();
+    
+    const cultLeader = {
+        name: 'Cult Leader',
+        hp: 80,
+        maxHp: 80,
+        attack: 15,
+        defense: 12,
+        level: 8,
+        gold: 100,
+        experience: 200
+    };
+    
+    const result = await startCombat([cultLeader]); 
+    
+    if (result === 'victory') {
+        await cult_defeated_ending();
+    } else if (result === 'fled') {
+        await typeText("\nYou flee from the ritual site! But the cult leader's laughter echoes behind you...");
+        await showContinue();
+        await escape_to_forest();
+    } else {
+        await cult_victory_bad_ending();
+    }
+}
+async function rescue_prisoners() { await typeText("\nYou free the prisoners! Among them is Marcus! He's alive!"); forestState.rescuedMarcus = true; await showContinue(); await marcus_rescued(); }
+async function cult_infiltration() { await typeText("\nYou blend in with the cultists, learning their secrets. Tonight is the ritual. You'll sabotage it from within..."); await showContinue(); await sabotage_ritual(); }
+async function final_battle_with_allies() { await typeText("\nThe battle is epic! Your allies fight bravely! The cult is overwhelmed!"); forestState.hasAllies = true; await showContinue(); await cult_leader_battle(); }
+async function cult_defeated_ending() { 
+    await typeText("\n\nThe cult leader falls! The ritual is broken! The curse on the forest lifts! You've saved Oakridge and discovered the truth about yourself - you were an innocent victim, meant to be sacrificed. But you survived. You won.");
+    
+    // Calculate ending score based on choices
+    let score = 0;
+    if (forestState.moralityScore > 5) score += 50;
+    if (forestState.rescuedMarcus) score += 100;
+    if (forestState.captainAlliance) score += 75;
+    if (forestState.hasAllies) score += 50;
+    if (forestState.violenceLevel < 5) score += 25;
+    
+    await typeText("\n\n=== THE END - HERO'S VICTORY ===");
+    await typeText(`\nYour final score: ${score} points`);
+    
+    if (score > 250) await typeText("\nYou achieved the PERFECT ending!");
+    else if (score > 150) await typeText("\nYou achieved a GOOD ending.");
+    else await typeText("\nYou achieved a STANDARD ending.");
+    
+    await showContinue();
+    
+    // Mark adventure as complete
+    if (!gameState.currentCharacter.completedAdventures.includes("Blood in the Woods")) {
+        gameState.currentCharacter.completedAdventures.push("Blood in the Woods");
+    }
+    
+    // Clear current adventure
+    gameState.currentAdventure = null;
+    gameState.adventureState = null;
+    saveGameData();
+    
+    // Show return options
+    const choice = await showChoices(['Return to Adventure Select', 'View Character Sheet']);
+    if (choice === 0) {
+        showScreen('adventureSelect');
+        loadAdventureList();
+    } else {
+        showCharacterSheet();
+    }
+}
+async function cult_victory_bad_ending() { 
+    await typeText("\n\nYou fall. The ritual completes. The cult leader's soul enters your body. Everything goes dark..."); 
+    await typeText("\n\n=== THE END - CULT VICTORY ==="); 
+    await typeText("\nYou can try again and make different choices to achieve a better ending.");
+    await showContinue();
+    
+    // Even bad endings mark the adventure as "experienced"
+    if (!gameState.currentCharacter.completedAdventures.includes("Blood in the Woods")) {
+        gameState.currentCharacter.completedAdventures.push("Blood in the Woods");
+    }
+    
+    // Clear current adventure
+    gameState.currentAdventure = null;
+    gameState.adventureState = null;
+    saveGameData();
+    
+    // Show return options
+    const choice = await showChoices(['Return to Adventure Select', 'View Character Sheet']);
+    if (choice === 0) {
+        showScreen('adventureSelect');
+        loadAdventureList();
+    } else {
+        showCharacterSheet();
+    }
+}
+async function marcus_rescued() { await typeText("\n'Thank you,' Marcus gasps. 'I know everything about the cult now. Together, we can stop them!'"); forestState.hasMarcusAlly = true; await showContinue(); await approach_stone_circle_alone(); }
+async function sabotage_ritual() { await typeText("\nDuring the ritual, you sabotage the altar! The cult leader realizes too late! 'Traitor!' he screams!"); await showContinue(); await cult_leader_battle(); }
 

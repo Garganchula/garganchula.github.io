@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Tycoon - Build Your Deadly Dungeon</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Header -->
+        <header>
+            <h1>⚔️ DUNGEON TYCOON ⚔️</h1>
+            <p class="subtitle">Build the deadliest dungeon. Profit from heroes' demise.</p>
+        </header>
+
+        <!-- Main Game Area -->
+        <div id="main-game">
+            <!-- Stats Panel -->
+            <aside id="stats-panel">
+                <div class="stat-card time-card">
+                    <h3 id="time-of-day">☀️ DAY</h3>
+                    <div class="time-display">
+                        <div class="day-counter">Day <span id="day-count">1</span></div>
+                        <div class="time-bar-container">
+                            <div id="time-bar" class="time-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>💰 Treasury</h3>
+                    <div class="stat-value" id="gold-display">0</div>
+                    <div class="stat-label">Gold</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>💀 Body Count</h3>
+                    <div class="stat-value" id="kills-display">0</div>
+                    <div class="stat-label">Heroes Slain</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>👑 Reputation</h3>
+                    <div class="stat-value" id="reputation-display">0</div>
+                    <div class="stat-label">Infamy</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>⚡ Activity</h3>
+                    <div class="stat-value" id="active-adventurers">0</div>
+                    <div class="stat-label">Heroes Inside</div>
+                </div>
+
+                <div class="controls">
+                    <button id="speed-btn" class="control-btn">⏩ Speed: 1x</button>
+                    <button id="pause-btn" class="control-btn">⏸️ Pause</button>
+                    <button id="clear-dungeon-btn" class="control-btn danger">🗑️ Clear All</button>
+                    <button id="reset-game-btn" class="control-btn danger">🔄 Full Reset</button>
+                </div>
+            </aside>
+
+            <!-- Dungeon Grid -->
+            <section id="dungeon-area">
+                <div id="dungeon-info">
+                    <span id="selected-item">Select a trap or monster from the shop ➡️</span>
+                </div>
+                <div id="dungeon-grid"></div>
+            </section>
+
+            <!-- Shop Panel -->
+            <aside id="shop-panel">
+                <div class="shop-header">
+                    <h3>🏪 Dungeon Shop</h3>
+                    <div class="shop-tabs">
+                        <button class="shop-tab active" data-category="defenses">⚔️ Defenses</button>
+                        <button class="shop-tab" data-category="rooms">🏛️ Rooms</button>
+                        <button class="shop-tab" data-category="upgrades">⬆️ Upgrades</button>
+                    </div>
+                </div>
+
+                <div class="shop-content">
+                    <!-- Defenses Tab -->
+                    <div class="shop-tab-content active" id="defenses-content">
+                        <div class="shop-category">
+                            <h4>🔪 Traps</h4>
+                            <div class="shop-grid" id="traps-shop"></div>
+                        </div>
+
+                        <div class="shop-category">
+                            <h4>👹 Monsters</h4>
+                            <div class="shop-grid" id="monsters-shop"></div>
+                        </div>
+
+                        <div class="shop-category">
+                            <h4>🎣 Bait & Lures</h4>
+                            <div class="shop-grid" id="bait-shop"></div>
+                        </div>
+                    </div>
+
+                    <!-- Rooms Tab -->
+                    <div class="shop-tab-content" id="rooms-content">
+                        <div class="shop-category">
+                            <h4>🏛️ Special Rooms</h4>
+                            <p class="category-description">Place rooms on tiles to boost your defenses</p>
+                            <div class="shop-grid" id="rooms-shop"></div>
+                        </div>
+                    </div>
+
+                    <!-- Upgrades Tab -->
+                    <div class="shop-tab-content" id="upgrades-content">
+                        <div class="shop-category">
+                            <h4>⬆️ Permanent Upgrades</h4>
+                            <p class="category-description">Unlock powerful bonuses that persist forever</p>
+                            <div class="shop-grid" id="upgrades-shop"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Notification Panel (Top Right, Collapsible) -->
+        <div id="notification-panel">
+            <button id="notification-toggle" class="notification-btn">
+                📜 <span id="notification-count">0</span>
+            </button>
+            <div id="notification-content" class="notification-list">
+                <div class="notification-header">
+                    <h4>Dungeon Chronicle</h4>
+                    <button id="clear-notifications">Clear All</button>
+                </div>
+                <div id="notification-messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/adventurer.js"></script>
+    <script src="js/dungeon.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
