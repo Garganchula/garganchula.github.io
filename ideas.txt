@@ -1,0 +1,103 @@
+. 🏰 Kingdom Architect (Strategy/Management)
+Concept: Build a medieval kingdom from scratch, but you're cursed - everything you build slowly decays. Balance construction vs. maintenance.
+
+Core Loop:
+
+Place buildings (farms, houses, walls, markets)
+Citizens generate resources automatically
+Buildings degrade over time (visual decay effects)
+Unlock upgrades to slow decay
+Random events (dragon attacks, plagues, festivals)
+Prestige system: Rebuild kingdom with bonuses
+Unique Twist: Time reversal mechanic - spend mana to rewind time for specific buildings
+
+2. 🌊 Ocean Depths Tycoon (Incremental/Discovery)
+Concept: You're a deep-sea explorer running a submarine business. Send subs to different depths, discover creatures, sell findings.
+
+Core Loop:
+
+Deploy submarines to different ocean zones
+Each depth has unique creatures/resources
+Upgrade subs (speed, capacity, depth rating)
+Research discoveries for permanent bonuses
+Pressure/oxygen management
+Random encounters (giant squid, shipwrecks, underwater ruins)
+Unique Twist: Bioluminescent creatures create "light currency" - deeper = more valuable but riskier
+
+3. ⚗️ Alchemist's Apprentice (Puzzle/Crafting)
+Concept: Combine ingredients to create potions. Each potion has side effects that affect your shop/town.
+
+Core Loop:
+
+Customers request potions
+Combine 2-3 ingredients (match colors/symbols)
+Success = gold, Failure = explosions/transformations
+Ingredients respawn over time
+Unlock recipes through experimentation
+Town changes based on your potions (growth potion = bigger buildings)
+Unique Twist: Potion effects stack on the town permanently until you brew a "reset" potion
+
+4. 🎪 Circus of Chaos (Management/Performance)
+Concept: Run a magical circus where performers have wild, unpredictable abilities. Chain performances for combos.
+
+Core Loop:
+
+Hire performers (juggler, acrobat, magician, beast tamer)
+Schedule acts (real-time performances)
+Each act has success/fail chance
+Audience mood affects tips
+Upgrade performers and equipment
+Random events (fire breathing accident, escaped lion)
+Unique Twist: Performers learn from each other - placing them next to each other unlocks combo acts
+
+5. 🌙 Dream Weaver (Abstract/Collection)
+Concept: You harvest dreams from sleeping people. Different dream types give different resources. Build a dream empire.
+
+Core Loop:
+
+People sleep in beds (like cookie clicker)
+Collect dream orbs (nightmares, fantasies, memories)
+Convert dreams into upgrades
+Unlock new "dreamscapes" (zones)
+Mix dreams to create new types
+Nightmare events that corrupt your collection
+Unique Twist: Day/night cycle - nighttime generates dreams faster but attracts "void creatures" that steal them
+
+6. 🎲 Tavern Dice Lords (Dice/RPG Hybrid)
+Concept: Run a tavern where adventurers gamble with magical dice. You're the house - rig the game in your favor.
+
+Core Loop:
+
+Adventurers enter and request dice games
+You select which dice to use (loaded, cursed, blessed)
+Win gold, lose reputation
+Unlock new dice types
+Story events based on who wins/loses
+Upgrade tavern to attract richer clients
+Unique Twist: Cursed dice backfire sometimes, blessed dice attract paladins who shut you down temporarily
+
+7. 🔧 Clockwork Automaton Factory (Idle/Factory)
+Concept: Build robots that build other robots. Create complex automation chains.
+
+Core Loop:
+
+Build basic bots (miners, crafters, builders)
+Bots collect resources
+Chain bots together for production lines
+Unlock blueprints for advanced bots
+Bots break down and need repairs
+Prestige = start over with "quantum cores"
+Unique Twist: Bots develop personalities over time and work better/worse with certain other bots
+
+8. 📚 Forbidden Library (Puzzle/Story)
+Concept: You're a librarian in a magic library where books are alive and dangerous. Organize chaos, prevent escapes.
+
+Core Loop:
+
+Books fly around randomly
+Click to shelve books (match by category/color)
+Books fight each other if mis-shelved
+Read books for lore and bonuses
+Expand library (new wings, new genres)
+Boss fights = organizing legendary tome collections
+Unique Twist: Books you've read permanently buff you, but dangerous books can curse you
