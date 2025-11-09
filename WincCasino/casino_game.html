@@ -153,6 +153,16 @@
             color: #fff;
         }
 
+        .info-box.low-balance strong {
+            color: #e94560;
+            animation: pulse-red 1s infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
         .game-selection {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -216,6 +226,99 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             width: 150px;
+        }
+
+        .bet-presets {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .bet-preset-btn {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 5px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bet-preset-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            font-size: 2em;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .big-win-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .big-win-overlay.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .big-win-content {
+            text-align: center;
+            animation: bigWinPulse 1s ease-in-out infinite;
+        }
+
+        .big-win-content h1 {
+            font-size: 5em;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700;
+            margin-bottom: 20px;
+        }
+
+        .big-win-content .amount {
+            font-size: 4em;
+            color: #38ef7d;
+            font-weight: bold;
+            text-shadow: 0 0 15px #38ef7d;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bigWinPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .slots-reels {
@@ -336,6 +439,119 @@
         .bet-option.selected {
             background: rgba(255, 215, 0, 0.3);
             border-color: #fff;
+        }
+
+        /* Horse Racing Styles */
+        .race-track {
+            background: linear-gradient(to bottom, #2d5016 0%, #3d6b1f 50%, #2d5016 100%);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .finish-line {
+            position: absolute;
+            right: 30px;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            background: repeating-linear-gradient(
+                45deg,
+                #fff,
+                #fff 10px,
+                #000 10px,
+                #000 20px
+            );
+            z-index: 1;
+        }
+
+        .race-lane {
+            height: 60px;
+            border-bottom: 2px dashed rgba(255, 215, 0, 0.3);
+            position: relative;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .race-lane:last-child {
+            border-bottom: none;
+        }
+
+        .lane-number {
+            position: absolute;
+            left: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            z-index: 2;
+        }
+
+        .horse {
+            font-size: 2.5em;
+            position: absolute;
+            left: 50px;
+            transition: left 0.1s linear;
+            z-index: 3;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .horse.racing {
+            animation: horse-bounce 0.3s infinite;
+        }
+
+        @keyframes horse-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .horse-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .horse-card {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .horse-card:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-5px);
+            border-color: #ffd700;
+        }
+
+        .horse-card.selected {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .horse-card .horse-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .horse-card .horse-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .horse-card .horse-odds {
+            font-size: 0.9em;
+            color: #ffd700;
         }
 
         .message {
@@ -620,8 +836,37 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .welcome-screen, .casino-main {
+                padding: 20px;
+            }
+
             .welcome-screen h1 {
                 font-size: 2em;
+            }
+
+            .casino-header h1 {
+                font-size: 1.8em;
+            }
+
+            .player-info {
+                gap: 10px;
+            }
+
+            .info-box {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .game-card {
+                padding: 20px;
+            }
+
+            .game-card h3 {
+                font-size: 1.5em;
             }
 
             .slots-reels {
@@ -629,23 +874,111 @@
             }
 
             .reel {
-                width: 80px;
-                height: 100px;
-                font-size: 3em;
+                width: 70px;
+                height: 90px;
+                font-size: 2.5em;
             }
 
             .roulette-wheel {
                 width: 200px;
                 height: 200px;
             }
+
+            .card {
+                width: 60px;
+                height: 90px;
+                font-size: 1.5em;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .bet-input {
+                width: 120px;
+                font-size: 1em;
+            }
+
+            .game-controls {
+                gap: 10px;
+            }
+
+            .sound-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+                top: 10px;
+                right: 10px;
+            }
+
+            .big-win-content h1 {
+                font-size: 3em;
+            }
+
+            .big-win-content .amount {
+                font-size: 2.5em;
+            }
+
+            .modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .race-track {
+                padding: 10px;
+            }
+
+            .race-lane {
+                height: 50px;
+            }
+
+            .horse {
+                font-size: 2em;
+                left: 40px;
+            }
+
+            .horse-info {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 10px;
+            }
+
+            .horse-card {
+                padding: 10px;
+            }
+
+            .horse-card .horse-icon {
+                font-size: 2em;
+            }
+
+            .horse-card .horse-name {
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Sound Toggle -->
+    <div class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle Sound">
+        🔊
+    </div>
+
+    <!-- Big Win Overlay -->
+    <div class="big-win-overlay" id="bigWinOverlay">
+        <div class="big-win-content">
+            <h1>🎉 BIG WIN! 🎉</h1>
+            <div class="amount" id="bigWinAmount">$0</div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Welcome Screen -->
         <div class="welcome-screen" id="welcomeScreen">
-            <h1>🎰 Lucky Casino 🎰</h1>
+            <h1>🎰 WINC CASINO 🎰</h1>
             <p style="font-size: 1.2em; margin: 20px 0;">Welcome to the most exciting casino!</p>
             <input type="text" id="playerName" placeholder="Enter your name..." maxlength="20">
             <br>
@@ -656,7 +989,7 @@
         <!-- Casino Main -->
         <div class="casino-main hidden" id="casinoMain">
             <div class="casino-header">
-                <h1>🎰 Lucky Casino 🎰</h1>
+                <h1>🎰 WINC CASINO 🎰</h1>
                 <div class="player-info">
                     <div class="info-box">
                         <span>Player</span>
@@ -698,6 +1031,11 @@
                     <p>Bet on red, black, or a number!</p>
                     <p>Payout: 2x - 36x bet</p>
                 </div>
+                <div class="game-card" onclick="selectGame('horses')">
+                    <h3>🐴 Horse Racing</h3>
+                    <p>Pick a horse and watch them race!</p>
+                    <p>Payout: 3x - 6x bet</p>
+                </div>
             </div>
 
             <!-- Slot Machine Game -->
@@ -710,6 +1048,12 @@
                 </div>
                 <div class="game-controls">
                     <input type="number" class="bet-input" id="slotsBet" min="10" max="500" value="50" placeholder="Bet amount">
+                    <div class="bet-presets">
+                        <button class="bet-preset-btn" onclick="setBet('slots', 10)">Min</button>
+                        <button class="bet-preset-btn" onclick="setBet('slots', 50)">$50</button>
+                        <button class="bet-preset-btn" onclick="setBet('slots', 100)">$100</button>
+                        <button class="bet-preset-btn" onclick="setBet('slots', 'max')">Max</button>
+                    </div>
                     <button class="btn btn-primary" onclick="spinSlots()">SPIN ($<span id="slotsBetDisplay">50</span>)</button>
                     <button class="btn btn-secondary" onclick="backToGames()">Back</button>
                 </div>
@@ -731,6 +1075,12 @@
                 </div>
                 <div class="game-controls">
                     <input type="number" class="bet-input" id="blackjackBet" min="10" max="500" value="50" placeholder="Bet amount">
+                    <div class="bet-presets">
+                        <button class="bet-preset-btn" onclick="setBet('blackjack', 10)">Min</button>
+                        <button class="bet-preset-btn" onclick="setBet('blackjack', 50)">$50</button>
+                        <button class="bet-preset-btn" onclick="setBet('blackjack', 100)">$100</button>
+                        <button class="bet-preset-btn" onclick="setBet('blackjack', 'max')">Max</button>
+                    </div>
                     <button class="btn btn-primary" id="dealBtn" onclick="dealBlackjack()">Deal ($<span id="blackjackBetDisplay">50</span>)</button>
                     <button class="btn btn-success" id="hitBtn" onclick="hit()" disabled>Hit</button>
                     <button class="btn btn-secondary" id="standBtn" onclick="stand()" disabled>Stand</button>
@@ -755,11 +1105,88 @@
                 </div>
                 <div class="game-controls">
                     <input type="number" class="bet-input" id="rouletteBet" min="10" max="500" value="50" placeholder="Bet amount">
+                    <div class="bet-presets">
+                        <button class="bet-preset-btn" onclick="setBet('roulette', 10)">Min</button>
+                        <button class="bet-preset-btn" onclick="setBet('roulette', 50)">$50</button>
+                        <button class="bet-preset-btn" onclick="setBet('roulette', 100)">$100</button>
+                        <button class="bet-preset-btn" onclick="setBet('roulette', 'max')">Max</button>
+                    </div>
                     <button class="btn btn-primary" id="spinRouletteBtn" onclick="spinRoulette()" disabled>Spin ($<span id="rouletteBetDisplay">50</span>)</button>
                     <button class="btn btn-secondary" onclick="backToGames()">Back</button>
                 </div>
                 <div id="rouletteMessage" class="message hidden"></div>
                 <p style="text-align: center; margin-top: 10px;">Selected: <span id="selectedBet" style="color: #ffd700;">None</span></p>
+            </div>
+
+            <!-- Horse Racing Game -->
+            <div class="game-area" id="horsesGame">
+                <h2 style="text-align: center; color: #ffd700; margin-bottom: 20px;">🐴 Horse Racing 🐴</h2>
+                
+                <div class="race-track">
+                    <div class="finish-line"></div>
+                    <div class="race-lane" data-lane="1">
+                        <span class="lane-number">1</span>
+                        <div class="horse" id="horse1">🐴</div>
+                    </div>
+                    <div class="race-lane" data-lane="2">
+                        <span class="lane-number">2</span>
+                        <div class="horse" id="horse2">🐎</div>
+                    </div>
+                    <div class="race-lane" data-lane="3">
+                        <span class="lane-number">3</span>
+                        <div class="horse" id="horse3">🏇</div>
+                    </div>
+                    <div class="race-lane" data-lane="4">
+                        <span class="lane-number">4</span>
+                        <div class="horse" id="horse4">🐴</div>
+                    </div>
+                    <div class="race-lane" data-lane="5">
+                        <span class="lane-number">5</span>
+                        <div class="horse" id="horse5">🐎</div>
+                    </div>
+                </div>
+
+                <div class="horse-info">
+                    <div class="horse-card" onclick="selectHorse(1)">
+                        <div class="horse-icon">🐴</div>
+                        <div class="horse-name">Thunder</div>
+                        <div class="horse-odds">Odds: 3x</div>
+                    </div>
+                    <div class="horse-card" onclick="selectHorse(2)">
+                        <div class="horse-icon">🐎</div>
+                        <div class="horse-name">Lightning</div>
+                        <div class="horse-odds">Odds: 4x</div>
+                    </div>
+                    <div class="horse-card" onclick="selectHorse(3)">
+                        <div class="horse-icon">🏇</div>
+                        <div class="horse-name">Champion</div>
+                        <div class="horse-odds">Odds: 5x</div>
+                    </div>
+                    <div class="horse-card" onclick="selectHorse(4)">
+                        <div class="horse-icon">🐴</div>
+                        <div class="horse-name">Spirit</div>
+                        <div class="horse-odds">Odds: 4x</div>
+                    </div>
+                    <div class="horse-card" onclick="selectHorse(5)">
+                        <div class="horse-icon">🐎</div>
+                        <div class="horse-name">Rocket</div>
+                        <div class="horse-odds">Odds: 6x</div>
+                    </div>
+                </div>
+
+                <div class="game-controls">
+                    <input type="number" class="bet-input" id="horsesBet" min="10" max="500" value="50" placeholder="Bet amount">
+                    <div class="bet-presets">
+                        <button class="bet-preset-btn" onclick="setBet('horses', 10)">Min</button>
+                        <button class="bet-preset-btn" onclick="setBet('horses', 50)">$50</button>
+                        <button class="bet-preset-btn" onclick="setBet('horses', 100)">$100</button>
+                        <button class="bet-preset-btn" onclick="setBet('horses', 'max')">Max</button>
+                    </div>
+                    <button class="btn btn-primary" id="raceBtn" onclick="startRace()" disabled>Start Race ($<span id="horsesBetDisplay">50</span>)</button>
+                    <button class="btn btn-secondary" onclick="backToGames()">Back</button>
+                </div>
+                <div id="horsesMessage" class="message hidden"></div>
+                <p style="text-align: center; margin-top: 10px;">Selected Horse: <span id="selectedHorse" style="color: #ffd700;">None</span></p>
             </div>
 
             <div class="action-buttons">
@@ -814,6 +1241,11 @@
                         <div class="stat-value" id="statRoulette">0/0</div>
                         <p style="font-size: 0.9em; color: #ccc; margin-top: 5px;" id="statRouletteRate">0% win</p>
                     </div>
+                    <div class="stat-card">
+                        <h3>🐴 Horse Racing</h3>
+                        <div class="stat-value" id="statHorses">0/0</div>
+                        <p style="font-size: 0.9em; color: #ccc; margin-top: 5px;" id="statHorsesRate">0% win</p>
+                    </div>
                 </div>
 
                 <h3 style="color: #ffd700; margin: 25px 0 15px;">Balance History</h3>
@@ -839,8 +1271,75 @@
     </div>
 
     <script>
-        // Game State
+        /*
+        ========================================
+        WINC CASINO - BACKEND INTEGRATION GUIDE
+        ========================================
+        
+        This casino game is prepared for integration with:
+        1. Linux SQL Server (MySQL/PostgreSQL)
+        2. Discord Bot for currency synchronization
+        
+        TO ENABLE BACKEND:
+        1. Set CONFIG.USE_BACKEND = true
+        2. Update CONFIG.API_BASE_URL with your server URL
+        3. Update CONFIG.DISCORD_BOT_WEBHOOK if using webhooks
+        
+        REQUIRED API ENDPOINTS:
+        - POST /auth/login - Authenticate player
+            Request: { username, password?, discordId? }
+            Response: { success: true, playerId: string, discordId?: string }
+        
+        - POST /game/save - Save game state
+            Request: { playerId, discordId?, playerName, balance, level, xp, stats, ... }
+            Response: { success: true }
+        
+        - GET /game/load?playerId=xxx - Load game state
+            Response: { success: true, gameState: {...} }
+        
+        - POST /discord/sync - Sync currency with Discord
+            Request: { discordId, balance, totalWinnings, level }
+            Response: { success: true }
+        
+        - GET /leaderboard - Get top players
+            Response: { success: true, leaderboard: [{playerId, name, balance, level}] }
+        
+        DATABASE SCHEMA SUGGESTIONS:
+        - players table: id, username, discord_id, created_at, last_login
+        - game_state table: player_id, balance, level, xp, total_winnings, stats_json
+        - game_history table: player_id, game_type, bet, result, winnings, timestamp
+        
+        DISCORD BOT INTEGRATION:
+        - Store player's Discord ID during authentication
+        - Sync currency between casino and Discord bot economy
+        - Use webhooks for big win notifications
+        - Command examples: !balance, !casino, !leaderboard
+        */
+        
+        // ========================================
+        // BACKEND CONFIGURATION
+        // ========================================
+        const CONFIG = {
+            USE_BACKEND: false, // Set to true when backend is ready
+            API_BASE_URL: 'http://your-server-ip:port/api', // Update with your SQL server API
+            DISCORD_BOT_WEBHOOK: '', // Discord webhook URL (optional)
+            endpoints: {
+                login: '/auth/login',
+                register: '/auth/register',
+                saveGame: '/game/save',
+                loadGame: '/game/load',
+                syncCurrency: '/discord/sync',
+                getLeaderboard: '/leaderboard',
+                updateStats: '/stats/update'
+            }
+        };
+
+        // ========================================
+        // GAME STATE
+        // ========================================
         let gameState = {
+            playerId: null, // Will be set from backend/Discord
+            discordId: null, // Discord user ID for integration
             playerName: '',
             balance: 1000,
             totalWinnings: 0,
@@ -849,6 +1348,8 @@
             xp: 0,
             xpToNextLevel: 100,
             maxBet: 500,
+            soundEnabled: true,
+            lastSyncTime: null, // Track when last synced with backend
             stats: {
                 slotsPlayed: 0,
                 slotsWon: 0,
@@ -856,6 +1357,8 @@
                 blackjackWon: 0,
                 roulettePlayed: 0,
                 rouletteWon: 0,
+                horsesPlayed: 0,
+                horsesWon: 0,
                 biggestWin: 0,
                 totalBet: 0,
                 balanceHistory: [1000],
@@ -865,6 +1368,9 @@
 
         let currentGame = null;
         let selectedRouletteBetType = null;
+        let selectedHorseNumber = null;
+        let autoSaveInterval = null;
+        let isRacing = false;
 
         // Blackjack specific
         let deck = [];
@@ -872,13 +1378,258 @@
         let dealerHand = [];
         let dealerHidden = false;
 
+        // Sound Toggle
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('soundToggle').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+            if (gameState.soundEnabled) {
+                playSound('click');
+            }
+        }
+
+        // Play Sound (placeholder - you can add actual audio later)
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            // In a real implementation, you would play actual audio files here
+            // For now, this is a placeholder that can be extended
+        }
+
+        // Set Bet Amount
+        function setBet(game, amount) {
+            let betInput, betDisplay;
+            if (game === 'slots') {
+                betInput = document.getElementById('slotsBet');
+                betDisplay = document.getElementById('slotsBetDisplay');
+            } else if (game === 'blackjack') {
+                betInput = document.getElementById('blackjackBet');
+                betDisplay = document.getElementById('blackjackBetDisplay');
+            } else if (game === 'roulette') {
+                betInput = document.getElementById('rouletteBet');
+                betDisplay = document.getElementById('rouletteBetDisplay');
+            } else if (game === 'horses') {
+                betInput = document.getElementById('horsesBet');
+                betDisplay = document.getElementById('horsesBetDisplay');
+            }
+
+            if (amount === 'max') {
+                amount = Math.min(gameState.balance, gameState.maxBet);
+            }
+            amount = Math.max(10, Math.min(amount, gameState.balance, gameState.maxBet));
+            
+            betInput.value = amount;
+            betDisplay.textContent = amount;
+            playSound('click');
+        }
+
+        // Show Big Win Animation
+        function showBigWin(amount) {
+            const overlay = document.getElementById('bigWinOverlay');
+            const amountDisplay = document.getElementById('bigWinAmount');
+            amountDisplay.textContent = '$' + amount;
+            overlay.classList.add('active');
+            
+            createConfetti(100);
+            playSound('bigwin');
+            
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 3000);
+        }
+
+        // ========================================
+        // BACKEND API FUNCTIONS
+        // ========================================
+        
+        // Generic API call wrapper
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            if (!CONFIG.USE_BACKEND) {
+                console.log('[API] Backend disabled, using local storage');
+                return null;
+            }
+
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                // Add playerId to headers if available
+                if (gameState.playerId) {
+                    options.headers['X-Player-ID'] = gameState.playerId;
+                }
+
+                const response = await fetch(CONFIG.API_BASE_URL + endpoint, options);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('[API] Error:', error);
+                alert('Connection to server failed. Using local storage.');
+                return null;
+            }
+        }
+
+        // Login/Register with backend
+        async function authenticatePlayer(username, password = null, discordId = null) {
+            if (!CONFIG.USE_BACKEND) return true;
+
+            const data = {
+                username: username,
+                password: password,
+                discordId: discordId
+            };
+
+            const result = await apiCall(CONFIG.endpoints.login, 'POST', data);
+            
+            if (result && result.success) {
+                gameState.playerId = result.playerId;
+                gameState.discordId = result.discordId;
+                return true;
+            }
+
+            return false;
+        }
+
+        // Save game state to backend
+        async function saveGameToBackend() {
+            if (!CONFIG.USE_BACKEND) return;
+
+            const saveData = {
+                playerId: gameState.playerId,
+                discordId: gameState.discordId,
+                playerName: gameState.playerName,
+                balance: gameState.balance,
+                totalWinnings: gameState.totalWinnings,
+                gamesPlayed: gameState.gamesPlayed,
+                level: gameState.level,
+                xp: gameState.xp,
+                stats: gameState.stats,
+                timestamp: new Date().toISOString()
+            };
+
+            const result = await apiCall(CONFIG.endpoints.saveGame, 'POST', saveData);
+            
+            if (result && result.success) {
+                gameState.lastSyncTime = Date.now();
+                console.log('[API] Game saved to backend successfully');
+            }
+        }
+
+        // Load game state from backend
+        async function loadGameFromBackend(playerId) {
+            if (!CONFIG.USE_BACKEND) return null;
+
+            const result = await apiCall(CONFIG.endpoints.loadGame + '?playerId=' + playerId, 'GET');
+            
+            if (result && result.success) {
+                return result.gameState;
+            }
+
+            return null;
+        }
+
+        // Sync currency with Discord bot
+        async function syncCurrencyWithDiscord() {
+            if (!CONFIG.USE_BACKEND || !gameState.discordId) return;
+
+            const data = {
+                discordId: gameState.discordId,
+                balance: gameState.balance,
+                totalWinnings: gameState.totalWinnings,
+                level: gameState.level
+            };
+
+            const result = await apiCall(CONFIG.endpoints.syncCurrency, 'POST', data);
+            
+            if (result && result.success) {
+                console.log('[Discord] Currency synced successfully');
+            }
+
+            // Optional: Send webhook notification for big wins
+            if (CONFIG.DISCORD_BOT_WEBHOOK && gameState.stats.biggestWin > 500) {
+                sendDiscordWebhook({
+                    content: `🎰 **${gameState.playerName}** just won **$${gameState.stats.biggestWin}** at WINC Casino!`
+                });
+            }
+        }
+
+        // Send Discord webhook (for notifications)
+        async function sendDiscordWebhook(data) {
+            if (!CONFIG.DISCORD_BOT_WEBHOOK) return;
+
+            try {
+                await fetch(CONFIG.DISCORD_BOT_WEBHOOK, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error('[Discord] Webhook error:', error);
+            }
+        }
+
+        // Get leaderboard from backend
+        async function getLeaderboard() {
+            if (!CONFIG.USE_BACKEND) return null;
+
+            const result = await apiCall(CONFIG.endpoints.getLeaderboard, 'GET');
+            
+            if (result && result.success) {
+                return result.leaderboard;
+            }
+
+            return null;
+        }
+
+        // Auto-save functionality (now with backend support)
+        function startAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+            autoSaveInterval = setInterval(async () => {
+                if (gameState.playerName) {
+                    // Always save to localStorage as backup
+                    localStorage.setItem('casinoSave', JSON.stringify(gameState));
+                    
+                    // Save to backend if enabled
+                    if (CONFIG.USE_BACKEND && gameState.playerId) {
+                        await saveGameToBackend();
+                        await syncCurrencyWithDiscord();
+                    }
+                }
+            }, 30000); // Auto-save every 30 seconds
+        }
+
         // Start New Game
-        function startNewGame() {
+        async function startNewGame() {
             const name = document.getElementById('playerName').value.trim();
             if (!name) {
                 alert('Please enter your name!');
                 return;
             }
+
+            // If backend is enabled, authenticate first
+            if (CONFIG.USE_BACKEND) {
+                const authenticated = await authenticatePlayer(name);
+                if (!authenticated) {
+                    alert('Failed to connect to server. Playing offline.');
+                }
+            } else {
+                // Generate a local ID for offline play
+                gameState.playerId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
             gameState.playerName = name;
             gameState.balance = 1000;
             gameState.totalWinnings = 0;
@@ -894,6 +1645,8 @@
                 blackjackWon: 0,
                 roulettePlayed: 0,
                 rouletteWon: 0,
+                horsesPlayed: 0,
+                horsesWon: 0,
                 biggestWin: 0,
                 totalBet: 0,
                 balanceHistory: [1000],
@@ -901,27 +1654,74 @@
             };
             
             updateDisplay();
+            startAutoSave();
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('casinoMain').classList.remove('hidden');
+
+            // Initial save to backend
+            if (CONFIG.USE_BACKEND && gameState.playerId) {
+                await saveGameToBackend();
+            }
         }
 
         // Save Game
-        function saveGame() {
+        async function saveGame() {
+            // Always save locally as backup
             localStorage.setItem('casinoSave', JSON.stringify(gameState));
-            alert('Game saved successfully! 💾');
+            
+            // Save to backend if enabled
+            if (CONFIG.USE_BACKEND && gameState.playerId) {
+                await saveGameToBackend();
+                await syncCurrencyWithDiscord();
+                alert('Game saved to server and synced with Discord! 💾');
+            } else {
+                alert('Game saved locally! 💾');
+            }
         }
 
         // Load Game
-        function loadGame() {
+        async function loadGame() {
+            // Try loading from backend first
+            if (CONFIG.USE_BACKEND) {
+                const savedName = prompt('Enter your player name:');
+                if (!savedName) return;
+
+                const authenticated = await authenticatePlayer(savedName);
+                if (authenticated && gameState.playerId) {
+                    const backendData = await loadGameFromBackend(gameState.playerId);
+                    
+                    if (backendData) {
+                        gameState = { ...gameState, ...backendData };
+                        updateDisplay();
+                        startAutoSave();
+                        document.getElementById('welcomeScreen').classList.add('hidden');
+                        document.getElementById('casinoMain').classList.remove('hidden');
+                        document.getElementById('soundToggle').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+                        alert('Game loaded from server!');
+                        return;
+                    }
+                }
+                alert('Failed to load from server. Trying local storage...');
+            }
+
+            // Fallback to local storage
             const saved = localStorage.getItem('casinoSave');
             if (!saved) {
                 alert('No saved game found!');
                 return;
             }
             gameState = JSON.parse(saved);
+            
+            // Generate local ID if not present
+            if (!gameState.playerId) {
+                gameState.playerId = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+            
             updateDisplay();
+            startAutoSave();
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('casinoMain').classList.remove('hidden');
+            document.getElementById('soundToggle').textContent = gameState.soundEnabled ? '🔊' : '🔇';
         }
 
         // Quit Game
@@ -940,6 +1740,14 @@
             document.getElementById('displayWinnings').textContent = '$' + gameState.totalWinnings;
             document.getElementById('displayLevel').textContent = gameState.level;
             
+            // Highlight low balance
+            const balanceBox = document.querySelector('.info-box:has(#displayBalance)');
+            if (gameState.balance < 100) {
+                balanceBox.classList.add('low-balance');
+            } else {
+                balanceBox.classList.remove('low-balance');
+            }
+            
             const xpPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
             document.getElementById('levelBar').style.width = xpPercent + '%';
             document.getElementById('xpDisplay').textContent = `${gameState.xp} / ${gameState.xpToNextLevel} XP`;
@@ -948,6 +1756,7 @@
             document.getElementById('slotsBet').max = gameState.maxBet;
             document.getElementById('blackjackBet').max = gameState.maxBet;
             document.getElementById('rouletteBet').max = gameState.maxBet;
+            document.getElementById('horsesBet').max = gameState.maxBet;
         }
 
         // Add XP and check for level up
@@ -1054,8 +1863,8 @@
 
         function updateStatsDisplay() {
             const stats = gameState.stats;
-            const totalPlayed = stats.slotsPlayed + stats.blackjackPlayed + stats.roulettePlayed;
-            const totalWon = stats.slotsWon + stats.blackjackWon + stats.rouletteWon;
+            const totalPlayed = stats.slotsPlayed + stats.blackjackPlayed + stats.roulettePlayed + stats.horsesPlayed;
+            const totalWon = stats.slotsWon + stats.blackjackWon + stats.rouletteWon + stats.horsesWon;
             const winRate = totalPlayed > 0 ? Math.round((totalWon / totalPlayed) * 100) : 0;
             
             document.getElementById('statGamesPlayed').textContent = totalPlayed;
@@ -1077,6 +1886,11 @@
             document.getElementById('statRoulette').textContent = `${stats.rouletteWon}/${stats.roulettePlayed}`;
             const rouletteRate = stats.roulettePlayed > 0 ? Math.round((stats.rouletteWon / stats.roulettePlayed) * 100) : 0;
             document.getElementById('statRouletteRate').textContent = rouletteRate + '% win';
+            
+            // Horse racing stats
+            document.getElementById('statHorses').textContent = `${stats.horsesWon}/${stats.horsesPlayed}`;
+            const horsesRate = stats.horsesPlayed > 0 ? Math.round((stats.horsesWon / stats.horsesPlayed) * 100) : 0;
+            document.getElementById('statHorsesRate').textContent = horsesRate + '% win';
             
             // Update chart
             updateBalanceChart();
@@ -1125,7 +1939,13 @@
                 const div = document.createElement('div');
                 div.className = `history-item ${item.result}`;
                 
-                const gameIcon = item.game === 'slots' ? '🎰' : item.game === 'blackjack' ? '🃏' : '🎡';
+                const gameIcons = {
+                    'slots': '🎰',
+                    'blackjack': '🃏',
+                    'roulette': '🎡',
+                    'horses': '🐴'
+                };
+                const gameIcon = gameIcons[item.game] || '🎮';
                 const resultText = item.result === 'win' 
                     ? `+$${item.winAmount}` 
                     : `-$${item.bet}`;
@@ -1160,6 +1980,9 @@
                 document.getElementById('rouletteGame').classList.add('active');
                 selectedRouletteBetType = null;
                 document.getElementById('selectedBet').textContent = 'None';
+            } else if (game === 'horses') {
+                document.getElementById('horsesGame').classList.add('active');
+                resetHorseRacing();
             }
         }
 
@@ -1234,8 +2057,14 @@
                 createParticles(reel1Elem.offsetLeft + reel1Elem.offsetWidth / 2, 
                                reel1Elem.offsetTop + reel1Elem.offsetHeight / 2, '💰', 10);
                 
+                // Show big win overlay for large wins
+                if (winnings >= bet * 5) {
+                    showBigWin(winnings);
+                }
+                
                 showMessage('slotsMessage', `JACKPOT! You won $${winnings}! 🎉`, 'win');
                 addXP(multiplier * 3);
+                playSound('win');
                 
                 if (winnings - bet > gameState.stats.biggestWin) {
                     gameState.stats.biggestWin = winnings - bet;
@@ -1253,10 +2082,12 @@
                 
                 showMessage('slotsMessage', `Nice! You won $${winnings}! 🎊`, 'win');
                 addXP(5);
+                playSound('win');
             } else {
                 gameState.totalWinnings -= bet;
                 showMessage('slotsMessage', `Sorry, you lost $${bet}. Try again!`, 'lose');
                 addXP(1);
+                playSound('lose');
             }
             
             addToHistory('slots', bet, won ? 'win' : 'lose', won ? winnings - bet : 0);
@@ -1374,6 +2205,7 @@
             } else if (playerScore < dealerScore) {
                 endBlackjackRound(false, 'Dealer wins!');
             } else {
+                playSound('push');
                 gameState.balance += gameState.currentBet;
                 updateDisplay();
                 showMessage('blackjackMessage', 'Push! Bet returned.', 'win');
@@ -1392,8 +2224,14 @@
                 createParticles(cardsDiv.offsetLeft + cardsDiv.offsetWidth / 2, 
                                cardsDiv.offsetTop + cardsDiv.offsetHeight / 2, '🎉', 8);
                 
+                // Show big win for large bets
+                if (gameState.currentBet >= 100) {
+                    showBigWin(gameState.currentBet * 2);
+                }
+                
                 showMessage('blackjackMessage', message, 'win');
                 addXP(10);
+                playSound('win');
                 
                 if (gameState.currentBet > gameState.stats.biggestWin) {
                     gameState.stats.biggestWin = gameState.currentBet;
@@ -1404,6 +2242,7 @@
                 gameState.totalWinnings -= gameState.currentBet;
                 showMessage('blackjackMessage', message, 'lose');
                 addXP(2);
+                playSound('lose');
                 addToHistory('blackjack', gameState.currentBet, 'lose', 0);
             }
             updateBalanceHistory();
@@ -1540,10 +2379,14 @@
                 
                 if (multiplier === 36) {
                     createConfetti(50);
+                    showBigWin(winnings);
+                } else if (winnings >= bet * 5) {
+                    showBigWin(winnings);
                 }
                 
                 showMessage('rouletteMessage', `Number ${number}! You won $${winnings}! 🎉`, 'win');
                 addXP(multiplier);
+                playSound('win');
                 
                 if (winnings - bet > gameState.stats.biggestWin) {
                     gameState.stats.biggestWin = winnings - bet;
@@ -1554,6 +2397,7 @@
                 gameState.totalWinnings -= bet;
                 showMessage('rouletteMessage', `Number ${number}. You lost $${bet}. Try again!`, 'lose');
                 addXP(1);
+                playSound('lose');
                 addToHistory('roulette', bet, 'lose', 0);
             }
 
@@ -1575,6 +2419,169 @@
             setTimeout(() => {
                 msgElement.classList.add('hidden');
             }, 4000);
+        }
+
+        // HORSE RACING
+        const horseNames = ['Thunder', 'Lightning', 'Champion', 'Spirit', 'Rocket'];
+        const horseOdds = [3, 4, 5, 4, 6]; // Payout multipliers
+
+        document.getElementById('horsesBet').addEventListener('input', function() {
+            document.getElementById('horsesBetDisplay').textContent = this.value;
+        });
+
+        function selectHorse(horseNum) {
+            if (isRacing) return;
+            
+            selectedHorseNumber = horseNum;
+            document.getElementById('selectedHorse').textContent = `#${horseNum} ${horseNames[horseNum - 1]}`;
+            document.getElementById('raceBtn').disabled = false;
+            
+            // Update UI
+            document.querySelectorAll('.horse-card').forEach((card, index) => {
+                if (index + 1 === horseNum) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+            
+            playSound('click');
+        }
+
+        function resetHorseRacing() {
+            selectedHorseNumber = null;
+            isRacing = false;
+            document.getElementById('selectedHorse').textContent = 'None';
+            document.getElementById('raceBtn').disabled = true;
+            document.querySelectorAll('.horse-card').forEach(card => card.classList.remove('selected'));
+            
+            // Reset horse positions
+            for (let i = 1; i <= 5; i++) {
+                const horse = document.getElementById('horse' + i);
+                horse.style.left = '50px';
+                horse.classList.remove('racing');
+            }
+        }
+
+        function startRace() {
+            if (!selectedHorseNumber || isRacing) return;
+            
+            const bet = parseInt(document.getElementById('horsesBet').value);
+            if (bet < 10 || bet > gameState.balance) {
+                showMessage('horsesMessage', 'Invalid bet amount!', 'lose');
+                return;
+            }
+
+            gameState.balance -= bet;
+            gameState.stats.totalBet += bet;
+            gameState.stats.horsesPlayed++;
+            updateDisplay();
+
+            isRacing = true;
+            document.getElementById('raceBtn').disabled = true;
+            document.getElementById('horsesMessage').classList.add('hidden');
+
+            // Add racing animation
+            const horses = [];
+            for (let i = 1; i <= 5; i++) {
+                const horse = document.getElementById('horse' + i);
+                horse.classList.add('racing');
+                horses.push({
+                    element: horse,
+                    position: 50,
+                    speed: 0
+                });
+            }
+
+            // Determine winner (with some randomness but weighted)
+            const weights = [1.2, 1.0, 0.8, 1.0, 0.7]; // Higher = more likely to win
+            const winner = weightedRandom(weights) + 1;
+
+            // Animate the race
+            let raceFinished = false;
+            const raceInterval = setInterval(() => {
+                for (let i = 0; i < 5; i++) {
+                    // Random speed with winner getting slight advantage
+                    const baseSpeed = 3 + Math.random() * 4;
+                    const speedBonus = (i + 1 === winner) ? 1.5 : 0;
+                    horses[i].speed = baseSpeed + speedBonus + Math.random() * 2;
+                    horses[i].position += horses[i].speed;
+                    horses[i].element.style.left = horses[i].position + 'px';
+
+                    // Check if horse crossed finish line
+                    const trackWidth = horses[i].element.parentElement.offsetWidth;
+                    if (horses[i].position >= trackWidth - 100 && !raceFinished) {
+                        raceFinished = true;
+                        clearInterval(raceInterval);
+                        finishRace(i + 1, bet);
+                    }
+                }
+            }, 50);
+        }
+
+        function weightedRandom(weights) {
+            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (let i = 0; i < weights.length; i++) {
+                random -= weights[i];
+                if (random <= 0) return i;
+            }
+            return weights.length - 1;
+        }
+
+        function finishRace(winningHorse, bet) {
+            // Remove racing animation
+            for (let i = 1; i <= 5; i++) {
+                const horse = document.getElementById('horse' + i);
+                horse.classList.remove('racing');
+            }
+
+            const won = (winningHorse === selectedHorseNumber);
+            
+            if (won) {
+                const multiplier = horseOdds[selectedHorseNumber - 1];
+                const winnings = bet * multiplier;
+                gameState.balance += winnings;
+                gameState.totalWinnings += winnings - bet;
+                gameState.stats.horsesWon++;
+                
+                // Celebration effects
+                const horseCard = document.querySelector(`.horse-card:nth-child(${selectedHorseNumber})`);
+                createParticles(window.innerWidth / 2, window.innerHeight / 2, '🏆', 15);
+                
+                if (winnings >= bet * 4) {
+                    showBigWin(winnings);
+                }
+                
+                showMessage('horsesMessage', 
+                    `🏆 Horse #${winningHorse} ${horseNames[winningHorse - 1]} wins! You won $${winnings}!`, 
+                    'win');
+                addXP(multiplier * 2);
+                playSound('win');
+                
+                if (winnings - bet > gameState.stats.biggestWin) {
+                    gameState.stats.biggestWin = winnings - bet;
+                }
+                
+                addToHistory('horses', bet, 'win', winnings - bet);
+            } else {
+                gameState.totalWinnings -= bet;
+                showMessage('horsesMessage', 
+                    `Horse #${winningHorse} ${horseNames[winningHorse - 1]} wins. You bet on #${selectedHorseNumber}. Better luck next time!`, 
+                    'lose');
+                addXP(1);
+                playSound('lose');
+                addToHistory('horses', bet, 'lose', 0);
+            }
+
+            updateBalanceHistory();
+            updateDisplay();
+
+            // Reset after delay
+            setTimeout(() => {
+                resetHorseRacing();
+            }, 3000);
         }
     </script>
 </body>
